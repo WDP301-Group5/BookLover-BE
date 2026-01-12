@@ -1,27 +1,11 @@
-import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-
-export interface IUser {
-	_id: string;
-	username: string;
-	password?: string;
-	email: string;
-	dob?: Date;
-	role: "admin" | "author" | "user";
-	status: "active" | "inactive" | "banned";
-	avatarURL: string;
-	backgroundURL: string;
-	vipLevel?: number | 0;
-	totalSpent?: number | 0;
-	fortuneOints: number;
-	createdAt?: Date;
-	updatedAt?: Date;
-}
+import type { IUser } from "../interfaces/user.js";
 
 const userSchema = new mongoose.Schema(
 	{
-		username: { type: String, required: true, unique: true },
-		password: { type: String, required: true },
+		fullName: { type: String, required: true },
+		nickName: { type: String },
+		penName: { type: String },
 		email: { type: String, required: true, unique: true },
 		dob: { type: Date },
 		role: {
@@ -44,9 +28,11 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-	if (this.isModified("password")) {
-		const salt = bcrypt.genSaltSync(10);
-		this.password = bcrypt.hashSync(this.password, salt);
+	if (!this.nickName || this.nickName?.trim() === "") {
+		this.nickName = this.fullName;
+	}
+	if (!this.penName || this.penName?.trim() === "") {
+		this.penName = this.fullName;
 	}
 });
 
