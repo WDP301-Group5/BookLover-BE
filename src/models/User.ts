@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
 		backgroundURL: { type: String, default: "" },
 		vipLevel: { type: Number, default: 0 },
 		totalSpent: { type: Number, default: 0 },
-		fortuneOints: { type: Number, default: 0 },
+		spiritStones: { type: Number, default: 0 },
 	},
 	{ timestamps: true },
 );

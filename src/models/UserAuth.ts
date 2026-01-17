@@ -13,14 +13,11 @@ const userAuthSchema = new mongoose.Schema(
 		email: { type: String, required: true, unique: true },
 		password: { type: String },
 		providerUserId: { type: String },
-		provider: { type: String, default: "local" },
+		provider: { type: String, default: "local" }, // có thể là local hoaặc google
 		lastLoginAt: { type: Date },
 	},
 	{ timestamps: true },
 );
-
-userAuthSchema.index({ email: 1 }, { unique: true });
-userAuthSchema.index({ userId: 1 }, { unique: true });
 
 userAuthSchema.pre("save", async function () {
 	if (!this.email || this.email?.trim() === "") {

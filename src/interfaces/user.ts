@@ -11,7 +11,7 @@ export interface IUser {
 	backgroundURL?: string;
 	vipLevel?: number | 0;
 	totalSpent?: number | 0;
-	fortunePoints: number | 0;
+	spiritStones: number | 0;
 	createdAt?: Date;
 	updatedAt?: Date;
 }
