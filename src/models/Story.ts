@@ -25,7 +25,8 @@ const storySchema = new mongoose.Schema(
 			required: true,
 		},
 		topics: {
-			type: [String],
+			type: [mongoose.Schema.Types.ObjectId],
+			ref: "Topic",
 			required: true,
 		},
 		tags: {
@@ -70,5 +71,7 @@ const storySchema = new mongoose.Schema(
 		timestamps: true,
 	},
 );
+
+storySchema.index({ topics: 1, views: -1 });
 
 export const Story = mongoose.model<IStory>("Story", storySchema);
