@@ -13,6 +13,7 @@ import { apiRateLimit } from "./config/rateLimit.js";
 import client from "./config/redis.js";
 import routes from "./routes/index.js";
 import socketHandler from "./services/socketService.js";
+import "./models/index.js";
 
 // Load biến môi trường
 dotenv.config();
