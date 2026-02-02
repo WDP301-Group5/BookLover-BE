@@ -22,3 +22,7 @@ build/
 *.tsbuildinfo
 src/config/config.js
 test.js
+.github/agents
+.github/prompts
+.github/skills
+openspec
