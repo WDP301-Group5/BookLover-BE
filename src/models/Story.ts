@@ -1,3 +1,4 @@
+// src/models/Story.ts
 import mongoose from "mongoose";
 import type { IStory } from "../interfaces/story";
 
@@ -25,7 +26,8 @@ const storySchema = new mongoose.Schema(
 			required: true,
 		},
 		topics: {
-			type: [String],
+			type: [mongoose.Schema.Types.ObjectId],
+			ref: "Topic",
 			required: true,
 		},
 		tags: {

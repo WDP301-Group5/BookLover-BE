@@ -1,4 +1,6 @@
+// src/models/Chapter.ts
 import mongoose from "mongoose";
+import type { IChapter } from "../interfaces/chapter";
 
 const chapterSchema = new mongoose.Schema(
 	{
@@ -31,4 +33,4 @@ const chapterSchema = new mongoose.Schema(
 	},
 );
 
-export const Chapter = mongoose.model("Chapter", chapterSchema);
+export const Chapter = mongoose.model<IChapter>("Chapter", chapterSchema);
