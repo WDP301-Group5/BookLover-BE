@@ -1,3 +1,4 @@
+// src/models/Story.ts
 import mongoose from "mongoose";
 import type { IStory } from "../interfaces/story";
 

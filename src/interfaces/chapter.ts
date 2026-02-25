@@ -1,3 +1,4 @@
+// src/interfaces/chapter.ts
 const ChapterStatus = [
 	"draft", // tác giả lưu nháp
 	"active", // puclic chương

@@ -1,3 +1,4 @@
+// src/interfaces/story.ts
 const StoryStatus = [
 	"draft", // Tác giả lưu nháp
 	"pending", // Truyện chờ duyệt
