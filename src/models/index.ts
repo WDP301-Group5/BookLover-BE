@@ -6,7 +6,7 @@ import "./Transaction";
 import "./Story";
 import "./Chapter";
 import "./ReadingHistory";
-// import "./StoryView";
+import "./StoryView";
 import "./Comment";
 import "./Rate";
 import "./FollowStory";

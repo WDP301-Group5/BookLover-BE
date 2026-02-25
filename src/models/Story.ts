@@ -73,4 +73,6 @@ const storySchema = new mongoose.Schema(
 	},
 );
 
+storySchema.index({ topics: 1, views: -1 });
+
 export const Story = mongoose.model<IStory>("Story", storySchema);

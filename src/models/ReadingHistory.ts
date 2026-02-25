@@ -21,6 +21,8 @@ const readinghistorySchema = new mongoose.Schema(
 	{ timestamps: true },
 );
 
+readinghistorySchema.index({ userId: 1, updatedAt: -1 });
+
 export const ReadingHistory = mongoose.model<IReadingHistory>(
 	"ReadingHistory",
 	readinghistorySchema,
