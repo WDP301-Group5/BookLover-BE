@@ -1,6 +1,7 @@
 import express from "express";
 import authRouter from "./authRoutes.js";
 import chapterRouter from "./chapterPage.js";
+import genreRouter from "./genreRoutes.js";
 import storyRouter from "./storyRoutes.js";
 import userRouter from "./userRoutes.js";
 
@@ -10,5 +11,6 @@ routes.use("/auth", authRouter);
 routes.use("/users", userRouter);
 routes.use("/story", storyRouter);
 routes.use("/chapter", chapterRouter);
+routes.use("/genres", genreRouter);
 
 export default routes;

@@ -188,3 +188,24 @@ export const uploadTextFile = (
 		next();
 	});
 };
+
+export const uploadGenreAvatar = (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	uploadImage.single("avatar")(req, res, (err) => {
+		if (err) {
+			console.error("Upload lỗi:", err);
+			return res
+				.status(ERR_SERVICE_UNAVAILABLE)
+				.json({ error: "Lỗi upload ảnh ", errorDetail: err?.message });
+		}
+
+		if (req.file) {
+			req.body.avatar = req.file.path;
+		}
+
+		next();
+	});
+};

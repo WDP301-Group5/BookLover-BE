@@ -5,9 +5,10 @@ export const DOTENV = {
 	PORT: process.env.PORT,
 	BASE_URL: process.env.BASE_URL,
 	// cloudinary
-	CLOUD_NAME: process.env.CLOUD_NAME,
-	CLOUD_API_KEY: process.env.CLOUD_API_KEY,
-	CLOUD_API_SECRET: process.env.CLOUD_API_SECRET,
+	CLOUD_NAME: process.env.CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME,
+	CLOUD_API_KEY: process.env.CLOUD_API_KEY || process.env.CLOUDINARY_API_KEY,
+	CLOUD_API_SECRET:
+		process.env.CLOUD_API_SECRET || process.env.CLOUDINARY_API_SECRET,
 	CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
 	CLOUDINARY_URL: process.env.CLOUDINARY_URL,
 	// mongo
