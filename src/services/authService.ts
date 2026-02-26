@@ -1,4 +1,5 @@
 import { OAuth2Client } from "google-auth-library";
+import { DOTENV } from "../consts/dotenv.js";
 import { User } from "../models/User.js";
 import { UserAuth } from "../models/UserAuth.js";
 import {
@@ -8,7 +9,7 @@ import {
 } from "../utils/hashPassword.js";
 import type { LoginInput } from "../utils/validation.js";
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(DOTENV.GOOGLE_CLIENT_ID);
 
 export interface AuthResponse {
 	success: boolean;
@@ -101,7 +102,7 @@ export const googleLogin = async (
 		// Verify Google token
 		const ticket = await googleClient.verifyIdToken({
 			idToken: googleToken,
-			audience: process.env.GOOGLE_CLIENT_ID,
+			audience: DOTENV.GOOGLE_CLIENT_ID,
 		});
 
 		const payload = ticket.getPayload();

@@ -1,12 +1,9 @@
-import dotenv from "dotenv";
 import mongoose from "mongoose";
+import { DOTENV } from "../consts/dotenv";
 
-dotenv.config();
 mongoose.set("bufferCommands", false);
 
-const MONGO_URI: string =
-	process.env.MONGO_URI ?? "mongodb://127.0.0.1:27017/WDP301_BookLover";
-// nếu server lỗi thì sẽ kết nối đến local
+const MONGO_URI = DOTENV.MONGO_URI;
 
 const connectDB = async (): Promise<void> => {
 	let timeoutHandle: NodeJS.Timeout | null = null;
@@ -22,7 +19,7 @@ const connectDB = async (): Promise<void> => {
 				timeoutHandle = setTimeout(() => {
 					reject(
 						new Error(
-							"❌❌❌❌❌ Connect to Mongodb server failed. Error timeout after 5s",
+							"❌ Connect to Mongodb server failed. Error timeout after 5s",
 						),
 					);
 				}, 5000);
@@ -30,15 +27,15 @@ const connectDB = async (): Promise<void> => {
 		]);
 		// Kiểm tra xem kết nối MongoDB Atlas hay MongoDB local
 		if (MONGO_URI.includes("srv")) {
-			console.log("MongoDB connected successfully! (Server)");
+			console.log("✅ MongoDB connected successfully! (Server)");
 		} else {
-			console.log("MongoDB connected successfully! (Local)");
+			console.log("✅ MongoDB connected successfully! (Local)");
 		}
 	} catch (err: unknown) {
 		if (err instanceof Error) {
-			console.error("MongoDB connection failed:", err.message);
+			console.error("❌ MongoDB connection failed:", err.message);
 		} else {
-			console.error("MongoDB connection failed:", err);
+			console.error("❌ MongoDB connection failed:", err);
 		}
 		process.exit(1);
 	} finally {

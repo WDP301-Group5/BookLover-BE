@@ -1,17 +1,19 @@
 import { createClient, type RedisClientType } from "redis";
+import { DOTENV } from "../consts/dotenv";
 
 const client: RedisClientType = createClient({
 	socket: {
-		host: process.env.REDIS_HOST ?? "localhost",
-		port: Number(process.env.REDIS_PORT ?? 6379),
+		host: DOTENV.REDIS_HOST,
+		port: DOTENV.REDIS_PORT,
 	},
+	username: DOTENV.REDIS_USERNAME,
+	password: DOTENV.REDIS_PASSWORD,
 });
 
 console.log("Redis connecting...");
 
-client.on("connect", () => console.log("✅✅✅✅✅ Redis connected"));
-client.on("ready", () => console.log("Redis ready."));
-client.on("error", (err) => console.log("❌❌❌❌❌ Redis error:", err));
+client.on("ready", () => console.log("✅ Redis ready."));
+client.on("error", (err) => console.log("❌ Redis error:", err));
 
 async function initRedis(): Promise<void> {
 	try {

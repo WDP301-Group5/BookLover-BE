@@ -1,11 +1,12 @@
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { DOTENV } from "../consts/dotenv";
 
 cloudinary.config({
-	cloud_name: process.env.CLOUD_NAME,
-	api_key: process.env.CLOUD_API_KEY,
-	api_secret: process.env.CLOUD_API_SECRET,
+	cloud_name: DOTENV.CLOUD_NAME,
+	api_key: DOTENV.CLOUD_API_KEY,
+	api_secret: DOTENV.CLOUD_API_SECRET,
 });
 
 const imageStorage = new CloudinaryStorage({

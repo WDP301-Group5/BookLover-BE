@@ -1,13 +1,14 @@
 import nodemailer from "nodemailer";
-import logger from "../utils/logger.js";
+import { DOTENV } from "../consts/dotenv";
+import logger from "../utils/logger";
 
 const transporter = nodemailer.createTransport({
-	host: process.env.EMAIL_HOST,
-	port: Number(process.env.EMAIL_PORT || 587),
+	host: DOTENV.EMAIL_HOST,
+	port: DOTENV.EMAIL_PORT,
 	secure: false,
 	auth: {
-		user: process.env.EMAIL_USER,
-		pass: process.env.EMAIL_PASS,
+		user: DOTENV.EMAIL_USER,
+		pass: DOTENV.EMAIL_PASS,
 	},
 });
 
@@ -16,7 +17,7 @@ export async function sendPaymentConfirmation(toEmail, order, payment) {
 	const text = `Payment ${payment.transactionId} succeeded. Amount: ${payment.amount}. Order: ${order._id}`;
 	try {
 		await transporter.sendMail({
-			from: process.env.EMAIL_USER,
+			from: DOTENV.EMAIL_USER,
 			to: toEmail,
 			subject,
 			text,
@@ -35,7 +36,7 @@ export async function sendShippingStatusEmail(toEmail, shipping) {
 	const text = `Tracking ${shipping.trackingNumber} - status: ${shipping.status}`;
 	try {
 		await transporter.sendMail({
-			from: process.env.EMAIL_USER,
+			from: DOTENV.EMAIL_USER,
 			to: toEmail,
 			subject,
 			text,

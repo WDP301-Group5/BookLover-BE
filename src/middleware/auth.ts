@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { DOTENV } from "../consts/dotenv.js";
 import { ERR_INVALID_TOKEN } from "../consts/errorCode.js";
 import type { JwtPayload } from "../interfaces/jwtPayload.js";
 
@@ -19,10 +20,7 @@ export const verifyToken = (
 
 	const token = header.split(" ")[1];
 	try {
-		const decoded = jwt.verify(
-			token,
-			process.env.JWT_ACCESS_SECRET ?? "access_secret",
-		) as JwtPayload;
+		const decoded = jwt.verify(token, DOTENV.JWT_ACCESS_SECRET) as JwtPayload;
 
 		(req as Request & { user?: JwtPayload }).user = decoded;
 		// { id, fullName, nickName?, role }
