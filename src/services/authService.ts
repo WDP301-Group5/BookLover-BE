@@ -21,10 +21,31 @@ export interface AuthResponse {
   };
 }
 
+const verifyCaptcha = async (token: string): Promise<void> => {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) throw new Error("reCAPTCHA secret key is not configured");
+
+  const response = await fetch(
+    `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`,
+    { method: "POST" },
+  );
+  const data = (await response.json()) as {
+    success: boolean;
+    "error-codes"?: string[];
+  };
+
+  if (!data.success) {
+    throw new Error("reCAPTCHA verification failed. Please try again.");
+  }
+};
+
 export const loginUser = async (
   credentials: LoginInput,
 ): Promise<AuthResponse> => {
-  const { email, password } = credentials;
+  const { email, password, captchaToken } = credentials;
+
+  // Verify reCAPTCHA first
+  await verifyCaptcha(captchaToken);
 
   // Find user auth by email
   const userAuth = await UserAuth.findOne({ email: email.toLowerCase() });
