@@ -6,6 +6,15 @@ import type { JwtPayload } from "../interfaces/jwtPayload.js";
 /**
  * Middleware bảo vệ route cần Access Token
  */
+
+// khai báo kiểu dữ liệu global cho req
+declare global {
+	namespace Express {
+		interface Request {
+			user?: JwtPayload;
+		}
+	}
+}
 export const verifyToken = (
 	req: Request,
 	res: Response,
@@ -24,7 +33,7 @@ export const verifyToken = (
 			process.env.JWT_ACCESS_SECRET ?? "access_secret",
 		) as JwtPayload;
 
-		(req as Request & { user?: JwtPayload }).user = decoded;
+		req.user = decoded;
 		// { id, fullName, nickName?, role }
 
 		next();
