@@ -6,6 +6,8 @@ export interface ITransaction {
 	spiritStones: number;
 	stoneBefore: number;
 	stoneAfter: number;
+	startAt: Date;
+	endAt: Date;
 	status: "success" | "failed" | "pending";
 	createdAt?: Date;
 	updatedAt?: Date;

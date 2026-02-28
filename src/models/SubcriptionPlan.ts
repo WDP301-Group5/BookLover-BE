@@ -9,6 +9,7 @@ const subcriptionPlanSchema = new mongoose.Schema(
 		description: { type: String, required: true },
 		spiritStones: { type: Number, required: true },
 		extendedTime: { type: String, required: true },
+		soldCount: { type: Number, default: 0 },
 		status: {
 			type: String,
 			enum: ["active", "inactive", "pending"],
