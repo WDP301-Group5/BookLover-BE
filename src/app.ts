@@ -1,3 +1,4 @@
+// src/app.ts
 import { createServer } from "node:http";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -69,4 +70,4 @@ io.on("connection", (socket) => {
 	});
 });
 
-export default app;
+export default httpServer;

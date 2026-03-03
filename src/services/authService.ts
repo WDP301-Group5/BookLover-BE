@@ -1,11 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { User } from "../models/User.js";
 import { UserAuth } from "../models/UserAuth.js";
-import {
-	comparePassword,
-	generateAccessToken,
-	generateRefreshToken,
-} from "../utils/hashPassword.js";
+import { comparePassword, generateAccessToken } from "../utils/hashPassword.js";
 import type { LoginInput } from "../utils/validation.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -13,7 +9,6 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export interface AuthResponse {
 	success: boolean;
 	accessToken: string;
-	refreshToken: string;
 	user: {
 		id: string;
 		email: string;
@@ -26,37 +21,60 @@ export interface AuthResponse {
 	};
 }
 
+const verifyCaptcha = async (token: string): Promise<void> => {
+	const secret = process.env.RECAPTCHA_SECRET_KEY;
+	if (!secret) throw new Error("reCAPTCHA secret key is not configured");
+
+	const response = await fetch(
+		`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`,
+		{ method: "POST" },
+	);
+	const data = (await response.json()) as {
+		success: boolean;
+		"error-codes"?: string[];
+	};
+
+	if (!data.success) {
+		throw new Error("reCAPTCHA verification failed. Please try again.");
+	}
+};
+
 export const loginUser = async (
 	credentials: LoginInput,
 ): Promise<AuthResponse> => {
-	const { email, password } = credentials;
+	const { email, password, captchaToken } = credentials;
+
+	// Verify reCAPTCHA first
+	await verifyCaptcha(captchaToken);
 
 	// Find user auth by email
 	const userAuth = await UserAuth.findOne({ email: email.toLowerCase() });
 	if (!userAuth) {
-		throw new Error("Invalid email or password");
+		throw new Error("Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại");
 	}
 
 	// Check if password exists (not OAuth users)
 	if (!userAuth.password) {
-		throw new Error("This account uses OAuth login");
+		throw new Error(
+			"Tài khoản này sử dụng đăng nhập Google. Vui lòng đăng nhập bằng Google.",
+		);
 	}
 
 	// Verify password
 	const isPasswordValid = comparePassword(password, userAuth.password);
 	if (!isPasswordValid) {
-		throw new Error("Invalid email or password");
+		throw new Error("Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại");
 	}
 
 	// Find user profile
 	const user = await User.findById(userAuth.userId);
 	if (!user) {
-		throw new Error("User profile not found");
+		throw new Error("Hồ sơ người dùng không tồn tại.");
 	}
 
 	// Check if user is banned
 	if (user.status === "banned") {
-		throw new Error("Account has been banned");
+		throw new Error("Tài khoản đã bị khóa.");
 	}
 
 	// Update last login
@@ -70,8 +88,7 @@ export const loginUser = async (
 		role: user.role,
 	};
 
-	const accessToken = generateAccessToken(tokenPayload);
-	const refreshToken = generateRefreshToken(
+	const accessToken = generateAccessToken(
 		tokenPayload,
 		credentials.rememberMe || false,
 	);
@@ -79,7 +96,6 @@ export const loginUser = async (
 	return {
 		success: true,
 		accessToken,
-		refreshToken,
 		user: {
 			id: user._id.toString(),
 			email: user.email,
@@ -106,7 +122,7 @@ export const googleLogin = async (
 
 		const payload = ticket.getPayload();
 		if (!payload || !payload.email) {
-			throw new Error("Invalid Google token");
+			throw new Error("Không thể xác thực với Google. Vui lòng thử lại.");
 		}
 
 		const { email, name, sub: googleId, picture } = payload;
@@ -120,7 +136,7 @@ export const googleLogin = async (
 			// Existing user - check if it's a Google account
 			if (userAuth.provider === "local") {
 				throw new Error(
-					"This email is already registered with a password. Please use email/password login.",
+					"Email này đã được đăng ký với mật khẩu. Vui lòng đăng nhập bằng email/mật khẩu hoặc đặt lại mật khẩu nếu bạn quên.",
 				);
 			}
 
@@ -132,7 +148,7 @@ export const googleLogin = async (
 
 			user = await User.findById(userAuth.userId);
 			if (!user) {
-				throw new Error("User profile not found");
+				throw new Error("Hồ sơ người dùng không tồn tại.");
 			}
 		} else {
 			// New user - create both User and UserAuth
@@ -158,7 +174,7 @@ export const googleLogin = async (
 
 		// Check if user is banned
 		if (user.status === "banned") {
-			throw new Error("Account has been banned");
+			throw new Error("Tài khoản đã bị khóa.");
 		}
 
 		// Update last login
@@ -172,13 +188,11 @@ export const googleLogin = async (
 			role: user.role,
 		};
 
-		const accessToken = generateAccessToken(tokenPayload);
-		const refreshToken = generateRefreshToken(tokenPayload, rememberMe);
+		const accessToken = generateAccessToken(tokenPayload, rememberMe);
 
 		return {
 			success: true,
 			accessToken,
-			refreshToken,
 			user: {
 				id: user._id.toString(),
 				email: user.email,
@@ -194,6 +208,6 @@ export const googleLogin = async (
 		if (error instanceof Error) {
 			throw error;
 		}
-		throw new Error("Google authentication failed");
+		throw new Error("Đăng nhập Google thất bại. Vui lòng thử lại.");
 	}
 };

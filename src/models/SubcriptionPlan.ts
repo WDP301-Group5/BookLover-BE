@@ -3,6 +3,7 @@ import type { ISubcriptionPlan } from "../interfaces/subcriptionPlan";
 
 const subcriptionPlanSchema = new mongoose.Schema(
 	{
+		id: { type: mongoose.Schema.Types.ObjectId, required: true },
 		name: { type: String, required: true },
 		level: { type: Number, required: true, min: 1, max: 10 },
 		features: { type: [String], required: true },

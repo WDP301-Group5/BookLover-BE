@@ -74,3 +74,65 @@ export const getTop10Story = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+export const createStory = async (req: Request, res: Response) => {
+	try {
+		const story = await StoryService.createStory(req.body);
+		return res.status(SUCCESS_OK).json(story);
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi tạo truyện",
+			error: error,
+		});
+	}
+};
+
+export const getStories = async (_: Request, res: Response) => {
+	try {
+		const stories = await StoryService.getStories();
+		return res.status(SUCCESS_OK).json(stories);
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi lấy danh sách truyện",
+			error: error,
+		});
+	}
+};
+
+export const getStoryBySlug = async (req: Request, res: Response) => {
+	try {
+		const story = await StoryService.getStoryBySlug(req.params.slug);
+		return res.status(SUCCESS_OK).json(story);
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi lấy truyện theo slug",
+			error: error,
+		});
+	}
+};
+
+export const updateStory = async (req: Request, res: Response) => {
+	try {
+		const story = await StoryService.updateStory(req.params.id, req.body);
+		return res.status(SUCCESS_OK).json(story);
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi cập nhật truyện",
+			error: error,
+		});
+	}
+};
+
+export const deleteStory = async (req: Request, res: Response) => {
+	try {
+		await StoryService.deleteStory(req.params.id);
+		return res
+			.status(SUCCESS_OK)
+			.json({ message: "Story deleted successfully" });
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi xóa truyện",
+			error: error,
+		});
+	}
+};

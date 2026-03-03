@@ -2,8 +2,9 @@ import { z } from "zod";
 
 export const loginSchema = z.object({
 	email: z.email("Invalid email format"),
-	password: z.string().min(6, "Password must be at least 6 characters"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
 	rememberMe: z.boolean().optional(),
+	captchaToken: z.string().min(1, "reCAPTCHA token is required"),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -14,3 +15,10 @@ export const googleLoginSchema = z.object({
 });
 
 export type GoogleLoginInput = z.infer<typeof googleLoginSchema>;
+
+export const slugify = (str: string) =>
+	str
+		.toLowerCase()
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/\s+/g, "-");

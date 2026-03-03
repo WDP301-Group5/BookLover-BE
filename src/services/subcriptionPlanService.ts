@@ -6,6 +6,9 @@ const SubcriptionPlanService = {
 			const plans = await SubcriptionPlan.find({ status: "active" }).sort({
 				level: 1,
 			});
+			plans.forEach((plan) => {
+				plan.id = plan._id.toString();
+			});
 			return plans;
 		} catch (error) {
 			throw new Error(`Error fetching subscription plans: ${error}`);

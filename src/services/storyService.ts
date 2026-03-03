@@ -1,8 +1,10 @@
 import type { IReadingHistory } from "../interfaces/readingHistory";
+import type { IStory } from "../interfaces/story";
 import { Chapter } from "../models/Chapter";
 import { ReadingHistory } from "../models/ReadingHistory";
 import { Story } from "../models/Story";
 import { StoryView } from "../models/StoryView";
+import { slugify } from "../utils/validation";
 
 const StoryService = {
 	// gợi ý truyện dựa vào lịch sử đọc
@@ -63,7 +65,7 @@ const StoryService = {
 				},
 				{
 					$project: {
-						id: "$story.id",
+						id: "$story._id",
 						title: "$story.title",
 						slug: "$story.slug",
 						image: "$story.image",
@@ -147,7 +149,7 @@ const StoryService = {
 				},
 				{
 					$project: {
-						id: "$story.id",
+						id: "$story._id",
 						title: "$story.title",
 						slug: "$story.slug",
 						image: "$story.image",
@@ -267,7 +269,7 @@ const StoryService = {
 				},
 				{
 					$project: {
-						id: "$story.id",
+						id: "$story._id",
 						title: "$story.title",
 						slug: "$story.slug",
 						image: "$story.image",
@@ -357,7 +359,7 @@ const StoryService = {
 				},
 				{
 					$project: {
-						id: "$story.id",
+						id: "$story._id",
 						title: "$story.title",
 						slug: "$story.slug",
 						image: "$story.image",
@@ -368,7 +370,7 @@ const StoryService = {
 							nickName: "$author.nickName",
 							penName: "$author.penName",
 						},
-						topics: "$story.topics",
+						topics: "$topics.name",
 						tags: "$story.tags",
 						status: "$story.status",
 						isPremium: "$story.isPremium",
@@ -387,6 +389,62 @@ const StoryService = {
 		} catch (error) {
 			console.log("Error when get top viewed stories:", error);
 			throw new Error(`Error fetching top viewed stories: ${error}`);
+		}
+	},
+
+	async createStory(data: IStory) {
+		try {
+			let slug = slugify(data.title);
+			const slugCount = await Story.countDocuments({
+				slug: new RegExp(`^${slug}(-\\d+)?$`, "i"),
+			});
+			if (slugCount > 0) {
+				slug = `${slug}-${slugCount + 1}`;
+			}
+			const story = await Story.create({ ...data, slug });
+			return story;
+		} catch (error) {
+			throw new Error(`Error creating story: ${error}`);
+		}
+	},
+
+	async getStoryBySlug(slug: string) {
+		try {
+			const story = await Story.findOne({ slug }).populate("topics").lean();
+			if (!story) {
+				throw new Error("Story not found");
+			}
+			story.id = story._id.toString();
+			return story;
+		} catch (error) {
+			throw new Error(`Error fetching story by slug: ${error}`);
+		}
+	},
+
+	async getStories() {
+		try {
+			const stories = await Story.find({ status: "active" });
+			return stories;
+		} catch (error) {
+			throw new Error(`Error fetching stories: ${error}`);
+		}
+	},
+
+	async updateStory(id: string, data: Partial<IStory>) {
+		try {
+			const story = await Story.findByIdAndUpdate(id, data, { new: true });
+			return story;
+		} catch (error) {
+			throw new Error(`Error updating story: ${error}`);
+		}
+	},
+
+	async deleteStory(id: string) {
+		try {
+			await Story.findByIdAndDelete(id);
+			return { message: "Story deleted successfully" };
+		} catch (error) {
+			throw new Error(`Error deleting story: ${error}`);
 		}
 	},
 };
