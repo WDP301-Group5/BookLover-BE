@@ -3,12 +3,14 @@ import type { ISubcriptionPlan } from "../interfaces/subcriptionPlan";
 
 const subcriptionPlanSchema = new mongoose.Schema(
 	{
+		id: { type: mongoose.Schema.Types.ObjectId, required: true },
 		name: { type: String, required: true },
 		level: { type: Number, required: true, min: 1, max: 10 },
 		features: { type: [String], required: true },
 		description: { type: String, required: true },
 		spiritStones: { type: Number, required: true },
 		extendedTime: { type: String, required: true },
+		soldCount: { type: Number, default: 0 },
 		status: {
 			type: String,
 			enum: ["active", "inactive", "pending"],
