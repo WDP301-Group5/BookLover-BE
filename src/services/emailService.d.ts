@@ -1,17 +1,17 @@
 export function sendVerificationEmail(
-  email: string,
-  name: string,
-  token: string,
-  frontendUrl: string
+	email: string,
+	name: string,
+	token: string,
+	frontendUrl: string,
 ): Promise<void>;
 
 export function sendPaymentConfirmation(
-  toEmail: string,
-  order: any,
-  payment: any
+	toEmail: string,
+	order: unknown,
+	payment: unknown,
 ): Promise<void>;
 
 export function sendShippingStatusEmail(
-  toEmail: string,
-  shipping: any
+	toEmail: string,
+	shipping: unknown,
 ): Promise<void>;

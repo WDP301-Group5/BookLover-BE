@@ -1,10 +1,10 @@
-import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import { UserAuth } from "../models/UserAuth.js";
 import { comparePassword, generateAccessToken } from "../utils/hashPassword.js";
 import type { LoginInput, RegisterInput } from "../utils/validation.js";
-// @ts-ignore
+// @ts-expect-error
 import { sendVerificationEmail } from "./emailService.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -46,195 +46,195 @@ const verifyCaptcha = async (token: string): Promise<void> => {
  * Generate a JWT verification token for email verification.
  */
 const generateVerificationToken = (userId: string, email: string): string => {
-  const secret = process.env.JWT_ACCESS_SECRET || "access_secret";
-  return jwt.sign({ userId, email, purpose: "email-verification" }, secret, {
-    expiresIn: "24h",
-  });
+	const secret = process.env.JWT_ACCESS_SECRET || "access_secret";
+	return jwt.sign({ userId, email, purpose: "email-verification" }, secret, {
+		expiresIn: "24h",
+	});
 };
 
 export const registerUser = async (
-  data: RegisterInput,
+	data: RegisterInput,
 ): Promise<{ success: boolean; message: string }> => {
-  const { name, email, password, captchaToken } = data;
+	const { name, email, password, captchaToken } = data;
 
-  // Verify reCAPTCHA
-  await verifyCaptcha(captchaToken);
+	// Verify reCAPTCHA
+	await verifyCaptcha(captchaToken);
 
-  const emailLower = email.toLowerCase();
+	const emailLower = email.toLowerCase();
 
-  // Check if email already exists
-  const existingAuth = await UserAuth.findOne({ email: emailLower });
-  if (existingAuth) {
-    throw new Error(
-      "Email đã có sẵn trên hê thống. Vui lòng sử dụng email khác hoặc đăng nhập.",
-    );
-  }
+	// Check if email already exists
+	const existingAuth = await UserAuth.findOne({ email: emailLower });
+	if (existingAuth) {
+		throw new Error(
+			"Email đã có sẵn trên hê thống. Vui lòng sử dụng email khác hoặc đăng nhập.",
+		);
+	}
 
-  // Create User with inactive status (pending email verification)
-  const user = await User.create({
-    fullName: name,
-    email: emailLower,
-    role: "user",
-    status: "inactive",
-    avatarURL: "",
-    vipLevel: 0,
-    spiritStones: 0,
-    totalSpent: 0,
-  });
+	// Create User with inactive status (pending email verification)
+	const user = await User.create({
+		fullName: name,
+		email: emailLower,
+		role: "user",
+		status: "inactive",
+		avatarURL: "",
+		vipLevel: 0,
+		spiritStones: 0,
+		totalSpent: 0,
+	});
 
-  // Create UserAuth with local provider (password auto-hashed by pre-save hook)
-  await UserAuth.create({
-    userId: user._id,
-    email: emailLower,
-    provider: "local",
-    password: password,
-    username: emailLower.split("@")[0],
-  });
+	// Create UserAuth with local provider (password auto-hashed by pre-save hook)
+	await UserAuth.create({
+		userId: user._id,
+		email: emailLower,
+		provider: "local",
+		password: password,
+		username: emailLower.split("@")[0],
+	});
 
-  // Generate email verification token (24h expiry)
-  const verificationToken = generateVerificationToken(
-    user._id.toString(),
-    emailLower,
-  );
+	// Generate email verification token (24h expiry)
+	const verificationToken = generateVerificationToken(
+		user._id.toString(),
+		emailLower,
+	);
 
-  // Send verification email — rollback if it fails
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-  try {
-    await sendVerificationEmail(
-      emailLower,
-      name,
-      verificationToken,
-      frontendUrl,
-    );
-  } catch {
-    // Rollback: delete both records so user can try again
-    await UserAuth.deleteOne({ userId: user._id });
-    await User.findByIdAndDelete(user._id);
-    throw new Error(
-      "Không thể gửi email xác thực. Vui lòng kiểm tra lại địa chỉ email và thử đăng ký lại.",
-    );
-  }
+	// Send verification email — rollback if it fails
+	const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+	try {
+		await sendVerificationEmail(
+			emailLower,
+			name,
+			verificationToken,
+			frontendUrl,
+		);
+	} catch {
+		// Rollback: delete both records so user can try again
+		await UserAuth.deleteOne({ userId: user._id });
+		await User.findByIdAndDelete(user._id);
+		throw new Error(
+			"Không thể gửi email xác thực. Vui lòng kiểm tra lại địa chỉ email và thử đăng ký lại.",
+		);
+	}
 
-  return {
-    success: true,
-    message:
-      "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
-  };
+	return {
+		success: true,
+		message:
+			"Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
+	};
 };
 
 export const verifyEmail = async (
-  token: string,
+	token: string,
 ): Promise<{ success: boolean; message: string }> => {
-  const secret = process.env.JWT_ACCESS_SECRET || "access_secret";
+	const secret = process.env.JWT_ACCESS_SECRET || "access_secret";
 
-  let decoded: { userId: string; email: string; purpose: string };
-  try {
-    decoded = jwt.verify(token, secret) as {
-      userId: string;
-      email: string;
-      purpose: string;
-    };
-  } catch {
-    throw new Error(
-      "Link xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng ký lại.",
-    );
-  }
+	let decoded: { userId: string; email: string; purpose: string };
+	try {
+		decoded = jwt.verify(token, secret) as {
+			userId: string;
+			email: string;
+			purpose: string;
+		};
+	} catch {
+		throw new Error(
+			"Link xác thực không hợp lệ hoặc đã hết hạn. Vui lòng đăng ký lại.",
+		);
+	}
 
-  if (decoded.purpose !== "email-verification") {
-    throw new Error("Token không hợp lệ.");
-  }
+	if (decoded.purpose !== "email-verification") {
+		throw new Error("Token không hợp lệ.");
+	}
 
-  const user = await User.findById(decoded.userId);
-  if (!user) {
-    throw new Error("Người dùng không tồn tại.");
-  }
+	const user = await User.findById(decoded.userId);
+	if (!user) {
+		throw new Error("Người dùng không tồn tại.");
+	}
 
-  if (user.status === "active") {
-    return {
-      success: true,
-      message:
-        "Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.",
-    };
-  }
+	if (user.status === "active") {
+		return {
+			success: true,
+			message:
+				"Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.",
+		};
+	}
 
-  user.status = "active";
-  await user.save();
+	user.status = "active";
+	await user.save();
 
-  return {
-    success: true,
-    message:
-      "Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.",
-  };
+	return {
+		success: true,
+		message:
+			"Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.",
+	};
 };
 
 /**
  * Resend verification email for a user whose account is still inactive.
  */
 export const resendVerificationEmail = async (
-  email: string,
-  captchaToken: string,
+	email: string,
+	captchaToken: string,
 ): Promise<{ success: boolean; message: string }> => {
-  // Verify reCAPTCHA
-  await verifyCaptcha(captchaToken);
+	// Verify reCAPTCHA
+	await verifyCaptcha(captchaToken);
 
-  const emailLower = email.toLowerCase();
+	const emailLower = email.toLowerCase();
 
-  // Find auth record
-  const userAuth = await UserAuth.findOne({ email: emailLower });
-  if (!userAuth) {
-    // Don't reveal whether the email exists
-    return {
-      success: true,
-      message:
-        "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi lại email xác thực.",
-    };
-  }
+	// Find auth record
+	const userAuth = await UserAuth.findOne({ email: emailLower });
+	if (!userAuth) {
+		// Don't reveal whether the email exists
+		return {
+			success: true,
+			message:
+				"Nếu email tồn tại trong hệ thống, chúng tôi đã gửi lại email xác thực.",
+		};
+	}
 
-  // Find user profile
-  const user = await User.findById(userAuth.userId);
-  if (!user) {
-    return {
-      success: true,
-      message:
-        "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi lại email xác thực.",
-    };
-  }
+	// Find user profile
+	const user = await User.findById(userAuth.userId);
+	if (!user) {
+		return {
+			success: true,
+			message:
+				"Nếu email tồn tại trong hệ thống, chúng tôi đã gửi lại email xác thực.",
+		};
+	}
 
-  // Only resend for inactive (unverified) accounts
-  if (user.status === "active") {
-    throw new Error("Email này đã được xác thực. Vui lòng đăng nhập.");
-  }
+	// Only resend for inactive (unverified) accounts
+	if (user.status === "active") {
+		throw new Error("Email này đã được xác thực. Vui lòng đăng nhập.");
+	}
 
-  if (user.status === "banned") {
-    throw new Error("Tài khoản đã bị khóa.");
-  }
+	if (user.status === "banned") {
+		throw new Error("Tài khoản đã bị khóa.");
+	}
 
-  // Generate new verification token
-  const verificationToken = generateVerificationToken(
-    user._id.toString(),
-    emailLower,
-  );
+	// Generate new verification token
+	const verificationToken = generateVerificationToken(
+		user._id.toString(),
+		emailLower,
+	);
 
-  // Send verification email
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-  await sendVerificationEmail(
-    emailLower,
-    user.fullName,
-    verificationToken,
-    frontendUrl,
-  );
+	// Send verification email
+	const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+	await sendVerificationEmail(
+		emailLower,
+		user.fullName,
+		verificationToken,
+		frontendUrl,
+	);
 
-  return {
-    success: true,
-    message:
-      "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi lại email xác thực.",
-  };
+	return {
+		success: true,
+		message:
+			"Nếu email tồn tại trong hệ thống, chúng tôi đã gửi lại email xác thực.",
+	};
 };
 
 export const loginUser = async (
 	credentials: LoginInput,
 ): Promise<AuthResponse> => {
-  const { email, password } = credentials;
+	const { email, password } = credentials;
 
 	// Find user auth by email
 	const userAuth = await UserAuth.findOne({ email: email.toLowerCase() });
