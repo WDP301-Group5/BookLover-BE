@@ -1,6 +1,12 @@
 import express from "express";
 import { addNewReadingHistory } from "../controllers/readingHistoryController";
-import { getAllUsers, getLast3History } from "../controllers/userController";
+import {
+	getAllUsers,
+	getLast3History,
+	getProfile,
+	updateProfile,
+} from "../controllers/userController";
+import { verifyToken } from "../middleware/auth";
 
 const userRouter = express.Router();
 
@@ -8,5 +14,8 @@ const userRouter = express.Router();
 userRouter.get("/test", getAllUsers);
 userRouter.get("/history/last3", getLast3History);
 userRouter.put("/history/reading", addNewReadingHistory);
+
+userRouter.get("/profile", verifyToken, getProfile);
+userRouter.put("/profile", verifyToken, updateProfile);
 
 export default userRouter;
