@@ -4,7 +4,6 @@ import { User } from "../models/User.js";
 import { UserAuth } from "../models/UserAuth.js";
 import { comparePassword, generateAccessToken } from "../utils/hashPassword.js";
 import type { LoginInput, RegisterInput } from "../utils/validation.js";
-// @ts-expect-error
 import { sendVerificationEmail } from "./emailService.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
