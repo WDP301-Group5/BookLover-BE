@@ -7,6 +7,7 @@ import {
 	updateProfile,
 } from "../controllers/userController";
 import { verifyToken } from "../middleware/auth";
+import { uploadAvatarAndBackground } from "../middleware/upload";
 
 const userRouter = express.Router();
 
@@ -16,6 +17,11 @@ userRouter.get("/history/last3", getLast3History);
 userRouter.put("/history/reading", addNewReadingHistory);
 
 userRouter.get("/profile", verifyToken, getProfile);
-userRouter.put("/profile", verifyToken, updateProfile);
+userRouter.put(
+	"/profile",
+	verifyToken,
+	uploadAvatarAndBackground,
+	updateProfile,
+);
 
 export default userRouter;

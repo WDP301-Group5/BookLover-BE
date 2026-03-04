@@ -99,60 +99,93 @@ export const uploadBackgroundURL = (
 	});
 };
 
+// export const uploadAvatarAndBackground = (
+// 	req: Request,
+// 	res: Response,
+// 	next: NextFunction,
+// ) => {
+// 	// Cho phép upload 2 trường ảnh: 'avatarURL' và 'backgroundURL'
+// 	if (req.body.avatarURL && req.body.backgroundURL) {
+// 		uploadImage.fields([
+// 			{ name: "avatarURL", maxCount: 1 },
+// 			{ name: "backgroundURL", maxCount: 1 },
+// 		])(req, res, (err) => {
+// 			if (err) {
+// 				console.error("Upload lỗi:", err);
+// 				return res
+// 					.status(ERR_SERVICE_UNAVAILABLE)
+// 					.json({ error: "Lỗi upload ảnh", errorDetail: err.message });
+// 			}
+
+// 			// Nếu ảnh mới được upload, gán đường dẫn vào req.body
+// 			const files = req.files as {
+// 				[fieldname: string]: Express.Multer.File[];
+// 			};
+
+// 			if (files?.avatar?.[0]) {
+// 				req.body.avatar = files.avatar[0].path;
+// 			} else if (
+// 				typeof req.body.avatar === "string" &&
+// 				req.body.avatar.trim() !== ""
+// 			) {
+// 				// Giữ ảnh cũ
+// 				console.log("Giữ nguyên avatar:", req.body.avatar);
+// 			} else {
+// 				req.body.avatar = null; // hoặc bỏ qua nếu cần
+// 			}
+
+// 			if (files?.backgroundImage?.[0]) {
+// 				req.body.backgroundImage = files.backgroundImage[0].path;
+// 			} else if (
+// 				typeof req.body.backgroundImage === "string" &&
+// 				req.body.backgroundImage.trim() !== ""
+// 			) {
+// 				// Giữ ảnh cũ
+// 				console.log("Giữ nguyên background:", req.body.backgroundImage);
+// 			} else {
+// 				req.body.backgroundImage = null;
+// 			}
+
+// 			// Tiếp tục xử lý
+// 			next();
+// 		});
+// 	} else {
+// 		// Nếu không có cả 2 trường, bỏ qua middleware này
+// 		next();
+// 	}
+// };
+
 export const uploadAvatarAndBackground = (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
-	// Cho phép upload 2 trường ảnh: 'avatarURL' và 'backgroundURL'
-	if (req.body.avatarURL && req.body.backgroundURL) {
-		uploadImage.fields([
-			{ name: "avatarURL", maxCount: 1 },
-			{ name: "backgroundURL", maxCount: 1 },
-		])(req, res, (err) => {
-			if (err) {
-				console.error("Upload lỗi:", err);
-				return res
-					.status(ERR_SERVICE_UNAVAILABLE)
-					.json({ error: "Lỗi upload ảnh", errorDetail: err.message });
-			}
+	uploadImage.fields([
+		{ name: "avatarURL", maxCount: 1 },
+		{ name: "backgroundURL", maxCount: 1 },
+	])(req, res, (err) => {
+		if (err) {
+			console.error("Upload lỗi:", err);
+			return res.status(ERR_SERVICE_UNAVAILABLE).json({
+				error: "Lỗi upload ảnh",
+				errorDetail: err.message,
+			});
+		}
 
-			// Nếu ảnh mới được upload, gán đường dẫn vào req.body
-			const files = req.files as {
-				[fieldname: string]: Express.Multer.File[];
-			};
+		const files = req.files as {
+			[fieldname: string]: Express.Multer.File[];
+		};
 
-			if (files?.avatar?.[0]) {
-				req.body.avatar = files.avatar[0].path;
-			} else if (
-				typeof req.body.avatar === "string" &&
-				req.body.avatar.trim() !== ""
-			) {
-				// Giữ ảnh cũ
-				console.log("Giữ nguyên avatar:", req.body.avatar);
-			} else {
-				req.body.avatar = null; // hoặc bỏ qua nếu cần
-			}
+		if (files?.avatarURL?.[0]) {
+			req.body.avatarURL = files.avatarURL[0].path;
+		}
 
-			if (files?.backgroundImage?.[0]) {
-				req.body.backgroundImage = files.backgroundImage[0].path;
-			} else if (
-				typeof req.body.backgroundImage === "string" &&
-				req.body.backgroundImage.trim() !== ""
-			) {
-				// Giữ ảnh cũ
-				console.log("Giữ nguyên background:", req.body.backgroundImage);
-			} else {
-				req.body.backgroundImage = null;
-			}
+		if (files?.backgroundURL?.[0]) {
+			req.body.backgroundURL = files.backgroundURL[0].path;
+		}
 
-			// Tiếp tục xử lý
-			next();
-		});
-	} else {
-		// Nếu không có cả 2 trường, bỏ qua middleware này
 		next();
-	}
+	});
 };
 
 export const uploadTextFile = (
