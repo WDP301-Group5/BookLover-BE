@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
-import logger from "../utils/logger.ts";
+import nodemailer from 'nodemailer';
+import logger from '../utils/logger.ts';
 
 /**
  * Create Gmail OAuth2 email transporter.
@@ -10,14 +10,14 @@ function createTransporter() {
   const user = process.env.EMAIL_USER;
 
   if (!user) {
-    logger.warn("EMAIL_USER is not set. Email sending will fail at runtime.");
+    logger.warn('EMAIL_USER is not set. Email sending will fail at runtime.');
   }
 
-  logger.info("Email transporter: using Gmail OAuth2");
+  logger.info('Email transporter: using Gmail OAuth2');
   return nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: {
-      type: "OAuth2",
+      type: 'OAuth2',
       user,
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -38,12 +38,12 @@ export async function sendPaymentConfirmation(toEmail, order, payment) {
       subject,
       text,
     });
-    logger.info("Payment confirmation email sent", {
+    logger.info('Payment confirmation email sent', {
       to: toEmail,
       orderId: order._id,
     });
   } catch (err) {
-    logger.error("Failed to send payment confirmation", err);
+    logger.error('Failed to send payment confirmation', err);
   }
 }
 
@@ -57,19 +57,19 @@ export async function sendShippingStatusEmail(toEmail, shipping) {
       subject,
       text,
     });
-    logger.info("Shipping status email sent", {
+    logger.info('Shipping status email sent', {
       to: toEmail,
       orderId: shipping.orderId,
       status: shipping.status,
     });
   } catch (err) {
-    logger.error("Failed to send shipping status email", err);
+    logger.error('Failed to send shipping status email', err);
   }
 }
 
 export async function sendVerificationEmail(email, name, token, frontendUrl) {
   const verificationLink = `${frontendUrl}/verify-email?token=${token}`;
-  const subject = "Verify your email address";
+  const subject = 'Verify your email address';
   const html = `
     <p>Hello ${name},</p>
     <p>Thank you for signing up! Please verify your email address by clicking the link below:</p>
@@ -84,12 +84,12 @@ export async function sendVerificationEmail(email, name, token, frontendUrl) {
       subject,
       html,
     });
-    logger.info("Verification email sent", {
+    logger.info('Verification email sent', {
       to: email,
       name,
     });
   } catch (err) {
-    logger.error("Failed to send verification email", err);
+    logger.error('Failed to send verification email', err);
     throw err;
   }
 }

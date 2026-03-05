@@ -1,24 +1,24 @@
-import type { Request, Response } from "express";
+import type { Request, Response } from 'express';
 import {
   ERR_BAD_REQUEST,
   ERR_INTERNAL_SERVER,
   ERR_RESOURCE_CONFLICT,
-  ERR_UNAUTHORIZED,
   ERR_TOO_MANY_REQUESTS,
-} from "../consts/errorCode.js";
-import { SUCCESS_CREATED, SUCCESS_OK } from "../consts/successCode.js";
+  ERR_UNAUTHORIZED,
+} from '../consts/errorCode.js';
+import { SUCCESS_CREATED, SUCCESS_OK } from '../consts/successCode.js';
 import {
   googleLogin,
   loginUser,
   registerUser,
   resendVerificationEmail,
   verifyEmail,
-} from "../services/authService.js";
+} from '../services/authService.js';
 import {
   googleLoginSchema,
   loginSchema,
   registerSchema,
-} from "../utils/validation.js";
+} from '../utils/validation.js';
 // Using http-errors: controller will detect error.status
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -33,19 +33,19 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     // If service threw an http-errors error it carries a `status` property
     const status = (error as any)?.status;
-    if (typeof status === "number") {
+    if (typeof status === 'number') {
       res.status(status).json({
         success: false,
-        message: (error as any).message || "Error",
+        message: (error as any).message || 'Error',
       });
       return;
     }
 
     if (error instanceof Error) {
-      if (error.name === "ZodError") {
+      if (error.name === 'ZodError') {
         res.status(ERR_BAD_REQUEST).json({
           success: false,
-          message: "Invalid input",
+          message: 'Invalid input',
           errors: error,
         });
         return;
@@ -54,8 +54,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       // Backwards-compat: detect legacy messages in English or Vietnamese
       if (
         error.message &&
-        (error.message.includes("already exists") ||
-          error.message.includes("đã có sẵn"))
+        (error.message.includes('already exists') ||
+          error.message.includes('đã có sẵn'))
       ) {
         res.status(ERR_RESOURCE_CONFLICT).json({
           success: false,
@@ -71,7 +71,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     } else {
       res.status(ERR_INTERNAL_SERVER).json({
         success: false,
-        message: "An unexpected error occurred",
+        message: 'An unexpected error occurred',
       });
     }
   }
@@ -87,16 +87,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.status(SUCCESS_OK).json({
       success: true,
-      message: "Login successful",
+      message: 'Login successful',
       data: result,
     });
   } catch (error) {
     if (error instanceof Error) {
       // Check if it's a validation error
-      if (error.name === "ZodError") {
+      if (error.name === 'ZodError') {
         res.status(ERR_BAD_REQUEST).json({
           success: false,
-          message: "Invalid input",
+          message: 'Invalid input',
           errors: error,
         });
         return;
@@ -110,7 +110,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     } else {
       res.status(ERR_INTERNAL_SERVER).json({
         success: false,
-        message: "An unexpected error occurred",
+        message: 'An unexpected error occurred',
       });
     }
   }
@@ -132,16 +132,16 @@ export const googleLoginController = async (
 
     res.status(SUCCESS_OK).json({
       success: true,
-      message: "Google login successful",
+      message: 'Google login successful',
       data: result,
     });
   } catch (error) {
     if (error instanceof Error) {
       // Check if it's a validation error
-      if (error.name === "ZodError") {
+      if (error.name === 'ZodError') {
         res.status(ERR_BAD_REQUEST).json({
           success: false,
-          message: "Invalid input",
+          message: 'Invalid input',
           errors: error,
         });
         return;
@@ -155,7 +155,7 @@ export const googleLoginController = async (
     } else {
       res.status(ERR_INTERNAL_SERVER).json({
         success: false,
-        message: "An unexpected error occurred",
+        message: 'An unexpected error occurred',
       });
     }
   }
@@ -171,7 +171,7 @@ export const resendVerificationController = async (
     if (!email) {
       res.status(ERR_BAD_REQUEST).json({
         success: false,
-        message: "Email là bắt buộc.",
+        message: 'Email là bắt buộc.',
       });
       return;
     }
@@ -186,10 +186,10 @@ export const resendVerificationController = async (
   } catch (error) {
     // If service threw an http-errors error it carries a `status` property
     const status = (error as any)?.status;
-    if (typeof status === "number" && status === ERR_TOO_MANY_REQUESTS) {
+    if (typeof status === 'number' && status === ERR_TOO_MANY_REQUESTS) {
       res.status(ERR_TOO_MANY_REQUESTS).json({
         success: false,
-        message: (error as any).message || "Too many requests",
+        message: (error as any).message || 'Too many requests',
       });
       return;
     }
@@ -202,7 +202,7 @@ export const resendVerificationController = async (
     } else {
       res.status(ERR_INTERNAL_SERVER).json({
         success: false,
-        message: "An unexpected error occurred",
+        message: 'An unexpected error occurred',
       });
     }
   }
@@ -217,7 +217,7 @@ export const verifyEmailController = async (
     if (!token) {
       res.status(ERR_BAD_REQUEST).json({
         success: false,
-        message: "Token xác thực không được cung cấp.",
+        message: 'Token xác thực không được cung cấp.',
       });
       return;
     }
@@ -237,7 +237,7 @@ export const verifyEmailController = async (
     } else {
       res.status(ERR_INTERNAL_SERVER).json({
         success: false,
-        message: "An unexpected error occurred",
+        message: 'An unexpected error occurred',
       });
     }
   }

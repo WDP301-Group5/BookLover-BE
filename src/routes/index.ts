@@ -1,4 +1,5 @@
 import express from "express";
+import adminRouter from "./adminRoutes.js";
 import authRouter from "./authRoutes.js";
 import chapterRouter from "./chapterPage.js";
 import genreRouter from "./genreRoutes.js";
@@ -9,6 +10,7 @@ import userRouter from "./userRoutes.js";
 
 const routes = express.Router();
 
+routes.use("/admin", adminRouter);
 routes.use("/auth", authRouter);
 routes.use("/purchase", purchaseRoutes);
 routes.use("/user", userRouter);

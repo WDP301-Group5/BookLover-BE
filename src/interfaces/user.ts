@@ -1,13 +1,13 @@
 export interface IUser {
-  id?: string;
+  id: string;
   username: string;
   fullName: string;
   nickName?: string;
   penName?: string;
   email: string;
   dob?: Date;
-  role: "admin" | "author" | "user";
-  status: "active" | "inactive" | "banned";
+  role: 'admin' | 'author' | 'user';
+  status: 'active' | 'inactive' | 'banned';
   avatarURL?: string;
   backgroundURL?: string;
   vipLevel?: number | 0;

@@ -1,15 +1,15 @@
 const logger = {
   info: (message: string, data?: unknown) => {
-    console.log(`[INFO] ${message}`, data || "");
+    console.log(`[INFO] ${message}`, data || '');
   },
   error: (message: string, error?: unknown) => {
-    console.error(`[ERROR] ${message}`, error || "");
+    console.error(`[ERROR] ${message}`, error || '');
   },
   warn: (message: string, data?: unknown) => {
-    console.warn(`[WARN] ${message}`, data || "");
+    console.warn(`[WARN] ${message}`, data || '');
   },
   debug: (message: string, data?: unknown) => {
-    console.debug(`[DEBUG] ${message}`, data || "");
+    console.debug(`[DEBUG] ${message}`, data || '');
   },
 };
 

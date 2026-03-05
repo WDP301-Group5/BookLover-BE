@@ -1,7 +1,6 @@
 import express from "express";
 import { addNewReadingHistory } from "../controllers/readingHistoryController";
 import {
-	getAllUsers,
 	getLast3History,
 	getProfile,
 	updateProfile,
@@ -11,8 +10,7 @@ import { uploadAvatarAndBackground } from "../middleware/upload";
 
 const userRouter = express.Router();
 
-// TEST
-userRouter.get("/test", getAllUsers);
+// TEST endpoint removed - use /admin/users instead
 userRouter.get("/history/last3", getLast3History);
 userRouter.put("/history/reading", addNewReadingHistory);
 
