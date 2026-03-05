@@ -1,13 +1,13 @@
 import express from "express";
 import {
-	createStory,
-	deleteStory,
-	getNewChapterStory,
-	getRecommendStory,
-	getStories,
-	getStoryBySlug,
-	getTop10Story,
-	updateStory,
+  createStory,
+  deleteStory,
+  getNewChapterStory,
+  getRecommendStory,
+  getStories,
+  getStoryBySlug,
+  getTop10Story,
+  updateStory,
 } from "../controllers/storyController";
 
 const storyRouter = express.Router();
