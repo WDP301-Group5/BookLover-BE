@@ -1,0 +1,23 @@
+import type { Request, Response } from "express";
+import { ERR_INTERNAL_SERVER } from "../consts/errorCode";
+import { SUCCESS_OK } from "../consts/successCode";
+import SubcriptionPlanService from "../services/subcriptionPlanService";
+
+export const getPurchasePlans = async (_req: Request, res: Response) => {
+	try {
+		const plans = await SubcriptionPlanService.getAllSubcriptionPlans();
+		res.status(SUCCESS_OK).json(plans);
+	} catch (error) {
+		res.status(ERR_INTERNAL_SERVER).json({ error: (error as Error).message });
+	}
+};
+
+export const subscribeToPlan = async (req: Request, res: Response) => {
+	try {
+		const { planId } = req.body;
+		const result = await SubcriptionPlanService.subscribeToPlan(planId);
+		res.status(SUCCESS_OK).json(result);
+	} catch (error) {
+		res.status(ERR_INTERNAL_SERVER).json({ error: (error as Error).message });
+	}
+};

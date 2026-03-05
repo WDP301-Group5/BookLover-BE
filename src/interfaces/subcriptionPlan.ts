@@ -6,6 +6,7 @@ export interface ISubcriptionPlan {
 	description: string;
 	spiritStones: number; // số linh thách cần
 	extendedTime: string; // thời gian kéo dài (ngày, tuần, tháng, quý, năm, ...)
+	soldCount: number; // Số lần đã bán
 	status: "active" | "inactive" | "pending";
 	// active: đang dùng gói vip
 	// inactive: đã hết hạn

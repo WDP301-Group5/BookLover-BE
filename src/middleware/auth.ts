@@ -1,12 +1,20 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { DOTENV } from "../consts/dotenv.js";
 import { ERR_INVALID_TOKEN } from "../consts/errorCode.js";
 import type { JwtPayload } from "../interfaces/jwtPayload.js";
 
 /**
  * Middleware bảo vệ route cần Access Token
  */
+
+// khai báo kiểu dữ liệu global cho req
+declare global {
+	namespace Express {
+		interface Request {
+			user?: JwtPayload;
+		}
+	}
+}
 export const verifyToken = (
 	req: Request,
 	res: Response,
@@ -20,9 +28,12 @@ export const verifyToken = (
 
 	const token = header.split(" ")[1];
 	try {
-		const decoded = jwt.verify(token, DOTENV.JWT_ACCESS_SECRET) as JwtPayload;
+		const decoded = jwt.verify(
+			token,
+			process.env.JWT_ACCESS_SECRET ?? "access_secret",
+		) as JwtPayload;
 
-		(req as Request & { user?: JwtPayload }).user = decoded;
+		req.user = decoded;
 		// { id, fullName, nickName?, role }
 
 		next();

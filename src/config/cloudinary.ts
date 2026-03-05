@@ -1,12 +1,11 @@
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-import { DOTENV } from "../consts/dotenv";
 
 cloudinary.config({
-	cloud_name: DOTENV.CLOUD_NAME,
-	api_key: DOTENV.CLOUD_API_KEY,
-	api_secret: DOTENV.CLOUD_API_SECRET,
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const imageStorage = new CloudinaryStorage({
@@ -47,5 +46,19 @@ export const deleteTextFromCloudinary = async (publicId: string) => {
 		await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
 	} catch (error) {
 		console.error("Error deleting text from Cloudinary:", error);
+	}
+};
+
+export const checkConnectCloudinary = async (): Promise<void> => {
+	try {
+		const result = await cloudinary.api.ping();
+		console.log("===========> Cloudinary connected successfully!");
+		console.log("Ping result:", result?.status);
+	} catch (err: unknown) {
+		if (err instanceof Error) {
+			console.error("Cloudinary connection failed:", err.message);
+		} else {
+			console.error("Cloudinary connection failed:", err);
+		}
 	}
 };

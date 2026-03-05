@@ -16,11 +16,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 		// Perform login
 		const result = await loginUser(validatedData);
 
-		res.status(SUCCESS_OK).json({
-			success: true,
-			message: "Login successful",
-			data: result,
-		});
+		res.status(SUCCESS_OK).json(result);
 	} catch (error) {
 		if (error instanceof Error) {
 			// Check if it's a validation error
@@ -61,11 +57,7 @@ export const googleLoginController = async (
 			validatedData.rememberMe || false,
 		);
 
-		res.status(SUCCESS_OK).json({
-			success: true,
-			message: "Google login successful",
-			data: result,
-		});
+		res.status(SUCCESS_OK).json(result);
 	} catch (error) {
 		if (error instanceof Error) {
 			// Check if it's a validation error

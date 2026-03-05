@@ -16,6 +16,8 @@ const transactionSchema = new mongoose.Schema(
 		spiritStones: { type: Number, required: true, min: 0 },
 		stoneBefore: { type: Number, required: true, min: 0 },
 		stoneAfter: { type: Number, required: true, min: 0 },
+		startAt: { type: Date, required: true, default: Date.now() },
+		endAt: { type: Date, required: true, min: Date.now() },
 		status: {
 			type: String,
 			enum: ["success", "failed", "pending"],

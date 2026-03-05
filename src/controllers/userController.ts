@@ -36,3 +36,49 @@ export const getLast3History = async (req: Request, res: Response) => {
 		});
 	}
 };
+
+export const getProfile = async (req: Request, res: Response) => {
+	try {
+		const userId = req.user?.userId;
+
+		if (!userId) {
+			return res.status(401).json({
+				success: false,
+				message: "Unauthorized",
+			});
+		}
+
+		const user = await UserService.getProfile(userId);
+
+		res.status(200).json({
+			success: true,
+			data: user,
+		});
+	} catch (error) {
+		res.status(500).json({ success: false, error });
+	}
+};
+
+export const updateProfile = async (req: Request, res: Response) => {
+	try {
+		const userId = req.user?.userId;
+
+		if (!userId) {
+			return res.status(401).json({
+				success: false,
+				message: "Unauthorized",
+			});
+		}
+
+		const updated = await UserService.updateProfile(userId, req.body);
+
+		res.status(200).json({
+			success: true,
+			message: "Profile updated successfully",
+			data: updated,
+		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ success: false, error });
+	}
+};

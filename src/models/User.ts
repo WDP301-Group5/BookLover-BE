@@ -3,6 +3,7 @@ import type { IUser } from "../interfaces/user.js";
 
 const userSchema = new mongoose.Schema(
 	{
+		username: { type: String, required: true, unique: true, trim: true },
 		fullName: { type: String, required: true },
 		nickName: { type: String },
 		penName: { type: String },
@@ -21,6 +22,17 @@ const userSchema = new mongoose.Schema(
 		avatarURL: { type: String, default: "" },
 		backgroundURL: { type: String, default: "" },
 		vipLevel: { type: Number, default: 0 },
+
+		// ===== STATS (PROFILE PUBLIC) =====
+		followersCount: { type: Number, default: 0 },
+		followingAuthorsCount: { type: Number, default: 0 },
+		followingStoriesCount: { type: Number, default: 0 },
+		storiesCount: { type: Number, default: 0 },
+
+		totalViews: { type: Number, default: 0 }, // author
+		totalVotes: { type: Number, default: 0 }, // author
+
+		// ===== INTERNAL SYSTEM =====
 		totalSpent: { type: Number, default: 0 },
 		spiritStones: { type: Number, default: 0 },
 	},

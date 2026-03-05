@@ -12,6 +12,11 @@ const socketHandler = (io: Server, socket: Socket) => {
 		// nếu muốn chỉ gửi cho người khác thì dùng:
 		// socket.broadcast.emit("receive_message", data);
 	});
+
+	socket.on("join_purchase_room", (app_trans_id: string) => {
+		console.log("join_purchase_room", socket.id, app_trans_id);
+		socket.join(`purchase_room_${app_trans_id}`);
+	});
 };
 
 export default socketHandler;
