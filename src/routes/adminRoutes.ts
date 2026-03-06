@@ -1,21 +1,26 @@
 import express from "express";
 import {
-	createAdmin,
-	deleteAdmin,
-	deleteManyAdmins,
-	getAdminById,
-	getAllAdmins,
-	updateAdmin,
+  createAdmin,
+  deleteAdmin,
+  deleteManyAdmins,
+  getAdminById,
+  getAllAdmins,
+  updateAdmin,
 } from "../controllers/adminController.js";
 
-// import { requireAdmin } from "../middleware/admin.js";
+import { requireAdmin } from "../middleware/admin.js";
+
+import adminChapterCensorRouter from "./adminChapterCensorRoutes.js";
+import adminStoryCensorRouter from "./adminStoryCensorRoutes.js";
 
 const adminRouter = express.Router();
 
 // Tất cả routes đều yêu cầu admin role
-// adminRouter.use(requireAdmin);
+adminRouter.use(requireAdmin);
 
 // Routes
+adminRouter.use("/stories", adminStoryCensorRouter);
+adminRouter.use("/chapters", adminChapterCensorRouter);
 adminRouter.get("/", getAllAdmins);
 adminRouter.get("/:id", getAdminById);
 adminRouter.post("/", createAdmin);
