@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import logger from "../utils/logger.ts";
+import logger from "../utils/logger.js";
 
 /**
  * Create Gmail OAuth2 email transporter.
@@ -28,7 +28,11 @@ function createTransporter() {
 
 const transporter = createTransporter();
 
-export async function sendPaymentConfirmation(toEmail, order, payment) {
+export async function sendPaymentConfirmation(
+  toEmail: string,
+  order: any,
+  payment: any,
+) {
   const subject = `Payment confirmed for order ${order._id}`;
   const text = `Payment ${payment.transactionId} succeeded. Amount: ${payment.amount}. Order: ${order._id}`;
   try {
@@ -47,7 +51,7 @@ export async function sendPaymentConfirmation(toEmail, order, payment) {
   }
 }
 
-export async function sendShippingStatusEmail(toEmail, shipping) {
+export async function sendShippingStatusEmail(toEmail: string, shipping: any) {
   const subject = `Shipping status update for order ${shipping.orderId}`;
   const text = `Tracking ${shipping.trackingNumber} - status: ${shipping.status}`;
   try {
@@ -67,7 +71,12 @@ export async function sendShippingStatusEmail(toEmail, shipping) {
   }
 }
 
-export async function sendVerificationEmail(email, name, token, frontendUrl) {
+export async function sendVerificationEmail(
+  email: string,
+  name: string,
+  token: string,
+  frontendUrl: string,
+) {
   const verificationLink = `${frontendUrl}/verify-email?token=${token}`;
   const subject = "Verify your email address";
   const html = `
@@ -94,7 +103,12 @@ export async function sendVerificationEmail(email, name, token, frontendUrl) {
   }
 }
 
-export async function sendPasswordResetEmail(email, name, token, frontendUrl) {
+export async function sendPasswordResetEmail(
+  email: string,
+  name: string,
+  token: string,
+  frontendUrl: string,
+) {
   const resetLink = `${frontendUrl}/reset-password?token=${token}`;
   const subject = "Reset your password";
   const html = `

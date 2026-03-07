@@ -100,3 +100,68 @@ export const getRemainingCooldown = async (
 
   return getNextCooldown(attempt);
 };
+
+// Password Reset Rate Limiting (same pattern as email resend)
+
+/**
+ * Check if user can request password reset
+ * Returns the current attempt number and whether it's allowed
+ */
+export const checkPasswordResetLimit = async (
+  email: string,
+): Promise<ResendLimitResult> => {
+  const lockKey = `password-reset:locked:${email}`;
+  const sequenceKey = `password-reset:seq:${email}`;
+
+  // 1. Check nếu bị khóa
+  const isLocked = await redisClient.get(lockKey);
+  if (isLocked) {
+    const ttl = await redisClient.ttl(lockKey);
+    return {
+      allowed: false,
+      isLocked: true,
+      nextReset: ttl > 0 ? ttl : LOCKOUT_DURATION,
+    };
+  }
+
+  // 2. Check số lần đã gửi
+  const attemptStr = await redisClient.get(sequenceKey);
+  const attempt = attemptStr ? Number(attemptStr) : 0;
+
+  // Nếu đã gửi >= MAX_ATTEMPTS, lần tiếp theo sẽ bị khóa
+  if (attempt >= MAX_ATTEMPTS) {
+    return {
+      allowed: true,
+      attempt: attempt + 1,
+    };
+  }
+
+  return {
+    allowed: true,
+    attempt: attempt + 1,
+  };
+};
+
+/**
+ * Record a password reset attempt
+ * If exceeded MAX_ATTEMPTS, lock the email for 24 hours
+ */
+export const recordPasswordResetAttempt = async (
+  email: string,
+): Promise<void> => {
+  const sequenceKey = `password-reset:seq:${email}`;
+  const lockKey = `password-reset:locked:${email}`;
+
+  const currentAttempt = await redisClient.incr(sequenceKey);
+
+  // Nếu lần thứ nhất, set TTL 24h
+  if (currentAttempt === 1) {
+    await redisClient.expire(sequenceKey, LOCKOUT_DURATION);
+  }
+
+  // Nếu vượt quá MAX_ATTEMPTS, khóa ngay
+  if (currentAttempt > MAX_ATTEMPTS) {
+    await redisClient.setEx(lockKey, LOCKOUT_DURATION, "1");
+    await redisClient.del(sequenceKey);
+  }
+};
