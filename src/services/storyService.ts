@@ -460,6 +460,17 @@ const StoryService = {
 		}
 	},
 
+	async getStoriesByAuthor(authorId: string) {
+		try {
+			const stories = await Story.find({ authorId })
+				.populate("topics")
+				.sort({ createdAt: -1 });
+			return stories;
+		} catch (error) {
+			throw new Error(`Error fetching stories by author: ${error}`);
+		}
+	},
+
 	async viewStory(id: string) {
 		try {
 			await Story.findByIdAndUpdate(id, { $inc: { views: 1 } });

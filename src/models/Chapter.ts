@@ -3,35 +3,43 @@ import mongoose from "mongoose";
 import type { IChapter } from "../interfaces/chapter";
 
 const chapterSchema = new mongoose.Schema(
-	{
-		id: String,
-		storyId: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Story",
-			required: true,
-		},
-		chapterNumber: {
-			type: Number,
-			required: true,
-			min: 0,
-		},
-		title: {
-			type: String,
-			required: true,
-		},
-		contentURL: {
-			type: String,
-			required: true,
-		},
-		status: {
-			type: String,
-			enum: ["active", "inactive", "draft"],
-			default: "draft",
-		},
-	},
-	{
-		timestamps: true,
-	},
+  {
+    id: String,
+    storyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Story",
+      required: true,
+    },
+    chapterNumber: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    contentURL: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: [
+        "active",
+        "inactive",
+        "draft",
+        "error",
+        "pending",
+        "rejected",
+        "banned",
+      ],
+      default: "draft",
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
 export const Chapter = mongoose.model<IChapter>("Chapter", chapterSchema);

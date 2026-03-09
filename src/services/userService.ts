@@ -4,45 +4,45 @@ import { ReadingHistory } from "../models/ReadingHistory.js";
 import { User } from "../models/User.js";
 
 const PUBLIC_PROFILE_FIELDS =
-	"username fullName nickName penName bio dob role avatarURL backgroundURL vipLevel followersCount followingAuthorsCount followingStoriesCount storiesCount totalViews totalVotes createdAt updatedAt";
+  "username fullName nickName penName bio dob role email avatarURL backgroundURL vipLevel followersCount followingAuthorsCount followingStoriesCount storiesCount totalViews totalVotes spiritStones createdAt updatedAt";
 
 const ALLOWED_UPDATE_FIELDS = [
-	"fullName",
-	"nickName",
-	"penName",
-	"dob",
-	"avatarURL",
-	"backgroundURL",
-	"bio",
+  "fullName",
+  "nickName",
+  "penName",
+  "dob",
+  "avatarURL",
+  "backgroundURL",
+  "bio",
 ];
 
 const UserService = {
-	async getAllUsers() {
-		try {
-			const users = await User.find()
-				.select("id fullName role nickName")
-				.lean<IUser[]>();
-			return users;
-		} catch (error) {
-			throw new Error(`Error fetching users: ${error}`);
-		}
-	},
+  async getAllUsers() {
+    try {
+      const users = await User.find()
+        .select("id fullName role nickName")
+        .lean<IUser[]>();
+      return users;
+    } catch (error) {
+      throw new Error(`Error fetching users: ${error}`);
+    }
+  },
 
-	async getProfile(userId: string) {
-		if (!Types.ObjectId.isValid(userId)) {
-			throw new Error("Invalid user ID");
-		}
+  async getProfile(userId: string) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid user ID");
+    }
 
-		const user = await User.findById(userId)
-			.select(PUBLIC_PROFILE_FIELDS)
-			.lean<IUser>();
+    const user = await User.findById(userId)
+      .select(PUBLIC_PROFILE_FIELDS)
+      .lean<IUser>();
 
-		if (!user) {
-			throw new Error("User not found");
-		}
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-		return user;
-	},
+    return user;
+  },
 
 	async updateProfile(userId: string, profileData: Partial<IUpdateUserData>) {
 		if (!Types.ObjectId.isValid(userId)) {
@@ -57,18 +57,18 @@ const UserService = {
 			}
 		}
 
-		const updated = await User.findByIdAndUpdate(
-			userId,
-			{ $set: updateData },
-			{
-				new: true,
-				runValidators: true,
-			},
-		).select(PUBLIC_PROFILE_FIELDS);
+    const updated = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      {
+        new: true,
+        runValidators: true,
+      },
+    ).select(PUBLIC_PROFILE_FIELDS);
 
-		if (!updated) {
-			throw new Error("User not found");
-		}
+    if (!updated) {
+      throw new Error("User not found");
+    }
 
 		return updated;
 	},
