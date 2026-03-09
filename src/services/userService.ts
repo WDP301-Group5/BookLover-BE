@@ -3,7 +3,7 @@ import type { IUser } from "../interfaces/user.js";
 import { User } from "../models/User.js";
 
 const PUBLIC_PROFILE_FIELDS =
-	"username fullName nickName penName bio dob role avatarURL backgroundURL vipLevel followersCount followingAuthorsCount followingStoriesCount storiesCount totalViews totalVotes createdAt updatedAt";
+  "username fullName nickName penName bio dob role email avatarURL backgroundURL vipLevel followersCount followingAuthorsCount followingStoriesCount storiesCount totalViews totalVotes spiritStones createdAt updatedAt";
 
 const ALLOWED_UPDATE_FIELDS = [
 	"fullName",
