@@ -1,3 +1,4 @@
+import path from "node:path";
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -21,17 +22,26 @@ const imageStorage = new CloudinaryStorage({
 
 const textStorage = new CloudinaryStorage({
 	cloudinary,
-	params: async (_req, file) => {
-		return {
-			folder: "WDP301_BookLover/texts",
-			allowed_formats: ["pdf", "docx", "txt", "html", "md", "doc"],
-			public_id: `${Date.now()}-${file.originalname}`,
-		};
-	},
+	params: async (_req, file) => ({
+		folder: "WDP301_BookLover/texts",
+		resource_type: "raw",
+		public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}${path.extname(file.originalname)}`,
+	}),
 });
 
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+	const allowed = [".txt", ".pdf", ".docx", ".doc", ".html", ".md"];
+	const ext = path.extname(file.originalname).toLowerCase();
+
+	if (allowed.includes(ext)) {
+		cb(null, true);
+	} else {
+		cb(new Error("File format không được hỗ trợ"));
+	}
+};
+
 export const uploadImage = multer({ storage: imageStorage });
-export const uploadText = multer({ storage: textStorage });
+export const uploadText = multer({ storage: textStorage, fileFilter });
 
 export const deleteImageFromCloudinary = async (publicId: string) => {
 	try {

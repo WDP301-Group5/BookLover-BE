@@ -4,6 +4,7 @@ import type { IChapter } from "../interfaces/chapter";
 
 const chapterSchema = new mongoose.Schema(
 	{
+		id: String,
 		storyId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Story",

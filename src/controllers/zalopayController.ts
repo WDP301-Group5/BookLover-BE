@@ -8,7 +8,7 @@ import ZalopayService from "../services/zalopayService";
 export const createOrder = async (req: Request, res: Response) => {
 	try {
 		const { amount, description, items } = req.body;
-		const userId = req?.user?.id;
+		const userId = req?.user?.userId;
 		if (!userId) {
 			return res.status(ERR_UNAUTHORIZED).json({
 				message: "User ID is missing in the request",

@@ -421,6 +421,18 @@ const StoryService = {
 		}
 	},
 
+	async getStoryIdBySlug(slug: string) {
+		try {
+			const story = await Story.findOne({ slug }).select("_id").lean();
+			if (!story) {
+				throw new Error("Story not found");
+			}
+			return story._id.toString();
+		} catch (error) {
+			throw new Error(`Error fetching story by slug: ${error}`);
+		}
+	},
+
 	async getStories() {
 		try {
 			const stories = await Story.find({ status: "active" });
@@ -445,6 +457,15 @@ const StoryService = {
 			return { message: "Story deleted successfully" };
 		} catch (error) {
 			throw new Error(`Error deleting story: ${error}`);
+		}
+	},
+
+	async viewStory(id: string) {
+		try {
+			await Story.findByIdAndUpdate(id, { $inc: { views: 1 } });
+			return { message: "Story viewed successfully" };
+		} catch (error) {
+			throw new Error(`Error viewing story: ${error}`);
 		}
 	},
 };

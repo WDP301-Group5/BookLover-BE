@@ -29,3 +29,12 @@ export interface UserProfile {
 	createdAt?: Date;
 	updatedAt?: Date;
 }
+export interface IUpdateUserData {
+	fullName: string;
+	nickName: string;
+	penName: string;
+	dob: string;
+	avatarURL: string;
+	backgroundURL: string;
+	bio: string;
+}
