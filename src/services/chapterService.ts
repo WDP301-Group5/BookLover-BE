@@ -36,3 +36,4 @@ export const getChapterByChapterNumber = async (
 export const updateChapter = (id: string, data: Partial<IChapter>) =>
 	Chapter.findByIdAndUpdate(id, data, { new: true });
 export const deleteChapter = (id: string) => Chapter.findByIdAndDelete(id);
+export const getChapterById = (id: string) => Chapter.findById(id);

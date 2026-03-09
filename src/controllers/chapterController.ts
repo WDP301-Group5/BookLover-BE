@@ -77,6 +77,9 @@ export const updateChapter = async (req: Request, res: Response) =>
 export const deleteChapter = async (req: Request, res: Response) =>
 	res.json(await chapterService.deleteChapter(req.params.id));
 
+export const getChapterById = async (req: Request, res: Response) =>
+	res.json(await chapterService.getChapterById(req.params.id));
+
 export const testFileUpload = async (req: Request, res: Response) => {
 	try {
 		if (!req.body.file) {
