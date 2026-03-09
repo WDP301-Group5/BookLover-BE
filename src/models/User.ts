@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
 		penName: { type: String },
 		email: { type: String, required: true, unique: true },
 		dob: { type: Date },
+		bio: { type: String, maxlength: 500 },
 		role: {
 			type: String,
 			enum: ["admin", "author", "user"],
