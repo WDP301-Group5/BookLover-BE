@@ -447,6 +447,17 @@ const StoryService = {
 			throw new Error(`Error deleting story: ${error}`);
 		}
 	},
+
+	async getStoriesByAuthor(authorId: string) {
+		try {
+			const stories = await Story.find({ authorId })
+				.populate("topics")
+				.sort({ createdAt: -1 });
+			return stories;
+		} catch (error) {
+			throw new Error(`Error fetching stories by author: ${error}`);
+		}
+	},
 };
 
 export default StoryService;
