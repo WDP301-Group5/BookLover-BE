@@ -2,8 +2,13 @@
 import type { Request, Response } from "express";
 import * as chapterService from "../services/chapterPageService";
 
-export const createChapter = async (req: Request, res: Response) =>
-	res.json(await chapterService.createChapter(req.body));
+export const createChapter = async (req: Request, res: Response) => {
+	const data = {
+		...req.body,
+		contentURL: req.body.file || req.body.contentURL,
+	};
+	res.json(await chapterService.createChapter(data));
+};
 
 export const getChaptersByStory = async (req: Request, res: Response) =>
 	res.json(await chapterService.getChaptersByStory(req.params.storyId));

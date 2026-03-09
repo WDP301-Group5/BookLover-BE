@@ -6,6 +6,7 @@ import genreRouter from "./genreRoutes.js";
 import orderRouter from "./orderRoutes.js";
 import purchaseRoutes from "./purchaseRoutes.js";
 import storyRouter from "./storyRoutes.js";
+import topicRouter from "./topicRoutes.js";
 import userRouter from "./userRoutes.js";
 
 const routes = express.Router();
@@ -18,5 +19,6 @@ routes.use("/story", storyRouter);
 routes.use("/order", orderRouter);
 routes.use("/chapter", chapterRouter);
 routes.use("/genres", genreRouter);
+routes.use("/topics", topicRouter);
 
 export default routes;

@@ -29,6 +29,6 @@ export const generatePasswordResetToken = (
 ): string => {
   const secret = process.env.JWT_ACCESS_SECRET || "access_secret";
   return jwt.sign({ userId, email, purpose: "password-reset" }, secret, {
-    expiresIn: "1s",
+    expiresIn: "15m",
   });
 };
