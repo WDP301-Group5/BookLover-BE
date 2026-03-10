@@ -42,7 +42,7 @@ const ZalopayService = {
 			orderData.app_trans_id = app_trans_id;
 			orderData.orderCode = data.orderCode;
 			orderData.money = Number(amount);
-			orderData.quantity = Number(amount);
+			orderData.quantity = Number(amount / 1000);
 			orderData.description = description;
 
 			await client.set(
