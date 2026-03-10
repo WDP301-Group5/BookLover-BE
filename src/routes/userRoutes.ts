@@ -1,8 +1,10 @@
 import express from "express";
 import { addNewReadingHistory } from "../controllers/readingHistoryController";
 import {
+	followAuthor,
 	getLast3History,
 	getProfile,
+	getPublicProfile,
 	searchUsers,
 	updateProfile,
 } from "../controllers/userController";
@@ -23,5 +25,7 @@ userRouter.put(
 	updateProfile,
 );
 userRouter.get("/search", searchUsers);
+userRouter.get("/:userId/public", getPublicProfile);
+userRouter.post("/follow", verifyToken, followAuthor);
 
 export default userRouter;
