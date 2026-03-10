@@ -35,6 +35,7 @@ export interface AuthResponse {
     status: string;
     avatarURL?: string;
     vipLevel: number;
+    spiritStones: number;
   };
 }
 
@@ -323,6 +324,7 @@ export const loginUser = async (
       status: user.status,
       avatarURL: user.avatarURL,
       vipLevel: user.vipLevel || 0,
+      spiritStones: user.spiritStones || 0,
     },
   };
 };
@@ -420,6 +422,7 @@ export const googleLogin = async (
         status: user.status,
         avatarURL: user.avatarURL,
         vipLevel: user.vipLevel || 0,
+        spiritStones: user.spiritStones || 0,
       },
     };
   } catch (error) {

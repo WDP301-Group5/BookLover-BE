@@ -6,31 +6,31 @@ import BuyStoneService from "../services/buyStoneService";
 import ZalopayService from "../services/zalopayService";
 
 export const createOrder = async (req: Request, res: Response) => {
-  try {
-    const { amount, description, items } = req.body;
-    const userId = req?.user?.userId;
-    if (!userId) {
-      return res.status(ERR_UNAUTHORIZED).json({
-        message: "User ID is missing in the request",
-      });
-    }
-    const orderData = await ZalopayService.createOrder(
-      userId,
-      Number(amount),
-      description,
-      items,
-    );
-    return res.status(SUCCESS_OK).json({
-      success: true,
-      message: "Tạo đơn thanh toán thành công",
-      data: orderData,
-    });
-  } catch (error) {
-    return res.status(ERR_INTERNAL_SERVER).json({
-      message: "Có lỗi xảy ra khi tạo đơn thanh toán",
-      error: error,
-    });
-  }
+	try {
+		const { amount, description, items } = req.body;
+		const userId = req?.user?.userId;
+		if (!userId) {
+			return res.status(ERR_UNAUTHORIZED).json({
+				message: "User ID is missing in the request",
+			});
+		}
+		const orderData = await ZalopayService.createOrder(
+			userId,
+			Number(amount),
+			description,
+			items,
+		);
+		return res.status(SUCCESS_OK).json({
+			success: true,
+			message: "Tạo đơn thanh toán thành công",
+			data: orderData,
+		});
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi tạo đơn thanh toán",
+			error: error,
+		});
+	}
 };
 
 export const zalopayCallback = async (req: Request, res: Response) => {

@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
-import type { IUser } from "../interfaces/user.js";
+import type { IUpdateUserData, IUser } from "../interfaces/user.js";
+import { ReadingHistory } from "../models/ReadingHistory.js";
 import { User } from "../models/User.js";
 
 const PUBLIC_PROFILE_FIELDS =
@@ -43,18 +44,18 @@ const UserService = {
     return user;
   },
 
-  async updateProfile(userId: string, profileData: Partial<IUser>) {
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new Error("Invalid user ID");
-    }
+	async updateProfile(userId: string, profileData: Partial<IUpdateUserData>) {
+		if (!Types.ObjectId.isValid(userId)) {
+			throw new Error("Invalid user ID");
+		}
 
-    const updateData: Partial<IUser> = {};
+		const updateData: Partial<IUpdateUserData> = {};
 
-    for (const key of ALLOWED_UPDATE_FIELDS as (keyof IUser)[]) {
-      if (profileData[key] !== undefined) {
-        (updateData as Record<string, unknown>)[key] = profileData[key];
-      }
-    }
+		for (const key of ALLOWED_UPDATE_FIELDS as (keyof IUpdateUserData)[]) {
+			if (profileData[key] !== undefined) {
+				updateData[key] = profileData[key];
+			}
+		}
 
     const updated = await User.findByIdAndUpdate(
       userId,
@@ -69,7 +70,37 @@ const UserService = {
       throw new Error("User not found");
     }
 
-    return updated;
+		return updated;
+	},
+
+	async saveHistory(userId: string, storyId: string, newChapterNumber: number) {
+		try {
+			const userHistory = await ReadingHistory.findOne({ userId, storyId });
+			if (userHistory) {
+				if (newChapterNumber > userHistory.chapterNumber) {
+					userHistory.chapterNumber = newChapterNumber;
+					await userHistory.save();
+				}
+				return userHistory;
+			}
+			const newHistory = new ReadingHistory({
+				userId,
+				storyId,
+				chapterNumber: newChapterNumber,
+			});
+			await newHistory.save();
+			return newHistory;
+		} catch (error) {
+			throw new Error(`Error adding new reading history: ${error}`);
+		}
+	},
+
+  async checkUserStone(userId: string) {
+    const user = await User.findById(userId).select("spiritStones").lean();
+    if (!user) {
+      return null;
+    }
+    return user.spiritStones;
   },
 };
 

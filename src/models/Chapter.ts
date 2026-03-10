@@ -4,6 +4,7 @@ import type { IChapter } from "../interfaces/chapter";
 
 const chapterSchema = new mongoose.Schema(
   {
+    id: String,
     storyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Story",
@@ -17,6 +18,15 @@ const chapterSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+    },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    price: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     contentURL: {
       type: String,

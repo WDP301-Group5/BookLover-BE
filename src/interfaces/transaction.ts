@@ -2,7 +2,7 @@ export interface ITransaction {
 	// mua vip bằng linh thậch
 	id: string;
 	userId: string;
-	planId: string;
+	chapterId: string;
 	spiritStones: number;
 	stoneBefore: number;
 	stoneAfter: number;

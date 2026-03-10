@@ -1,13 +1,14 @@
 import type { Request, Response } from "express";
 import client from "../config/redis";
-import { ERR_INTERNAL_SERVER } from "../consts/errorCode";
+import { ERR_BAD_REQUEST, ERR_INTERNAL_SERVER } from "../consts/errorCode";
 import {
   NEWCHAPTERSTORY,
   RECOMMENDSTORY,
   TOP10STORY,
 } from "../consts/redisCode";
-import { SUCCESS_OK } from "../consts/successCode";
+import { SUCCESS_CREATED, SUCCESS_OK } from "../consts/successCode";
 import StoryService from "../services/storyService";
+import UserService from "../services/userService";
 
 export const getRecommendStory = async (req: Request, res: Response) => {
   try {
@@ -143,15 +144,40 @@ export const updateStory = async (req: Request, res: Response) => {
 };
 
 export const deleteStory = async (req: Request, res: Response) => {
-  try {
-    await StoryService.deleteStory(req.params.id);
-    return res
-      .status(SUCCESS_OK)
-      .json({ message: "Story deleted successfully" });
-  } catch (error) {
-    return res.status(ERR_INTERNAL_SERVER).json({
-      message: "Có lỗi xảy ra khi xóa truyện",
-      error: error,
-    });
-  }
+	try {
+		await StoryService.deleteStory(req.params.id);
+		return res
+			.status(SUCCESS_OK)
+			.json({ message: "Story deleted successfully" });
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi xóa truyện",
+			error: error,
+		});
+	}
+};
+
+export const readChapter = async (req: Request, res: Response) => {
+	const userId = req.user ? req.user.userId : undefined;
+	const storyId = req.params.storyId;
+	try {
+		if (!storyId) {
+			return res
+				.status(ERR_BAD_REQUEST)
+				.json({ message: "Không có thông tin truyện" });
+		}
+		const chapterNumber = req.body.chapterNumber || 0;
+		if (userId && chapterNumber > 0) {
+			await UserService.saveHistory(userId, storyId, chapterNumber);
+		}
+		const read = await StoryService.viewStory(storyId);
+		return res.status(SUCCESS_CREATED).json({
+			success: !!read,
+			message: "Story viewed successfully",
+		});
+	} catch (error) {
+		return res
+			.status(ERR_INTERNAL_SERVER)
+			.json({ message: "Có lỗi xảy ra khi người dùng xem truyện.", error });
+	}
 };
