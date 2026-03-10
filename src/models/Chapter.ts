@@ -19,6 +19,15 @@ const chapterSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    price: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     contentURL: {
       type: String,
       required: true,

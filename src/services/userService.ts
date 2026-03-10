@@ -94,6 +94,14 @@ const UserService = {
 			throw new Error(`Error adding new reading history: ${error}`);
 		}
 	},
+
+  async checkUserStone(userId: string) {
+    const user = await User.findById(userId).select("spiritStones").lean();
+    if (!user) {
+      return null;
+    }
+    return user.spiritStones;
+  },
 };
 
 export default UserService;
