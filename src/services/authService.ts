@@ -24,6 +24,19 @@ import createHttpError from "http-errors";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+const generateUniqueUsername = async (base: string) => {
+	let username = base.toLowerCase().replace(/[^a-z0-9_]/g, "");
+	let counter = 1;
+
+	while (true) {
+		const exists = await UserAuth.findOne({ username });
+		if (!exists) return username;
+
+		username = `${base}${counter}`;
+		counter++;
+	}
+};
+
 export interface AuthResponse {
   accessToken: string;
   user: {
@@ -66,8 +79,11 @@ export const registerUser = async (
   }
 
   // Create User with inactive status (pending email verification)
+  const baseUsername = emailLower.split("@")[0].toLowerCase();
+  const username = await generateUniqueUsername(baseUsername);
+
   const user = await User.create({
-    username: emailLower.split("@")[0].toLowerCase(),
+    username: username,
     fullName: name,
     email: emailLower,
     role: "user",
@@ -84,7 +100,7 @@ export const registerUser = async (
     email: emailLower,
     provider: "local",
     password: password,
-    username: emailLower.split("@")[0],
+    username: username,
   });
 
   // Generate email verification token (24h expiry)
@@ -372,8 +388,10 @@ export const googleLogin = async (
       }
     } else {
       // New user - create both User and UserAuth
+      const baseUsername = emailLower.split("@")[0].toLowerCase();
+      const username = await generateUniqueUsername(baseUsername);
       user = await User.create({
-        username: emailLower.split("@")[0].toLowerCase(),
+        username: username,
         fullName: name || email.split("@")[0],
         email: emailLower,
         role: "user",
@@ -389,7 +407,7 @@ export const googleLogin = async (
         email: emailLower,
         provider: "google",
         providerUserId: googleId,
-        username: emailLower.split("@")[0].toLowerCase(),
+        username: username,
       });
     }
 

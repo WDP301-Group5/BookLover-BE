@@ -3,6 +3,7 @@ import { addNewReadingHistory } from "../controllers/readingHistoryController";
 import {
 	getLast3History,
 	getProfile,
+	searchUsers,
 	updateProfile,
 } from "../controllers/userController";
 import { verifyToken } from "../middleware/auth";
@@ -21,5 +22,6 @@ userRouter.put(
 	uploadAvatarAndBackground,
 	updateProfile,
 );
+userRouter.get("/search", searchUsers);
 
 export default userRouter;

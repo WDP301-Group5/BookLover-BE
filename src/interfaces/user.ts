@@ -33,6 +33,7 @@ export interface UserProfile {
 export interface IUpdateUserData {
 	fullName: string;
 	nickName: string;
+  username: string;
 	penName: string;
 	dob: string;
 	avatarURL: string;
