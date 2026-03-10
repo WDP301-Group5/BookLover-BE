@@ -1,9 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
-import { uploadImage, uploadText } from "../config/cloudinary.js";
+import { upload, uploadHTMLToCloudinary, uploadImage } from "../config/cloudinary.js";
 import {
   ERR_BAD_REQUEST,
   ERR_SERVICE_UNAVAILABLE,
 } from "../consts/errorCode.js";
+import multer from "multer";
+import path from "node:path";
+import { convertFileToHtml } from "../utils/convertFileToHTML.js";
 
 // Middleware upload một file ảnh
 export const uploadStoryImage = (
@@ -188,76 +191,55 @@ export const uploadAvatarAndBackground = (
   });
 };
 
-export const uploadTextFile = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  console.log("=== CHAPTER UPLOAD START ===");
-  console.log(
-    "Request body keys:",
-    req.body ? Object.keys(req.body) : "body is undefined",
-  );
-  console.log("Request headers:", {
-    contentType: req.headers["content-type"],
-    authorization: req.headers.authorization ? "present" : "missing",
-  });
+export const uploadTextFile = [
+  upload.single("file"),
 
-  uploadText.single("file")(req, res, (err) => {
-    if (err) {
-      console.error("❌ Upload text file error:", {
-        message: err.message,
-        status: (err as any).status,
-        code: (err as any).code,
-      });
-      return res.status(ERR_SERVICE_UNAVAILABLE).json({
-        error: "Lỗi upload file",
-        errorDetail: err.message,
-        details:
-          "Vui lòng đảm bảo file là .txt, .pdf, .doc, .docx, .html hoặc .md",
-      });
-    }
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log("=== CHAPTER UPLOAD START ===");
 
-    if (
-      req.body &&
-      typeof req.body.contentURL === "string" &&
-      req.body.contentURL.trim() !== "" &&
-      !req.file
-    ) {
-      console.log("✓ Using existing contentURL:", req.body.contentURL);
-      return next();
-    }
-
-    if (!req.file) {
-      console.error("❌ No file received in req.file");
-      if (req.body) {
-        console.log("Request body after upload middleware:", {
-          keys: Object.keys(req.body),
-          storyId: req.body.storyId,
-          chapterNumber: req.body.chapterNumber,
-          title: req.body.title,
-          status: req.body.status,
+      if (!req.file) {
+        return res.status(400).json({
+          error: "Chưa có file được gửi lên",
         });
       }
-      return res
-        .status(ERR_BAD_REQUEST)
-        .json({ error: "Chưa có file được gửi lên" });
+
+      console.log("File received:", req.file.originalname);
+
+      // convert file -> HTML
+      const html = await convertFileToHtml(
+        req.file.buffer,
+        req.file.originalname,
+      );
+
+      console.log("Convert to HTML success");
+
+      // upload HTML lên Cloudinary
+      const result = await uploadHTMLToCloudinary(
+        html,
+        req.file.originalname,
+      );
+
+      console.log("Uploaded to Cloudinary:", result.secure_url);
+
+      // gắn URL vào req.file
+      req.body.file = result.secure_url;
+      // (req.file as any).path = result.secure_url;
+      // (req.file as any).filename = result.public_id;
+
+      // optional
+      req.body.contentURL = result.secure_url;
+
+      next();
+    } catch (error) {
+      console.error("Upload chapter error:", error);
+
+      return res.status(500).json({
+        error: "Lỗi xử lý file",
+      });
     }
-
-    console.log("✓ File uploaded successfully:", {
-      filename: req.file.filename,
-      path: req.file.path,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-      originalname: req.file.originalname,
-    });
-    req.body = req.body || {};
-    req.body.file = req.file.path;
-
-    // Nếu upload thành công => gọi next()
-    next();
-  });
-};
+  },
+];
 
 export const uploadGenreAvatar = (
   req: Request,

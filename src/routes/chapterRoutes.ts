@@ -6,6 +6,7 @@ import { uploadTextFile } from "../middleware/upload";
 
 const chapterRouter = Router();
 
+chapterRouter.post("/testfile", uploadTextFile, chapterController.testFileUpload);
 chapterRouter.post("/buy/:chapterId", checkToken, chapterController.buyChapter);
 chapterRouter.post("/", verifyToken, uploadTextFile, chapterController.createChapter);
 chapterRouter.get("/story/:storyId", chapterController.getChaptersByStory);
