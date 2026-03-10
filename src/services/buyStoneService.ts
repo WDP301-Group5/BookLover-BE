@@ -37,6 +37,11 @@ const BuyStoneService = {
 
 			const savedBuyStoneRecord = await buyStoneRecord.save();
 
+			await User.updateOne(
+				{ _id: orderData.userId },
+				{ $set: { spiritStones: stoneAfter } },
+			);
+
 			return savedBuyStoneRecord;
 		} catch (error) {
 			throw new Error(`Error creating buy stone record: ${error}`);
