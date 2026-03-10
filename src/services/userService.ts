@@ -114,6 +114,24 @@ const UserService = {
     }
     return user.spiritStones;
   },
+
+  async searchUsers(query: string) {
+    if (!query || query.trim() === "") {
+      return [];
+    }
+
+    // Tìm user dựa trên username hoặc penName, không phân biệt hoa/thường
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { penName: { $regex: query, $options: "i" } },
+      ],
+    })
+      .select("id username penName fullName role")
+      .lean<IUser[]>();
+
+    return users;
+  }
 };
 
 export default UserService;
