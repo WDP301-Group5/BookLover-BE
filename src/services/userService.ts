@@ -172,11 +172,17 @@ const UserService = {
       status: "follow",
     });
 
+    const storiesCount = await Story.countDocuments({
+      authorId: userId,
+      status: "active",
+    });
+
     return {
       ...author,
       stories,
       followingCount,
       followersCount,
+      storiesCount,
     };
   },
 
