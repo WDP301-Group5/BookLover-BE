@@ -2,6 +2,7 @@ import path from "node:path";
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { convertFileToHtml } from "../utils/convertFileToHTML";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,14 +21,25 @@ const imageStorage = new CloudinaryStorage({
   },
 });
 
-const textStorage = new CloudinaryStorage({
-  cloudinary,
-  params: async (_req, file) => ({
-    folder: "WDP301_BookLover/texts",
-    resource_type: "raw",
-    public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, "")}${path.extname(file.originalname)}`,
-  }),
-});
+export const uploadHTMLToCloudinary = async (
+  html: string,
+  fileName: string,
+) => {
+  const base64 = Buffer.from(html).toString("base64");
+
+  const result = await cloudinary.uploader.upload(
+    `data:text/html;base64,${base64}`,
+    {
+      folder: "WDP301_BookLover/texts",
+      resource_type: "raw",
+      public_id: `${Date.now()}-${fileName.replace(/\.[^/.]+$/, "")}.html`,
+    },
+  );
+
+  return result;
+};
+
+const storage = multer.memoryStorage();
 
 const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
   const allowed = [".txt", ".pdf", ".docx", ".doc", ".html", ".md"];
@@ -40,15 +52,16 @@ const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
   }
 };
 
+export const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
+
 export const uploadImage = multer({
   storage: imageStorage,
   limits: { fileSize: 10 * 1024 * 1024 },
 }); // 10MB
-export const uploadText = multer({
-  storage: textStorage,
-  fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 },
-}); // 50MB for text files
 
 export const deleteImageFromCloudinary = async (publicId: string) => {
   try {
