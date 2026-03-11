@@ -421,12 +421,31 @@ const StoryService = {
 
 	async getStoryBySlug(slug: string) {
 		try {
-			const story = await Story.findOne({ slug }).populate("topics").lean();
+			const story = await Story.findOne({ slug })
+				.populate("topics")
+				.populate("authorId", "fullName nickName penName avatarURL username")
+				.lean();
+
 			if (!story) {
 				throw new Error("Story not found");
 			}
-			story.id = story._id.toString();
-			return story;
+
+			const author = story.authorId as any;
+
+			return {
+				...story,
+				id: story._id.toString(),
+				author: author
+					? {
+							id: author._id?.toString(),
+							fullName: author.fullName,
+							nickName: author.nickName,
+							penName: author.penName,
+							username: author.username,
+							avatarURL: author.avatarURL,
+					}
+					: null,
+			};
 		} catch (error) {
 			throw new Error(`Error fetching story by slug: ${error}`);
 		}
