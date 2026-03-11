@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import ReadingHistoryService from "../services/readingHistoryService.js";
 import UserService from "../services/userService.js";
+import { SUCCESS_OK } from "../consts/successCode.js";
+import { ERR_BAD_REQUEST, ERR_INTERNAL_SERVER } from "../consts/errorCode.js";
 
 export const getAllUsers = async (_req: Request, res: Response) => {
 	try {
@@ -20,17 +22,20 @@ export const getAllUsers = async (_req: Request, res: Response) => {
 
 export const getLast3History = async (req: Request, res: Response) => {
 	try {
-		const { userId } = req.query;
+		const userId = req.user ? req.user.userId : undefined;
+		if (!userId) {
+			return res.status(ERR_BAD_REQUEST).json({message: "Không có thông tin người dùng"});
+		}
 		const history = await ReadingHistoryService.getLast3History(
 			userId as string,
 		);
-		res.status(200).json({
+		res.status(SUCCESS_OK).json({
 			success: true,
 			message: "Get last 3 history successfully!",
 			data: history,
 		});
 	} catch (error) {
-		return res.status(500).json({
+		return res.status(ERR_INTERNAL_SERVER).json({
 			success: false,
 			error: `An error occured during getting last 3 history! ${error}.`,
 		});
