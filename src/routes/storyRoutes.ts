@@ -8,6 +8,7 @@ import {
 	getRecommendStory,
 	getStories,
 	getStoryBySlug,
+	getStoryWithAuthor,
 	getTop10Story,
 	readChapter,
 	updateStory,
@@ -24,6 +25,7 @@ storyRouter.get('/newchapter', getNewChapterStory);
 storyRouter.get('/top10', getTop10Story);
 storyRouter.get('/search', getNewChapterStoryWithFilter);
 storyRouter.get('/my-stories', verifyToken, getMyStories);
+storyRouter.get('/with-author/:slug', getStoryWithAuthor);
 storyRouter.post("/read/:storyId", checkToken, readChapter);
 storyRouter.post('/', verifyToken, uploadStoryImage, createStory);
 storyRouter.get('/', getStories);

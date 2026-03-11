@@ -1,9 +1,20 @@
 import { Topic } from "../models/Topic";
 import type { ITopic } from "../interfaces/topic";
+import { getTopics } from "../controllers/topicController";
 
 const TopicService = {
   // Lấy tất cả topics
   async getAllTopics(): Promise<ITopic[]> {
+    try {
+      const topics = await Topic.find({ status: "active" }).lean();
+      return topics;
+    } catch (error) {
+      console.error("Error fetching topics:", error);
+      throw new Error("Error fetching topics");
+    }
+  },
+
+  async getTopics (): Promise<ITopic[]> {
     try {
       const topics = await Topic.find({ status: "active" }).lean();
       return topics;

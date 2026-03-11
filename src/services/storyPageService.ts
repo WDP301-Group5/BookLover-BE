@@ -2,20 +2,15 @@
 import type { IStory } from "../interfaces/story";
 import { Story } from "../models/Story";
 import { slugify } from "../utils/validation";
-
 export async function createStory(data: Partial<IStory>) {
   try {
-    const story = new Story({
-      ...data,
-      slug: slugify(data.title || ""),
-    });
+    const story = new Story({ ...data, slug: slugify(data.title || "") });
     await story.save();
     return story;
   } catch (error) {
     throw error;
   }
 }
-
 export async function getStories() {
   try {
     const stories = await Story.find({ status: "active" })
@@ -26,7 +21,6 @@ export async function getStories() {
     throw error;
   }
 }
-
 export async function getStoryById(id: string) {
   try {
     const story = await Story.findById(id).populate("topics").lean<IStory>();
@@ -35,7 +29,6 @@ export async function getStoryById(id: string) {
     throw error;
   }
 }
-
 export async function updateStory(id: string, data: Partial<IStory>) {
   try {
     const story = await Story.findByIdAndUpdate(id, data, {
@@ -46,7 +39,6 @@ export async function updateStory(id: string, data: Partial<IStory>) {
     throw error;
   }
 }
-
 export async function deleteStory(id: string) {
   try {
     const result = await Story.findByIdAndDelete(id);
