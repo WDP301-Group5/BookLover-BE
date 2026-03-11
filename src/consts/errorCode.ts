@@ -7,6 +7,8 @@ export const ERR_INVALID_TOKEN = 401; // Token sai (sửa token) hoặc hết h�
 export const ERR_FORBIDDEN = 403; // không có quyền truy cập tài nguyên
 export const ERR_NOT_FOUND = 404; // không tìm thấy tài nguyên, sai đường dẫn
 export const ERR_RESOURCE_CONFLICT = 409; // Trùng dữ liệu, xung đột dữ liệu
+export const ERR_TOO_MANY_REQUESTS = 429; // Quá nhiều yêu cầu (rate limit)
+export const ERR_PAYMENT_REQUIRED = 402; // Thanh toán không thành công
 
 // Lỗi do server gặp sự cố
 export const ERR_INTERNAL_SERVER = 500; // Lỗi máy chủ nội bộ

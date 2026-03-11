@@ -1,0 +1,14 @@
+import express from "express";
+import * as genreController from "../controllers/genreController.js";
+import { uploadGenreAvatar } from "../middleware/upload.js";
+
+const genreRouter = express.Router();
+
+genreRouter.get("/", genreController.getAllGenres);
+genreRouter.get("/:id", genreController.getGenreById);
+genreRouter.post("/", uploadGenreAvatar, genreController.createGenre);
+genreRouter.put("/:id", uploadGenreAvatar, genreController.updateGenre);
+genreRouter.delete("/:id", genreController.deleteGenre);
+genreRouter.post("/delete-many", genreController.deleteManyGenres);
+
+export default genreRouter;

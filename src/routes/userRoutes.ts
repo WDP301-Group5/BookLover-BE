@@ -1,9 +1,11 @@
 import express from "express";
 import { addNewReadingHistory } from "../controllers/readingHistoryController";
 import {
-	getAllUsers,
+	followAuthor,
 	getLast3History,
 	getProfile,
+	getPublicProfile,
+	searchUsers,
 	updateProfile,
 } from "../controllers/userController";
 import { verifyToken } from "../middleware/auth";
@@ -11,8 +13,7 @@ import { uploadAvatarAndBackground } from "../middleware/upload";
 
 const userRouter = express.Router();
 
-// TEST
-userRouter.get("/test", getAllUsers);
+// TEST endpoint removed - use /admin/users instead
 userRouter.get("/history/last3", getLast3History);
 userRouter.put("/history/reading", addNewReadingHistory);
 
@@ -23,5 +24,8 @@ userRouter.put(
 	uploadAvatarAndBackground,
 	updateProfile,
 );
+userRouter.get("/search", searchUsers);
+userRouter.get("/:userId/public", getPublicProfile);
+userRouter.post("/follow", verifyToken, followAuthor);
 
 export default userRouter;

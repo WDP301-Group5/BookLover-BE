@@ -14,6 +14,8 @@ export interface IChapter {
 	storyId: string;
 	chapterNumber: number;
 	title: string;
+	isPremium: boolean;
+	price: number; // giá bán nếu là chương vip
 	contentURL: string;
 	status: (typeof ChapterStatus)[number] | "draft";
 	createdAt?: Date;

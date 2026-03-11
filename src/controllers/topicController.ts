@@ -1,39 +1,16 @@
-import { Request, Response } from "express";
-import TopicService from "../services/TopicService";
+import type { Request, Response } from "express";
+import { ERR_INTERNAL_SERVER } from "../consts/errorCode";
+import { SUCCESS_OK } from "../consts/successCode";
+import TopicService from "../services/topicService";
 
-export const getTopics = async (req: Request, res: Response) => {
-  try {
-    const topics = await TopicService.getAllTopics();
-    res.json({ topics });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Lỗi khi lấy danh sách topics" });
-  }
-};
-
-export const createTopic = async (req: Request, res: Response) => {
-  try {
-    const topic = await TopicService.createTopic(req.body);
-    res.json(topic);
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi khi tạo topic" });
-  }
-};
-
-export const updateTopic = async (req: Request, res: Response) => {
-  try {
-    const topic = await TopicService.updateTopic(req.params.id, req.body);
-    res.json(topic);
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi khi cập nhật topic" });
-  }
-};
-
-export const deleteTopic = async (req: Request, res: Response) => {
-  try {
-    const result = await TopicService.deleteTopic(req.params.id);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi khi xóa topic" });
-  }
+export const getTopics = async (_: Request, res: Response) => {
+	try {
+		const topics = await TopicService.getTopics();
+		return res.status(SUCCESS_OK).json(topics);
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi lấy danh sách chủ đề",
+			error: error,
+		});
+	}
 };

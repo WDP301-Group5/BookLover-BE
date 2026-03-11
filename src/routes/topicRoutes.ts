@@ -1,15 +1,8 @@
 import express from "express";
-import {
-  getTopics,
-  createTopic,
-  updateTopic,
-  deleteTopic,
-} from "../controllers/topicController";
+import { getTopics } from "../controllers/topicController";
 
 const topicRouter = express.Router();
 
-topicRouter.get("/", getTopics);          
-topicRouter.post("/", createTopic);        
-topicRouter.put("/:id", updateTopic);      
-topicRouter.delete("/:id", deleteTopic);   
+topicRouter.get("/", getTopics);
+
 export default topicRouter;

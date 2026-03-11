@@ -3,12 +3,25 @@ import type { IUser } from "../interfaces/user.js";
 
 const userSchema = new mongoose.Schema(
 	{
-		username: { type: String, required: true, unique: true, trim: true },
+		username: {
+			type: String,
+			required: true,
+			unique: true,
+			trim: true,
+			lowercase: true,
+			minlength: 3,
+			maxlength: 20,
+			match: [
+				/^[a-z0-9_]+$/,
+				"Username chỉ được chứa chữ thường, số và dấu _",
+			],
+		},
 		fullName: { type: String, required: true },
 		nickName: { type: String },
 		penName: { type: String },
 		email: { type: String, required: true, unique: true },
 		dob: { type: Date },
+		bio: { type: String, maxlength: 500 },
 		role: {
 			type: String,
 			enum: ["admin", "author", "user"],
@@ -38,6 +51,8 @@ const userSchema = new mongoose.Schema(
 	},
 	{ timestamps: true },
 );
+
+userSchema.index({ username: 1 }, { unique: true });
 
 userSchema.pre("save", async function () {
 	if (!this.nickName || this.nickName?.trim() === "") {

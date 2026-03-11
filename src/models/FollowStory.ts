@@ -22,6 +22,8 @@ const followStorySchema = new mongoose.Schema(
 	{ timestamps: true },
 );
 
+followStorySchema.index({ userId: 1, storyId: 1 }, { unique: true });
+
 export const FollowStory = mongoose.model<IFollowStory>(
 	"FollowStory",
 	followStorySchema,

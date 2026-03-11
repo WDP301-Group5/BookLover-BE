@@ -1,102 +1,105 @@
 import type { NextFunction, Request, Response } from "express";
-import { uploadImage, uploadText } from "../config/cloudinary.js";
+import { upload, uploadHTMLToCloudinary, uploadImage } from "../config/cloudinary.js";
 import {
-	ERR_BAD_REQUEST,
-	ERR_SERVICE_UNAVAILABLE,
+  ERR_BAD_REQUEST,
+  ERR_SERVICE_UNAVAILABLE,
 } from "../consts/errorCode.js";
+import multer from "multer";
+import path from "node:path";
+import { convertFileToHtml } from "../utils/convertFileToHTML.js";
 
 // Middleware upload một file ảnh
 export const uploadStoryImage = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-	uploadImage.single("image")(req, res, (err) => {
-		if (err) {
-			console.error("Upload lỗi:", err);
-			return res
-				.status(ERR_SERVICE_UNAVAILABLE)
-				.json({ error: "Lỗi upload ảnh ", errorDetail: err?.message });
-		}
+  uploadImage.single("image")(req, res, (err) => {
+    if (err) {
+      console.error("Upload lỗi:", err);
+      return res
+        .status(ERR_SERVICE_UNAVAILABLE)
+        .json({ error: "Lỗi upload ảnh ", errorDetail: err?.message });
+    }
 
-		if (!req.file) {
-			return res
-				.status(ERR_BAD_REQUEST)
-				.json({ error: "Chưa có ảnh được gửi lên" });
-		}
-		req.body.image = req.file.path;
+    if (!req.file) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ error: "Chưa có ảnh được gửi lên" });
+    }
+    req.body.image = req.file.path;
 
-		// Nếu upload thành công => gọi next()
-		next();
-	});
+    // Nếu upload thành công => gọi next()
+    next();
+  });
 };
 
 export const uploadAvatarURL = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-	uploadImage.single("avatarURL")(req, res, (err) => {
-		if (err) {
-			console.error("Upload lỗi:", err);
-			return res
-				.status(ERR_SERVICE_UNAVAILABLE)
-				.json({ error: "Lỗi upload ảnh ", errorDetail: err?.message });
-		}
+  uploadImage.single("avatarURL")(req, res, (err) => {
+    if (err) {
+      console.error("Upload lỗi:", err);
+      return res
+        .status(ERR_SERVICE_UNAVAILABLE)
+        .json({ error: "Lỗi upload ảnh ", errorDetail: err?.message });
+    }
 
-		if (
-			typeof req.body.avatarURL === "string" &&
-			req.body.avatarURL.trim() !== "" &&
-			!req.file
-		) {
-			return next();
-		}
+    if (
+      typeof req.body.avatarURL === "string" &&
+      req.body.avatarURL.trim() !== "" &&
+      !req.file
+    ) {
+      return next();
+    }
 
-		if (!req.file) {
-			return res
-				.status(ERR_BAD_REQUEST)
-				.json({ error: "Chưa có ảnh được gửi lên" });
-		}
+    if (!req.file) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ error: "Chưa có ảnh được gửi lên" });
+    }
 
-		req.body.avatarURL = req.file.path;
+    req.body.avatarURL = req.file.path;
 
-		// Nếu upload thành công => gọi next()
-		next();
-	});
+    // Nếu upload thành công => gọi next()
+    next();
+  });
 };
 
 export const uploadBackgroundURL = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-	uploadImage.single("backgroundURL")(req, res, (err) => {
-		if (err) {
-			console.error("Upload lỗi:", err);
-			return res
-				.status(ERR_SERVICE_UNAVAILABLE)
-				.json({ error: "Lỗi upload ảnh ", errorDetail: err?.message });
-		}
+  uploadImage.single("backgroundURL")(req, res, (err) => {
+    if (err) {
+      console.error("Upload lỗi:", err);
+      return res
+        .status(ERR_SERVICE_UNAVAILABLE)
+        .json({ error: "Lỗi upload ảnh ", errorDetail: err?.message });
+    }
 
-		if (
-			typeof req.body.backgroundURL === "string" &&
-			req.body.backgroundURL.trim() !== "" &&
-			!req.file
-		) {
-			return next();
-		}
+    if (
+      typeof req.body.backgroundURL === "string" &&
+      req.body.backgroundURL.trim() !== "" &&
+      !req.file
+    ) {
+      return next();
+    }
 
-		if (!req.file) {
-			return res
-				.status(ERR_BAD_REQUEST)
-				.json({ error: "Chưa có ảnh được gửi lên" });
-		}
+    if (!req.file) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ error: "Chưa có ảnh được gửi lên" });
+    }
 
-		req.body.backgroundURL = req.file.path;
+    req.body.backgroundURL = req.file.path;
 
-		// Nếu upload thông => gọi next()
-		next();
-	});
+    // Nếu upload thông => gọi next()
+    next();
+  });
 };
 
 // export const uploadAvatarAndBackground = (
@@ -156,68 +159,116 @@ export const uploadBackgroundURL = (
 // };
 
 export const uploadAvatarAndBackground = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-	uploadImage.fields([
-		{ name: "avatarURL", maxCount: 1 },
-		{ name: "backgroundURL", maxCount: 1 },
-	])(req, res, (err) => {
-		if (err) {
-			console.error("Upload lỗi:", err);
-			return res.status(ERR_SERVICE_UNAVAILABLE).json({
-				error: "Lỗi upload ảnh",
-				errorDetail: err.message,
-			});
-		}
+  uploadImage.fields([
+    { name: "avatarURL", maxCount: 1 },
+    { name: "backgroundURL", maxCount: 1 },
+  ])(req, res, (err) => {
+    if (err) {
+      console.error("Upload lỗi:", err);
+      return res.status(ERR_SERVICE_UNAVAILABLE).json({
+        error: "Lỗi upload ảnh",
+        errorDetail: err.message,
+      });
+    }
 
-		const files = req.files as {
-			[fieldname: string]: Express.Multer.File[];
-		};
+    const files = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
 
-		if (files?.avatarURL?.[0]) {
-			req.body.avatarURL = files.avatarURL[0].path;
-		}
+    if (files?.avatarURL?.[0]) {
+      req.body.avatarURL = files.avatarURL[0].path;
+    }
 
-		if (files?.backgroundURL?.[0]) {
-			req.body.backgroundURL = files.backgroundURL[0].path;
-		}
+    if (files?.backgroundURL?.[0]) {
+      req.body.backgroundURL = files.backgroundURL[0].path;
+    }
 
-		next();
-	});
+    next();
+  });
 };
 
-export const uploadTextFile = (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+export const uploadTextFile = [
+  upload.single("file"),
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log("=== CHAPTER UPLOAD START ===");
+
+      if (!req.file) {
+        return res.status(400).json({
+          error: "Chưa có file được gửi lên",
+        });
+      }
+
+      console.log("File received:", req.file.originalname);
+
+      // convert file -> HTML
+      const html = await convertFileToHtml(
+        req.file.buffer,
+        req.file.originalname,
+      );
+
+      console.log("Convert to HTML success");
+
+      // upload HTML lên Cloudinary
+      const result = await uploadHTMLToCloudinary(
+        html,
+        req.file.originalname,
+      );
+
+      console.log("Uploaded to Cloudinary:", result.secure_url);
+
+      // gắn URL vào req.file
+      req.body.file = result.secure_url;
+      // (req.file as any).path = result.secure_url;
+      // (req.file as any).filename = result.public_id;
+
+      // optional
+      req.body.contentURL = result.secure_url;
+
+      next();
+    } catch (error) {
+      console.error("Upload chapter error:", error);
+
+      return res.status(500).json({
+        error: "Lỗi xử lý file",
+      });
+    }
+  },
+];
+
+export const uploadGenreAvatar = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-	uploadText.single("file")(req, res, (err) => {
-		if (err) {
-			console.error("Upload lỗi:", err);
-			return res
-				.status(ERR_SERVICE_UNAVAILABLE)
-				.json({ error: "Lỗi upload file", errorDetail: err.message });
-		}
+  uploadImage.single("avatar")(req, res, (err) => {
+    if (err) {
+      console.error("Upload lỗi:", err);
+      return res
+        .status(ERR_SERVICE_UNAVAILABLE)
+        .json({ error: "Lỗi upload ảnh", errorDetail: err?.message });
+    }
 
-		if (
-			typeof req.body.contentURL === "string" &&
-			req.body.contentURL.trim() !== "" &&
-			!req.file
-		) {
-			return next();
-		}
+    if (
+      typeof req.body.avatar === "string" &&
+      req.body.avatar.trim() !== "" &&
+      !req.file
+    ) {
+      return next();
+    }
 
-		if (!req.file) {
-			return res
-				.status(ERR_BAD_REQUEST)
-				.json({ error: "Chưa có file được gửi lên" });
-		}
+    if (!req.file) {
+      return next();
+    }
 
-		req.body.file = req.file.path;
+    req.body.avatar = req.file.path;
 
-		// Nếu upload thành công => gọi next()
-		next();
-	});
+    // Nếu upload thành công => gọi next()
+    next();
+  });
 };

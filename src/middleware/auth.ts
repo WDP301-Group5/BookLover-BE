@@ -48,3 +48,31 @@ export const verifyToken = (
 		return;
 	}
 };
+
+export const checkToken = (
+	// hàm để kiểm tra xem người dùng đã đăng nhập hay chưa
+	// để từ đó xử lý dữ liệu dựa theo thông tin người dùng
+	req: Request,
+	_res: Response,
+	next: NextFunction,
+): void => {
+	const header = req.headers.authorization;
+	if (!header || typeof header !== "string" || !header.startsWith("Bearer ")) {
+		next();
+		return;
+	}
+	const token = header.split(" ")[1];
+	try {
+		const decoded = jwt.verify(
+			token,
+			process.env.JWT_ACCESS_SECRET ?? "access_secret",
+		) as JwtPayload;
+
+		req.user = decoded;
+		next(); // nếu có token thì giải mã và gán thông tin user
+	} catch (_err) {
+		next(); // vẫn call next để chạy hàm phía sau nhưng không cung cấp thông tin user
+		// các hàm phía sau khi gọi hàm này thì sẽ phải tự xử lý trường hợp không có thông tin user
+	}
+	return;
+};
