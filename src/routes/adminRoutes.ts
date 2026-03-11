@@ -8,7 +8,7 @@ import {
   updateAdmin,
 } from "../controllers/adminController.js";
 
-import { requireAdmin } from "../middleware/admin.js";
+import { requireAdmin } from "../middleware/rbac.js";
 
 import adminChapterCensorRouter from "./adminChapterCensorRoutes.js";
 import adminStoryCensorRouter from "./adminStoryCensorRoutes.js";

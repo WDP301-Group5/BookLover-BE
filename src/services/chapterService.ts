@@ -3,6 +3,53 @@ import { Chapter } from "../models/Chapter";
 import { User } from "../models/User";
 
 export const createChapter = (data: IChapter) => Chapter.create(data);
+
+export const createChaptersBatch = async (
+  chapters: Partial<IChapter>[],
+): Promise<any> => {
+  try {
+    if (!chapters || chapters.length === 0) {
+      throw new Error("Danh sách chương không thể trống");
+    }
+
+    // Validate all chapters before creating
+    const invalidChapters: string[] = [];
+    chapters.forEach((chapter, index) => {
+      if (!chapter.storyId) {
+        invalidChapters.push(`Chương ${index + 1}: Story ID là bắt buộc`);
+      }
+      if (!chapter.chapterNumber) {
+        invalidChapters.push(`Chương ${index + 1}: Số chương là bắt buộc`);
+      }
+      if (!chapter.title) {
+        invalidChapters.push(`Chương ${index + 1}: Tiêu đề chương là bắt buộc`);
+      }
+      if (!chapter.contentURL) {
+        invalidChapters.push(`Chương ${index + 1}: URL nội dung là bắt buộc`);
+      }
+    });
+
+    if (invalidChapters.length > 0) {
+      throw new Error(`Validation error: ${invalidChapters.join("; ")}`);
+    }
+
+    // Create chapters in batch
+    const createdChapters = await Chapter.insertMany(chapters, {
+      ordered: false, // Continue inserting even if one fails
+    });
+
+    return {
+      success: true,
+      message: `Tạo thành công ${createdChapters.length} chương`,
+      data: createdChapters,
+      count: createdChapters.length,
+    };
+  } catch (error) {
+    console.error("Error in createChaptersBatch:", error);
+    throw error;
+  }
+};
+
 export const getChaptersByStory = (storyId: string) => {
   try {
     const chapters = Chapter.find({ storyId, status: "active" }).sort({
@@ -40,8 +87,6 @@ export const deleteChapter = (id: string) => Chapter.findByIdAndDelete(id);
 export const getChapterById = (id: string) => Chapter.findById(id);
 
 export const getPriceOfChapter = async (chapterId: string) => {
-  const chapter = await Chapter.findById(chapterId)
-    .select("price")
-    .lean();
+  const chapter = await Chapter.findById(chapterId).select("price").lean();
   return chapter?.price || 0;
 };
