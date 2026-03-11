@@ -12,8 +12,6 @@ import reactCommentRouter from "./reactCommentRoutes.js";
 import storyRouter from "./storyRoutes.js";
 import topicRouter from "./topicRoutes.js";
 import userRouter from "./userRoutes.js";
-import genresRouter from "./genresRoutes.js";
-import topicRouter from "./topicRoutes.js";
 
 const routes = express.Router();
 

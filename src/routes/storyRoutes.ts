@@ -4,6 +4,7 @@ import {
 	deleteStory,
 	getMyStories,
 	getNewChapterStory,
+	getNewChapterStoryWithFilter,
 	getRecommendStory,
 	getStories,
 	getStoryBySlug,
@@ -21,6 +22,7 @@ const storyRouter = express.Router();
 storyRouter.get('/recommend', getRecommendStory);
 storyRouter.get('/newchapter', getNewChapterStory);
 storyRouter.get('/top10', getTop10Story);
+storyRouter.get('/search', getNewChapterStoryWithFilter);
 storyRouter.get('/my-stories', verifyToken, getMyStories);
 storyRouter.post("/read/:storyId", checkToken, readChapter);
 storyRouter.post('/', verifyToken, uploadStoryImage, createStory);

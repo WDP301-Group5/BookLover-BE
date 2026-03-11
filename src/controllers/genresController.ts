@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { GenreModel } from "../models/Genres"; // sửa từ Topic → Genre
+import { Genre } from "../models/Genre"; // sửa từ Topic → Genre
 
 export const getGenres = async (req: Request, res: Response) => {
   try {
-    const genres = await GenreModel.find({ status: "active" }).lean();
+    const genres = await Genre.find({ status: "active" }).lean();
 
     const genreData = genres.map((g) => ({
       _id: g._id.toString(),
