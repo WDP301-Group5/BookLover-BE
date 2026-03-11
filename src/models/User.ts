@@ -37,10 +37,10 @@ const userSchema = new mongoose.Schema(
 		vipLevel: { type: Number, default: 0 },
 
 		// ===== STATS (PROFILE PUBLIC) =====
-		followersCount: { type: Number, default: 0 },
-		followingAuthorsCount: { type: Number, default: 0 },
+		followersCount: { type: Number, default: 0, min: [0, "followersCount không được âm"] },
+		followingCount: { type: Number, default: 0, min: [0, "followingCount không được âm"] },
 		followingStoriesCount: { type: Number, default: 0 },
-		storiesCount: { type: Number, default: 0 },
+		storiesCount: { type: Number, default: 0, min: [0, "storiesCount không được âm"] },
 
 		totalViews: { type: Number, default: 0 }, // author
 		totalVotes: { type: Number, default: 0 }, // author
