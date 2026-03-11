@@ -3,6 +3,7 @@ import type { IReadingHistory } from "../interfaces/readingHistory";
 
 const readinghistorySchema = new mongoose.Schema(
 	{
+		id: String,
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
