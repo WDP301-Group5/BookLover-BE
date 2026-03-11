@@ -12,7 +12,8 @@ const TopicService = {
       throw new Error("Error fetching topics");
     }
   },
-//lấy tất cả topics có status active và sắp xếp theo name
+
+  //lấy tất cả topics có status active và sắp xếp theo name
   async getTopics() {
     return Topic.find({ status: "active" }).sort({ name: 1 });
   },
