@@ -108,3 +108,45 @@ export const searchUsers = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getPublicProfile = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const author = await UserService.getPublicProfile(userId);
+
+    res.status(200).json({
+      success: true,
+      data: author,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: `Error fetching author profile: ${error}`,
+    });
+  }
+};
+
+export const followAuthor = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.userId; // từ verifyToken
+    const { authorId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    if (!authorId) {
+      return res.status(400).json({ success: false, message: "authorId is required" });
+    }
+
+    const result = await UserService.toggleFollow(userId, authorId);
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully ${result.status === "follow" ? "followed" : "unfollowed"} author`,
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: `Error following author: ${error}` });
+  }
+}
