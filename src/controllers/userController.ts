@@ -116,42 +116,86 @@ export const searchUsers = async (req: Request, res: Response) => {
 
 export const getPublicProfile = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const currentUserId = req.user?.userId;
+    const profileUserId = req.params.id;
 
-    const author = await UserService.getPublicProfile(userId);
+    const author = await UserService.getPublicProfile(currentUserId, profileUserId);
 
     res.status(200).json({
       success: true,
       data: author,
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: `Error fetching author profile: ${error}`,
+      message: error.message || "Error fetching author profile",
     });
   }
 };
 
-export const followAuthor = async (req: Request, res: Response) => {
+export const toggleFollowProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.userId; // từ verifyToken
-    const { authorId } = req.body;
+    const currentUserId = req.user?.userId;
+    const targetUserId = req.params.id;
 
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+    if (!currentUserId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
     }
-    if (!authorId) {
-      return res.status(400).json({ success: false, message: "authorId is required" });
-    }
 
-    const result = await UserService.toggleFollow(userId, authorId);
+    const result = await UserService.toggleFollow(currentUserId, targetUserId);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: `Successfully ${result.status === "follow" ? "followed" : "unfollowed"} author`,
+      message: result.status === "follow" ? "Followed successfully" : "Unfollowed successfully",
       data: result,
     });
-  } catch (error) {
-    res.status(500).json({ success: false, error: `Error following author: ${error}` });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Error",
+    });
   }
-}
+};
+
+export const getFollowers = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const currentUserId = req.user?.userId;
+
+    const data = await UserService.getFollowers(userId, page, currentUserId);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Error",
+    });
+  }
+};
+
+export const getFollowing = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const currentUserId = req.user?.userId;
+
+    const data = await UserService.getFollowing(userId, page, currentUserId);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Error",
+    });
+  }
+};
