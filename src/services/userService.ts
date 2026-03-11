@@ -4,6 +4,7 @@ import { ReadingHistory } from "../models/ReadingHistory.js";
 import { User } from "../models/User.js";
 import { Story } from "../models/Story.js";
 import { FollowAuthor } from "../models/FollowAuthor.js";
+import { Chapter } from "../models/Chapter.js";
 
 const PUBLIC_PROFILE_FIELDS =
   "username fullName nickName penName bio dob role email avatarURL backgroundURL vipLevel followersCount followingAuthorsCount followingStoriesCount storiesCount totalViews totalVotes spiritStones createdAt updatedAt";
@@ -162,6 +163,36 @@ const UserService = {
       )
       .lean();
 
+    const storyIds = stories.map((s) => s._id);
+
+    // Đếm số chương của mỗi truyện
+    const chapterCounts = await Chapter.aggregate([
+      {
+        $match: {
+          storyId: { $in: storyIds },
+          status: "active",
+        },
+      },
+      {
+        $group: {
+          _id: "$storyId",
+          chapterNumber: { $max: "$chapterNumber" },
+        },
+      },
+    ]);
+
+    // convert sang map
+    const chapterMap: Record<string, number> = {};
+    chapterCounts.forEach((c) => {
+      chapterMap[c._id.toString()] = c.chapterNumber;
+    });
+
+    // gắn chapterNumber vào story
+    const storiesWithChapters = stories.map((story) => ({
+      ...story,
+      chapterNumber: chapterMap[story._id.toString()] || 0,
+    }));
+
     const followingCount = await FollowAuthor.countDocuments({
       userId: userId,
       status: "follow",
@@ -179,7 +210,7 @@ const UserService = {
 
     return {
       ...author,
-      stories,
+      stories: storiesWithChapters,
       followingCount,
       followersCount,
       storiesCount,
