@@ -1,12 +1,13 @@
 import express from "express";
 import { addNewReadingHistory, deleteHistory } from "../controllers/readingHistoryController";
 import {
-	followAuthor,
-	getLast3History,
-	getProfile,
-	getPublicProfile,
-	searchUsers,
-	updateProfile,
+  followAuthor,
+  getLast3History,
+  getProfile,
+  getPublicProfile,
+  searchUsers,
+  updateProfile,
+  changePasswordController,
 } from "../controllers/userController";
 import { checkToken, verifyToken } from "../middleware/auth";
 import { uploadAvatarAndBackground } from "../middleware/upload";
@@ -20,13 +21,14 @@ userRouter.delete("/history/:historyId", checkToken, deleteHistory);
 
 userRouter.get("/profile", verifyToken, getProfile);
 userRouter.put(
-	"/profile",
-	verifyToken,
-	uploadAvatarAndBackground,
-	updateProfile,
+  "/profile",
+  verifyToken,
+  uploadAvatarAndBackground,
+  updateProfile,
 );
 userRouter.get("/search", searchUsers);
 userRouter.get("/:userId/public", getPublicProfile);
 userRouter.post("/follow", verifyToken, followAuthor);
+userRouter.post("/change-password", verifyToken, changePasswordController);
 
 export default userRouter;
