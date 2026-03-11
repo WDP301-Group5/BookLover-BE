@@ -30,6 +30,11 @@ const storySchema = new mongoose.Schema(
 			ref: "Topic",
 			required: true,
 		},
+		genres: {
+			type: [mongoose.Schema.Types.ObjectId],
+			ref: "Genre",
+			required: true,
+		},
 		tags: {
 			type: [String],
 			required: true,

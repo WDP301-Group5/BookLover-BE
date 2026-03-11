@@ -13,6 +13,10 @@ const TopicService = {
     }
   },
 
+  async getTopics() {
+    return Topic.find({ status: "active" }).sort({ name: 1 });
+  },
+
   // Tạo topic mới
   async createTopic(data: Partial<ITopic>) {
     try {

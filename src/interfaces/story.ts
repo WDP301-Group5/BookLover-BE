@@ -16,6 +16,7 @@ export interface IStory {
 	description: string;
 	authorId: string;
 	topics: string[];
+	genres: string[];
 	tags: string[];
 	status: (typeof StoryStatus)[number] | "draft";
 	isPremium: boolean;

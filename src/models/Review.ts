@@ -3,6 +3,7 @@ import type { IReview } from "../interfaces/review";
 
 const reviewSchema = new mongoose.Schema(
 	{
+		id: String,
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",

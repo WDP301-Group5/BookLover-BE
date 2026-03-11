@@ -23,7 +23,7 @@ dotenv.config();
 checkConnectCloudinary();
 
 // Kết nối MongoDB
-connectDB();
+await connectDB();
 const app = express();
 app.use(bodyParser());
 
