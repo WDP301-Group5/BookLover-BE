@@ -3,6 +3,7 @@ import type { IGenre } from "../interfaces/genre.js";
 
 const genreSchema = new mongoose.Schema(
 	{
+		id: String,
 		name: { type: String, required: true, unique: true },
 		description: { type: String },
 		avatar: { type: String, default: "" },

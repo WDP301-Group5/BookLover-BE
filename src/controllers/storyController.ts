@@ -1,3 +1,4 @@
+// src/controllers/storyController.ts
 import type { Request, Response } from "express";
 import client from "../config/redis";
 import { ERR_BAD_REQUEST, ERR_INTERNAL_SERVER } from "../consts/errorCode";
@@ -31,26 +32,49 @@ export const getRecommendStory = async (req: Request, res: Response) => {
 };
 
 export const getNewChapterStory = async (req: Request, res: Response) => {
+	try {
+		const { page = 1, limit = 24 } = req.query;
+		const offset = Number(limit) * (Number(page) - 1) || 0;
+		const clientKey = `${NEWCHAPTERSTORY}_${page}_${limit}`;
+		const storiesString = await client.get(clientKey);
+		let stories = storiesString ? JSON.parse(storiesString) : null;
+		if (!stories) {
+			stories = await StoryService.getNewChapterStory(
+				Number(offset) || 0,
+				Number(limit) || 24,
+			);
+			await client.set(clientKey, JSON.stringify(stories), {
+				EX: 60 * 5,
+			});
+		}
+		return res.status(SUCCESS_OK).json(stories);
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi lấy các truyện có chương mới",
+			error: error,
+		});
+	}
+};
+
+export const getNewChapterStoryWithFilter = async (req: Request, res: Response) => {
   try {
-    const { page = 1, limit = 24 } = req.query;
-    const offset = Number(limit) * (Number(page) - 1) || 0;
-    const clientKey = `${NEWCHAPTERSTORY}_${page}_${limit}`;
-    const storiesString = await client.get(clientKey);
-    let stories = storiesString ? JSON.parse(storiesString) : null;
-    if (!stories) {
-      stories = await StoryService.getNewChapterStory(
-        Number(offset) || 0,
-        Number(limit) || 24,
-      );
-      await client.set(clientKey, JSON.stringify(stories), {
-        EX: 60 * 5,
-      });
-    }
-    return res.status(SUCCESS_OK).json(stories);
+    const { page = 1, limit = 24, status, category, search, sortBy } = req.query;
+
+    const result = await StoryService.getNewChapterStoryWithFilter({
+      offset: (Number(page) - 1) * Number(limit),
+      limit: Number(limit),
+      status: status as string,
+      category: category as string,
+      search: search as string,
+      sortBy: sortBy as string,
+    });
+
+    return res.status(SUCCESS_OK).json(result);
   } catch (error) {
+    console.error("Error fetching new chapter stories:", error);
     return res.status(ERR_INTERNAL_SERVER).json({
       message: "Có lỗi xảy ra khi lấy các truyện có chương mới",
-      error: error,
+      error,
     });
   }
 };

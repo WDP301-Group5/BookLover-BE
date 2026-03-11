@@ -1,8 +1,7 @@
 import dns from "node:dns/promises";
 import mongoose from "mongoose";
 import { DOTENV } from "../consts/dotenv";
-
-dns.setServers(["1.1.1.1"]);
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 mongoose.set("bufferCommands", false);
 
@@ -36,7 +35,6 @@ const connectDB = async (): Promise<void> => {
 		}
 	} catch (err) {
 		console.error("❌ MongoDB connection failed:", err);
-		process.exit(1);
 	} finally {
 		if (timeoutHandle) {
 			clearTimeout(timeoutHandle);
