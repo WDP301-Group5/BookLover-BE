@@ -1,3 +1,4 @@
+// src/services/storyService.ts
 import type { IReadingHistory } from "../interfaces/readingHistory";
 import type { IStory } from "../interfaces/story";
 import { Chapter } from "../models/Chapter";
@@ -5,7 +6,17 @@ import { ReadingHistory } from "../models/ReadingHistory";
 import { Story } from "../models/Story";
 import { StoryView } from "../models/StoryView";
 import { slugify } from "../utils/validation";
+import { Comment } from "../models/Comment";
+import mongoose from "mongoose";
 
+type FilterOptions = {
+  offset: number;
+  limit: number;
+  status?: string;
+  category?: string;
+  search?: string;
+  sortBy?: string;
+};
 const StoryService = {
 	// gợi ý truyện dựa vào lịch sử đọc
 	async getRecommendStory(userId?: string | null) {
@@ -447,6 +458,213 @@ const StoryService = {
 			throw new Error(`Error deleting story: ${error}`);
 		}
 	},
+
+	async getNewChapterStoryWithFilter(opts: FilterOptions) {
+    const { offset, limit, status, category, search, sortBy } = opts;
+
+    try {
+      const matchStage: any = { status: "active" }; // mặc định active
+
+      // map status front-end sang field back-end
+      if (status) {
+        if (status === "Hoàn thành") matchStage.isFinish = true;
+        else if (status === "Đang tiến hành") matchStage.isFinish = false;
+      }
+
+      if (search) matchStage.title = { $regex: search, $options: "i" };
+
+      const pipeline: any[] = [{ $match: matchStage }];
+
+      // filter category
+    // pipeline filter category
+if (category && category !== "all") {
+  pipeline.push(
+    // lookup topics
+    {
+      $lookup: {
+        from: "topics",
+        localField: "topics", // ✅ field trong Story
+        foreignField: "_id",
+        as: "topicDocs",
+      },
+    },
+    // lookup genres
+    {
+      $lookup: {
+        from: "genres",
+        localField: "genres", 
+        foreignField: "_id",
+        as: "genreDocs",
+      },
+    },
+    {
+      $match: {
+        $or: [
+          { "topicDocs._id": new mongoose.Types.ObjectId(category) },
+          { "genreDocs._id": new mongoose.Types.ObjectId(category) },
+        ],
+      },
+    }
+  );
+}
+
+      // sort
+      let sortStage: any = {};
+      const now = new Date();
+
+      switch (sortBy) {
+        case "Ngày cập nhật":
+          sortStage = { updatedAt: -1 }; break;
+        case "Truyện mới":
+          sortStage = { createdAt: -1 }; break;
+        case "Top tháng":
+        case "Top tuần":
+        case "Top ngày": {
+          let days = sortBy === "Top tháng" ? 30 : sortBy === "Top tuần" ? 7 : 1;
+          const startTime = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+          pipeline.unshift(
+            {
+              $lookup: {
+                from: "storyviews",
+                localField: "_id",
+                foreignField: "storyId",
+                as: "viewsDocs",
+              },
+            },
+            {
+              $addFields: {
+                recentViews: {
+                  $size: {
+                    $filter: {
+                      input: "$viewsDocs",
+                      cond: { $gte: ["$$this.createdAt", startTime] },
+                    },
+                  },
+                },
+              },
+            }
+          );
+          sortStage = { recentViews: -1 };
+          break;
+        }
+        case "Top theo dõi":
+    sortStage = { followers: -1 };
+    break;
+        case "Số chapter":
+          pipeline.push(
+            {
+              $lookup: {
+                from: "chapters",
+                localField: "_id",
+                foreignField: "storyId",
+                as: "chapterDocs",
+              },
+            },
+            {
+              $addFields: { chapterNumber: { $size: "$chapterDocs" } },
+            }
+          );
+          sortStage = { chapterNumber: -1 };
+          break;
+        case "Bình luận":
+          pipeline.push(
+            {
+              $lookup: {
+                from: "comments",
+                localField: "_id",
+                foreignField: "storyId",
+                as: "commentDocs",
+              },
+            },
+            {
+              $addFields: { commentCount: { $size: "$commentDocs" } },
+            }
+          );
+          sortStage = { commentCount: -1 };
+          break;
+        default:
+          sortStage = { updatedAt: -1 };
+      }
+
+      pipeline.push({ $sort: sortStage });
+
+      // pagination
+      pipeline.push({ $skip: offset }, { $limit: limit });
+
+      // join author & topics
+      pipeline.push(
+        {
+          $lookup: {
+            from: "users",
+            localField: "authorId",
+            foreignField: "_id",
+            as: "author",
+          },
+        },
+        { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+        {
+          $lookup: {
+            from: "genres",
+            localField: "topics",
+            foreignField: "_id",
+            as: "topics",
+          },
+        },
+        {
+          $project: {
+            id: "$_id",
+            title: 1,
+            slug: 1,
+            image: 1,
+            description: 1,
+            author: {
+              id: "$author._id",
+              fullName: "$author.fullName",
+              nickName: "$author.nickName",
+              penName: "$author.penName",
+            },
+            topics: "$topics.name",
+            tags: 1,
+            status: 1,
+            isPremium: 1,
+            isFinish: 1,
+            views: 1,
+            stars: 1,
+            rates: 1,
+            followers: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        }
+      );
+
+      const stories = await Story.aggregate(pipeline);
+
+      // total
+      const countFilter: any = { status: "active" };
+      if (status) {
+        if (status === "Hoàn thành") countFilter.isFinish = true;
+        else if (status === "Đang tiến hành") countFilter.isFinish = false;
+      }
+      if (search) countFilter.title = { $regex: search, $options: "i" };
+
+      let total = await Story.countDocuments(countFilter);
+
+if (category && category !== "all" && category !== "Tất cả") {
+    const genres = await Story.aggregate([
+      { $match: countFilter },
+      { $lookup: { from: "genres", localField: "topics", foreignField: "_id", as: "genreDocs" } },
+      { $match: { "genreDocs.name": category } }
+    ]);
+    total = genres.length;
+}
+
+      return { story: stories, total };
+    } catch (error) {
+      console.error("Error fetching stories with filter:", error);
+      throw new Error(`Error fetching stories: ${error}`);
+    }
+  }
 };
 
 export default StoryService;

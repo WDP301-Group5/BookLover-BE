@@ -1,3 +1,4 @@
+// src/routes/index.ts
 import express from "express";
 import authRouter from "./authRoutes.js";
 import chapterRouter from "./chapterPage.js";
@@ -5,6 +6,8 @@ import orderRouter from "./orderRoutes.js";
 import purchaseRoutes from "./purchaseRoutes.js";
 import storyRouter from "./storyRoutes.js";
 import userRouter from "./userRoutes.js";
+import genresRouter from "./genresRoutes.js";
+import topicRouter from "./topicRoutes.js";
 
 const routes = express.Router();
 
@@ -14,5 +17,8 @@ routes.use("/user", userRouter);
 routes.use("/story", storyRouter);
 routes.use("/order", orderRouter);
 routes.use("/chapter", chapterRouter);
+routes.use("/genres", genresRouter);
+routes.use("/topics", topicRouter);
+
 
 export default routes;

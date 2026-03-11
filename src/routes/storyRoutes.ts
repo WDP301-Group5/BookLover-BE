@@ -1,3 +1,4 @@
+// src/routes/storyRoutes.ts
 import express from "express";
 import {
 	createStory,
@@ -9,6 +10,7 @@ import {
 	getTop10Story,
 	updateStory,
 } from "../controllers/storyController";
+import { getGenres } from "../controllers/genresController";
 
 const storyRouter = express.Router();
 
@@ -17,6 +19,7 @@ storyRouter.get("/newchapter", getNewChapterStory);
 storyRouter.get("/top10", getTop10Story);
 storyRouter.post("/", createStory);
 storyRouter.get("/", getStories);
+storyRouter.get("/topics", getGenres);
 storyRouter.get("/:slug", getStoryBySlug);
 storyRouter.put("/:id", updateStory);
 storyRouter.delete("/:id", deleteStory);

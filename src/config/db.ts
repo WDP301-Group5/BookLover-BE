@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-
+import dns from "node:dns/promises";
 dotenv.config();
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
+
 mongoose.set("bufferCommands", false);
 
 const MONGO_URI: string =
@@ -36,7 +38,7 @@ const connectDB = async (): Promise<void> => {
 		}
 	} catch (err: unknown) {
 		if (err instanceof Error) {
-			console.error("MongoDB connection failed:", err.message);
+			console.error("MongoDB connection failed:", err);
 		} else {
 			console.error("MongoDB connection failed:", err);
 		}
