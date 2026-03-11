@@ -9,6 +9,7 @@ import {
 	searchUsers,
 	toggleFollowProfile,
 	updateProfile,
+	changePasswordController,
 } from "../controllers/userController";
 import { checkToken, verifyToken } from "../middleware/auth";
 import { uploadAvatarAndBackground } from "../middleware/upload";
@@ -22,12 +23,13 @@ userRouter.delete("/history/:historyId", checkToken, deleteHistory);
 
 userRouter.get("/profile", verifyToken, getProfile);
 userRouter.put(
-	"/profile",
-	verifyToken,
-	uploadAvatarAndBackground,
-	updateProfile,
+  "/profile",
+  verifyToken,
+  uploadAvatarAndBackground,
+  updateProfile,
 );
 userRouter.get("/search", searchUsers);
+userRouter.post("/change-password", verifyToken, changePasswordController);
 userRouter.get("/:id/profile", checkToken, getPublicProfile);
 
 //FOLLOW

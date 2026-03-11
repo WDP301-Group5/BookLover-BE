@@ -12,12 +12,14 @@ import reactCommentRouter from "./reactCommentRoutes.js";
 import storyRouter from "./storyRoutes.js";
 import topicRouter from "./topicRoutes.js";
 import userRouter from "./userRoutes.js";
+import uploadRouter from "./uploadRoutes.js";
 
 const routes = express.Router();
 
 routes.use("/admin", adminRouter);
 routes.use("/auth", authRouter);
 routes.use("/purchase", purchaseRoutes);
+routes.use("/upload", uploadRouter);
 routes.use("/user", userRouter);
 routes.use("/story", storyRouter);
 routes.use("/order", orderRouter);
