@@ -141,7 +141,7 @@ const UserService = {
         { penName: { $regex: query, $options: "i" } },
       ],
     })
-      .select("id username penName fullName role")
+      .select("id username penName fullName role avatarURL")
       .lean<IUser[]>();
 
     return users;

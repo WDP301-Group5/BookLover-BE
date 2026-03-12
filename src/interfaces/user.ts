@@ -6,8 +6,8 @@ export interface IUser {
   penName?: string;
   email: string;
   dob?: Date;
-  role: 'admin' | 'author' | 'user';
-  status: 'active' | 'inactive' | 'banned';
+  role: "admin" | "author" | "user";
+  status: "active" | "inactive" | "banned";
   avatarURL?: string;
   backgroundURL?: string;
   vipLevel?: number | 0;
@@ -15,6 +15,10 @@ export interface IUser {
   spiritStones: number | 0;
   createdAt?: Date;
   updatedAt?: Date;
+  followersCount?: number;
+  followingCount?: number;
+  followingStoriesCount?: number;
+  storiesCount?: number;
 }
 
 export interface UserProfile {
@@ -31,12 +35,12 @@ export interface UserProfile {
   updatedAt?: Date;
 }
 export interface IUpdateUserData {
-	fullName: string;
-	nickName: string;
+  fullName: string;
+  nickName: string;
   username: string;
-	penName: string;
-	dob: string;
-	avatarURL: string;
-	backgroundURL: string;
-	bio: string;
+  penName: string;
+  dob: string;
+  avatarURL: string;
+  backgroundURL: string;
+  bio: string;
 }

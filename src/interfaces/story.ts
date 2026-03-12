@@ -9,21 +9,22 @@ const StoryStatus = [
 ];
 
 export interface IStory {
-  id: string;
-  title: string;
-  slug: string;
-  image: string;
-  description: string;
-  authorId: string;
-  topics: string[];
-  tags: string[];
-  status: (typeof StoryStatus)[number] | "draft";
-  isPremium: boolean;
-  isFinish: boolean;
-  views: number;
-  stars: number;
-  rates: number;
-  followers: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+	id: string;
+	title: string;
+	slug: string;
+	image: string;
+	description: string;
+	authorId: string;
+	topics: string[];
+	genres: string[];
+	tags: string[];
+	status: (typeof StoryStatus)[number] | "draft";
+	isPremium: boolean;
+	isFinish: boolean;
+	views: number;
+	stars: number;
+	rates: number;
+	followers: number;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
