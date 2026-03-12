@@ -10,6 +10,7 @@ import {
 import { SUCCESS_CREATED, SUCCESS_OK } from "../consts/successCode";
 import StoryService from "../services/storyService";
 import UserService from "../services/userService";
+import StoryViewService from "../services/storyViewService";
 
 export const getRecommendStory = async (req: Request, res: Response) => {
   try {
@@ -195,6 +196,7 @@ export const readChapter = async (req: Request, res: Response) => {
 			await UserService.saveHistory(userId, storyId, chapterNumber);
 		}
 		const read = await StoryService.viewStory(storyId);
+    await StoryViewService.addNewView(storyId);
 		return res.status(SUCCESS_CREATED).json({
 			success: !!read,
 			message: "Story viewed successfully",
