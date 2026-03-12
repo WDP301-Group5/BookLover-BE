@@ -15,6 +15,16 @@ const reviewSchema = new mongoose.Schema(
 			required: true,
 		},
 		content: { type: String, required: true },
+		replyCount: { type: Number, default: 0 },
+		replyOf: { type: String, default: null },
+		react: {
+			like: { type: Number, default: 0 },
+			love: { type: Number, default: 0 },
+			haha: { type: Number, default: 0 },
+			wow: { type: Number, default: 0 },
+			sad: { type: Number, default: 0 },
+			angry: { type: Number, default: 0 },
+		},
 		status: {
 			type: String,
 			enum: ["active", "deleted", "spam", "blocked"],
@@ -23,5 +33,10 @@ const reviewSchema = new mongoose.Schema(
 	},
 	{ timestamps: true },
 );
+reviewSchema.index({ chapterId: 1, replyOf: 1, createdAt: -1 });
+
+reviewSchema.index({ replyOf: 1, createdAt: 1 });
+
+reviewSchema.index({ storyId: 1, createdAt: -1 });
 
 export const Review = mongoose.model<IReview>("Review", reviewSchema);

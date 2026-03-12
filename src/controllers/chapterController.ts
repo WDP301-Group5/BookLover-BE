@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import type { Request, Response } from "express";
+import { z } from "zod";
 import {
   ERR_BAD_REQUEST,
   ERR_FORBIDDEN,
@@ -16,13 +17,178 @@ import TransactionService from "../services/transactionService";
 import UserService from "../services/userService";
 import { en } from "zod/locales";
 
-export const createChapter = async (req: Request, res: Response) =>
-  res.json(await chapterService.createChapter(req.body));
+const createChapterSchema = z.object({
+  storyId: z.string().min(1, "Story ID là bắt buộc"),
+  chapterNumber: z.union([z.string(), z.number()]).refine((val) => {
+    const num = typeof val === "string" ? parseInt(val, 10) : val;
+    return Number.isInteger(num) && num >= 1;
+  }, "Số chương phải là số nguyên dương (>= 1)"),
+  title: z.string().min(1, "Tiêu đề chương là bắt buộc"),
+  chapterType: z.enum(["free", "vip"]).optional(),
+  price: z
+    .union([z.string(), z.number()])
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      const num = typeof val === "string" ? parseInt(val, 10) : val;
+      return Number.isInteger(num) && num >= 1;
+    }, "Giá chương phải là số nguyên dương (>= 1)"),
+});
+
+const createChaptersBatchSchema = z.object({
+  storyId: z.string().min(1, "Story ID là bắt buộc"),
+  chapters: z.array(
+    z.object({
+      chapterNumber: z.union([z.string(), z.number()]).refine((val) => {
+        const num = typeof val === "string" ? parseInt(val, 10) : val;
+        return Number.isInteger(num) && num >= 1;
+      }, "Số chương phải là số nguyên dương (>= 1)"),
+      title: z.string().min(1, "Tiêu đề chương là bắt buộc"),
+      chapterType: z.enum(["free", "vip"]).optional(),
+      price: z
+        .union([z.string(), z.number()])
+        .optional()
+        .refine((val) => {
+          if (!val) return true;
+          const num = typeof val === "string" ? parseInt(val, 10) : val;
+          return Number.isInteger(num) && num >= 1;
+        }, "Giá chương phải là số nguyên dương (>= 1)"),
+      fileIndex: z.number().int().min(0).optional(),
+    }),
+  ),
+});
+
+export const createChapter = async (req: Request, res: Response) => {
+  try {
+    // Validate request body
+    const validatedData = createChapterSchema.parse(req.body);
+
+    // Convert chapterNumber and price to integers
+    const chapterNumber = parseInt(String(validatedData.chapterNumber), 10);
+    const price = validatedData.price
+      ? parseInt(String(validatedData.price), 10)
+      : undefined;
+
+    const chapterData = {
+      ...req.body,
+      chapterNumber,
+      ...(price !== undefined && { price }),
+    };
+
+    const result = await chapterService.createChapter(chapterData);
+    return res.json(result);
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      return res.status(ERR_BAD_REQUEST).json({
+        error: "Dữ liệu chương không hợp lệ",
+        details: error.issues,
+      });
+    }
+    return res.status(ERR_INTERNAL_SERVER).json({
+      error: "Lỗi tạo chương",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+export const createChaptersBatch = async (req: Request, res: Response) => {
+  try {
+    console.log("=== CREATE CHAPTERS BATCH START ===");
+    console.log("Request body chapters:", req.body.chapters);
+
+    // Parse chapters JSON string from FormData
+    let chaptersData = req.body.chapters;
+    if (typeof chaptersData === "string") {
+      try {
+        chaptersData = JSON.parse(chaptersData);
+      } catch (e) {
+        return res.status(ERR_BAD_REQUEST).json({
+          error: "Không thể parse dữ liệu chapters",
+          message: "chapters phải là JSON string hợp lệ",
+        });
+      }
+    }
+
+    // Validate request body
+    const validatedData = createChaptersBatchSchema.parse({
+      storyId: req.body.storyId,
+      chapters: chaptersData,
+    });
+
+    // Get uploaded files from middleware
+    const uploadedFiles = req.body.uploadedFiles || [];
+
+    console.log("Uploaded files count:", uploadedFiles.length);
+    console.log("Validated chapters count:", validatedData.chapters.length);
+
+    if (uploadedFiles.length === 0) {
+      return res.status(ERR_BAD_REQUEST).json({
+        error: "Chưa có file được upload",
+      });
+    }
+
+    if (uploadedFiles.length !== validatedData.chapters.length) {
+      return res.status(ERR_BAD_REQUEST).json({
+        error: `Số lượng file (${uploadedFiles.length}) không khớp với số lượng chương (${validatedData.chapters.length})`,
+      });
+    }
+
+    // Map uploaded files with chapter info
+    const chaptersToCreate = validatedData.chapters.map((chapter, index) => {
+      const chapterNumber = parseInt(String(chapter.chapterNumber), 10);
+      const price = chapter.price
+        ? parseInt(String(chapter.price), 10)
+        : undefined;
+
+      // Determine which file to use: by fileIndex if provided, otherwise use sequential index (for backwards compatibility)
+      const fileIndex =
+        chapter.fileIndex !== undefined ? chapter.fileIndex : index;
+      if (fileIndex >= uploadedFiles.length) {
+        throw new Error(
+          `File index ${fileIndex} out of bounds. Total files: ${uploadedFiles.length}`,
+        );
+      }
+
+      return {
+        storyId: validatedData.storyId,
+        chapterNumber,
+        title: chapter.title,
+        contentURL: uploadedFiles[fileIndex].contentURL,
+        isPremium: chapter.chapterType === "vip",
+        ...(price !== undefined && { price }),
+        status: "pending",
+      };
+    });
+
+    console.log("Chapters to create:", chaptersToCreate);
+
+    // Create all chapters using batch insert
+    const result = await chapterService.createChaptersBatch(chaptersToCreate);
+
+    console.log("Batch creation result:", result);
+
+    return res.status(SUCCESS_OK).json(result);
+  } catch (error: unknown) {
+    console.error("Batch creation error:", error);
+
+    if (error instanceof z.ZodError) {
+      return res.status(ERR_BAD_REQUEST).json({
+        error: "Dữ liệu chương không hợp lệ",
+        details: error.issues,
+      });
+    }
+
+    return res.status(ERR_INTERNAL_SERVER).json({
+      error: "Lỗi tạo batch chương",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
 
 export const getChaptersByStory = async (req: Request, res: Response) => {
   try {
     const chapters = await chapterService.getChaptersByStory(
-      req.params.storyId,
+      req.params.storyId as string,
     );
     return res.status(SUCCESS_OK).json(chapters);
   } catch (error: unknown) {
@@ -38,7 +204,9 @@ export const getChapterByChapterNumber = async (
 ) => {
   const userId = req.user ? req.user.userId : undefined;
   try {
-    const storyId = await StoryService.getStoryIdBySlug(req.params.storySlug);
+    const storyId = await StoryService.getStoryIdBySlug(
+      req.params.storySlug as string,
+    );
     const chapter = await chapterService.getChapterByChapterNumber(
       storyId,
       Number(req.params.chapterNumber),
@@ -78,13 +246,15 @@ export const getChapterByChapterNumber = async (
 };
 
 export const updateChapter = async (req: Request, res: Response) =>
-  res.json(await chapterService.updateChapter(req.params.id, req.body));
+  res.json(
+    await chapterService.updateChapter(req.params.id as string, req.body),
+  );
 
 export const deleteChapter = async (req: Request, res: Response) =>
-  res.json(await chapterService.deleteChapter(req.params.id));
+  res.json(await chapterService.deleteChapter(req.params.id as string));
 
 export const getChapterById = async (req: Request, res: Response) =>
-  res.json(await chapterService.getChapterById(req.params.id));
+  res.json(await chapterService.getChapterById(req.params.id as string));
 
 export const testFileUpload = async (req: Request, res: Response) => {
   try {
@@ -117,7 +287,7 @@ export const buyChapter = async (req: Request, res: Response) => {
       message: "Thông tin linh thạch của người dùng không chính xác.",
     });
   }
-  const chapterId = req.params.chapterId;
+  const chapterId = req.params.chapterId as string;
   if (!chapterId) {
     return res
       .status(ERR_BAD_REQUEST)
@@ -146,13 +316,11 @@ export const buyChapter = async (req: Request, res: Response) => {
         message,
       });
     }
-    return res
-      .status(SUCCESS_OK)
-      .json({
-        success: true,
-        message: "Mua chương thành công.",
-        enough: result.enough,
-      });
+    return res.status(SUCCESS_OK).json({
+      success: true,
+      message: "Mua chương thành công.",
+      enough: result.enough,
+    });
   } catch (error: unknown) {
     return res.status(ERR_INTERNAL_SERVER).json({
       message: `Có lỗi xảy ra khi mua chương: ${(error as Error).message}`,

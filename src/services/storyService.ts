@@ -420,18 +420,37 @@ const StoryService = {
     }
   },
 
-  async getStoryBySlug(slug: string) {
-    try {
-      const story = await Story.findOne({ slug }).populate("topics").lean();
-      if (!story) {
-        throw new Error("Story not found");
-      }
-      story.id = story._id.toString();
-      return story;
-    } catch (error) {
-      throw new Error(`Error fetching story by slug: ${error}`);
-    }
-  },
+	async getStoryBySlug(slug: string) {
+		try {
+			const story = await Story.findOne({ slug })
+				.populate("topics")
+				.populate("authorId", "fullName nickName penName avatarURL username")
+				.lean();
+
+			if (!story) {
+				throw new Error("Story not found");
+			}
+
+			const author = story.authorId as any;
+
+			return {
+				...story,
+				id: story._id.toString(),
+				author: author
+					? {
+							id: author._id?.toString(),
+							fullName: author.fullName,
+							nickName: author.nickName,
+							penName: author.penName,
+							username: author.username,
+							avatarURL: author.avatarURL,
+					}
+					: null,
+			};
+		} catch (error) {
+			throw new Error(`Error fetching story by slug: ${error}`);
+		}
+	},
 
   async getStoryIdBySlug(slug: string) {
     try {
@@ -737,6 +756,20 @@ const StoryService = {
     } catch (error) {
       console.error("Error fetching stories with filter:", error);
       throw new Error(`Error fetching stories: ${error}`);
+    }
+  },
+
+  async getStoryWithAuthor(slug: string): Promise<IStory> {
+    try {
+      const story = await Story.findOne({ slug })
+        .populate({ path: "authorId", select: "penName fullName" })
+        .populate("topics")
+        .lean<IStory>();
+      if (!story) throw new Error("Story not found");
+      story.topics = story.topics.map((t: any) => t.name || "");
+      return story;
+    } catch (error) {
+      throw error;
     }
   },
 };

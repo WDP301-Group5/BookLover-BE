@@ -35,10 +35,10 @@ const ReadingHistoryService = {
         .populate("storyId")
         .limit(3)
         .lean();
-		const formatHistories = histories?.map((history) => ({
-			...history,
-			id: history._id.toString()
-		}))
+      const formatHistories = histories?.map((history) => ({
+        ...history,
+        id: history._id.toString(),
+      }));
       return formatHistories;
     } catch (error) {
       throw new Error(`Error fetching last 3 reading histories: ${error}`);
@@ -51,6 +51,29 @@ const ReadingHistoryService = {
       return true;
     } catch (error) {
       throw new Error(`Error deleting reading history: ${error}`);
+    }
+  },
+
+  async getReadingHistory(userId: string, offset: number = 0, limit: number = 24) {
+    try {
+      const histories = await ReadingHistory.find({ userId })
+        .sort({ updatedAt: -1 })
+        .populate("storyId")
+        .skip(offset)
+        .limit(limit)
+        .lean();
+      const total = await ReadingHistory.countDocuments({ userId });
+      const formatHistory = histories?.map((history) => ({
+        ...history,
+        id: history._id.toString(),
+        story: history.storyId,
+      }));
+      return {
+        history: formatHistory,
+        total,
+      };
+    } catch (error) {
+      throw new Error(`Error fetching reading history: ${error}`);
     }
   },
 };
