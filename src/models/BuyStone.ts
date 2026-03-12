@@ -3,6 +3,7 @@ import type { IBuyStone } from "../interfaces/buyStone.js";
 
 const buyStoneSchema = new mongoose.Schema(
 	{
+		id: String,
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",

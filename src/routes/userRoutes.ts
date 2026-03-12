@@ -3,9 +3,14 @@ import { addNewReadingHistory, deleteHistory } from "../controllers/readingHisto
 import {
 	getFollowers,
 	getFollowing,
+	getCommentHistory,
 	getLast3History,
 	getProfile,
 	getPublicProfile,
+	getPurchaseHistory,
+	getReadingHistory,
+	getRechargeHistory,
+	getReviewHistory,
 	searchUsers,
 	toggleFollowProfile,
 	updateProfile,
@@ -20,6 +25,11 @@ const userRouter = express.Router();
 userRouter.get("/history/last3", checkToken, getLast3History);
 userRouter.put("/history/reading", addNewReadingHistory);
 userRouter.delete("/history/:historyId", checkToken, deleteHistory);
+userRouter.get("/history/reading", checkToken, getReadingHistory);
+userRouter.get("/history/comment", checkToken, getCommentHistory);
+userRouter.get("/history/review", checkToken, getReviewHistory);
+userRouter.get("/history/recharge", checkToken, getRechargeHistory);
+userRouter.get("/history/purchase", checkToken, getPurchaseHistory);
 
 userRouter.get("/profile", verifyToken, getProfile);
 userRouter.put(
