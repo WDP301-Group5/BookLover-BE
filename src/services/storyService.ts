@@ -202,9 +202,9 @@ const StoryService = {
     try {
       const now = new Date();
       const range = type === "m" ? 30 : type === "w" ? 7 : 1;
-      const endTime = new Date(now.setHours(0, 0, 0, 0));
+      const endTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
       const startTime = new Date(
-        endTime.setDate(endTime.getTime() - range * 24 * 60 * 60 * 1000),
+        endTime.getTime() - range * 24 * 60 * 60 * 1000,
       );
 
       const stories = await StoryView.aggregate([
@@ -419,37 +419,37 @@ const StoryService = {
     }
   },
 
-	async getStoryBySlug(slug: string) {
-		try {
-			const story = await Story.findOne({ slug })
-				.populate("topics")
-				.populate("authorId", "fullName nickName penName avatarURL username")
-				.lean();
+  async getStoryBySlug(slug: string) {
+    try {
+      const story = await Story.findOne({ slug })
+        .populate("topics")
+        .populate("authorId", "fullName nickName penName avatarURL username")
+        .lean();
 
-			if (!story) {
-				throw new Error("Story not found");
-			}
+      if (!story) {
+        throw new Error("Story not found");
+      }
 
-			const author = story.authorId as any;
+      const author = story.authorId as any;
 
-			return {
-				...story,
-				id: story._id.toString(),
-				author: author
-					? {
-							id: author._id?.toString(),
-							fullName: author.fullName,
-							nickName: author.nickName,
-							penName: author.penName,
-							username: author.username,
-							avatarURL: author.avatarURL,
-					}
-					: null,
-			};
-		} catch (error) {
-			throw new Error(`Error fetching story by slug: ${error}`);
-		}
-	},
+      return {
+        ...story,
+        id: story._id.toString(),
+        author: author
+          ? {
+              id: author._id?.toString(),
+              fullName: author.fullName,
+              nickName: author.nickName,
+              penName: author.penName,
+              username: author.username,
+              avatarURL: author.avatarURL,
+            }
+          : null,
+      };
+    } catch (error) {
+      throw new Error(`Error fetching story by slug: ${error}`);
+    }
+  },
 
   async getStoryIdBySlug(slug: string) {
     try {
