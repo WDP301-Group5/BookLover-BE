@@ -27,9 +27,8 @@ export const uploadStoryImage = (
     }
 
     if (!req.file) {
-      return res
-        .status(ERR_BAD_REQUEST)
-        .json({ error: "Chưa có ảnh được gửi lên" });
+      // Allow draft stories without cover image
+      return next();
     }
     req.body.image = req.file.path;
 

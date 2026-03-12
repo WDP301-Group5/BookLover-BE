@@ -36,7 +36,17 @@ chapterRouter.get(
   chapterController.getChapterByChapterNumber,
 );
 chapterRouter.get("/story/:storyId", chapterController.getChaptersByStory);
-chapterRouter.get("/:id", chapterController.getChapterById);
+chapterRouter.get(
+  "/author/story/:storyId",
+  verifyToken,
+  chapterController.getChaptersByStoryForAuthor,
+);
+chapterRouter.put(
+  "/publish/:storyId",
+  verifyToken,
+  chapterController.publishStoryChapters,
+);
+chapterRouter.get("/:id", verifyToken, chapterController.getChapterById);
 chapterRouter.put(
   "/:id",
   verifyToken,
