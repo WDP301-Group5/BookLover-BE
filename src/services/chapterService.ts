@@ -60,6 +60,25 @@ export const getChaptersByStory = (storyId: string) => {
     throw new Error(`Có lỗi xảy ra khi lấy danh sách chương: ${error}`);
   }
 };
+
+export const getChaptersByStoryForAuthor = (storyId: string) => {
+  try {
+    return Chapter.find({ storyId }).sort({ chapterNumber: 1 });
+  } catch (error) {
+    throw new Error(`Có lỗi xảy ra khi lấy danh sách chương: ${error}`);
+  }
+};
+
+export const updateChapterStatusByStory = async (
+  storyId: string,
+  fromStatus: string,
+  toStatus: string,
+) => {
+  return Chapter.updateMany(
+    { storyId, status: fromStatus },
+    { $set: { status: toStatus } },
+  );
+};
 export const getChapterByChapterNumber = async (
   storyId: string,
   chapterNumber: number,
