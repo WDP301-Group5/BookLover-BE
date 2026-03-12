@@ -1,5 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
-import { upload, uploadHTMLToCloudinary, uploadImage } from "../config/cloudinary.js";
+import {
+  upload,
+  uploadHTMLToCloudinary,
+  uploadImage,
+} from "../config/cloudinary.js";
 import {
   ERR_BAD_REQUEST,
   ERR_SERVICE_UNAVAILABLE,
@@ -215,10 +219,7 @@ export const uploadTextFile = [
       console.log("Convert to HTML success");
 
       // upload HTML lên Cloudinary
-      const result = await uploadHTMLToCloudinary(
-        html,
-        req.file.originalname,
-      );
+      const result = await uploadHTMLToCloudinary(html, req.file.originalname);
 
       console.log("Uploaded to Cloudinary:", result.secure_url);
 
@@ -236,6 +237,83 @@ export const uploadTextFile = [
 
       return res.status(500).json({
         error: "Lỗi xử lý file",
+      });
+    }
+  },
+];
+
+// Middleware upload nhiều file text cho batch chapters
+export const uploadMultipleTextFiles = [
+  upload.array("files", 50), // Max 50 files per request
+
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log("=== BATCH CHAPTERS UPLOAD START ===");
+
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(ERR_BAD_REQUEST).json({
+          error: "Chưa có file được gửi lên",
+        });
+      }
+
+      console.log(`Files received: ${req.files.length}`);
+
+      // Convert files to URLs and store in req.body
+      const uploadedFiles: Array<{
+        originalName: string;
+        contentURL: string;
+      }> = [];
+
+      for (const file of req.files as Express.Multer.File[]) {
+        try {
+          console.log(
+            `Processing file: ${file.originalname} (${file.size} bytes)`,
+          );
+
+          // Convert file to HTML
+          const html = await convertFileToHtml(file.buffer, file.originalname);
+
+          // Upload HTML to Cloudinary
+          const result = await uploadHTMLToCloudinary(html, file.originalname);
+
+          uploadedFiles.push({
+            originalName: file.originalname,
+            contentURL: result.secure_url,
+          });
+
+          console.log(
+            `File uploaded: ${file.originalname} -> ${result.secure_url}`,
+          );
+        } catch (fileError: unknown) {
+          const errorMessage =
+            fileError instanceof Error
+              ? fileError.message
+              : fileError instanceof Object
+                ? JSON.stringify(fileError)
+                : String(fileError);
+
+          console.error(
+            `Error uploading file ${file.originalname}:`,
+            errorMessage,
+          );
+
+          throw new Error(
+            `Lỗi upload file ${file.originalname}: ${errorMessage}`,
+          );
+        }
+      }
+
+      // Attach uploaded files info to req.body
+      req.body.uploadedFiles = uploadedFiles;
+
+      console.log("All files uploaded successfully");
+      next();
+    } catch (error) {
+      console.error("Batch upload chapter error:", error);
+
+      return res.status(ERR_SERVICE_UNAVAILABLE).json({
+        error: "Lỗi xử lý file",
+        message: error instanceof Error ? error.message : "Unknown error",
       });
     }
   },

@@ -618,3 +618,47 @@ export const confirmPasswordReset = async (
     message: "Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.",
   };
 };
+
+/**
+ * Change password for authenticated user
+ * Requires current password verification for security
+ */
+export const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<{ success: boolean; message: string }> => {
+  // 1. Find userAuth by userId
+  const userAuth = await UserAuth.findOne({ userId });
+  if (!userAuth) {
+    throw createHttpError(404, "Người dùng không tồn tại.");
+  }
+
+  // 2. Verify current password
+  if (!userAuth.password) {
+    throw createHttpError(
+      400,
+      "Tài khoản này không được đăng nhập bằng mật khẩu. Vui lòng sử dụng phương pháp đăng nhập gốc.",
+    );
+  }
+
+  const isPasswordCorrect = comparePassword(currentPassword, userAuth.password);
+  if (!isPasswordCorrect) {
+    throw createHttpError(401, "Mật khẩu hiện tại không chính xác.");
+  }
+
+  // 3. Ensure new password is different from current
+  const isSamePassword = comparePassword(newPassword, userAuth.password);
+  if (isSamePassword) {
+    throw createHttpError(400, "Mật khẩu mới phải khác với mật khẩu hiện tại.");
+  }
+
+  // 4. Update password (pre-save hook will hash it)
+  userAuth.password = newPassword;
+  await userAuth.save();
+
+  return {
+    success: true,
+    message: "Mật khẩu đã được thay đổi thành công.",
+  };
+};

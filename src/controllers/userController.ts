@@ -4,6 +4,21 @@ import UserService from "../services/userService.js";
 import { SUCCESS_OK } from "../consts/successCode.js";
 import { ERR_BAD_REQUEST, ERR_INTERNAL_SERVER } from "../consts/errorCode.js";
 import HistoryService from "../services/historyService.js";
+import { changePassword } from "../services/authService.js";
+import { z } from "zod";
+
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z
+      .string()
+      .min(8, "New password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export const getAllUsers = async (_req: Request, res: Response) => {
   try {
@@ -80,14 +95,82 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     const updated = await UserService.updateProfile(userId, req.body);
 
-    res.status(SUCCESS_OK).json({
+    res.status(200).json({
       success: true,
       message: "Profile updated successfully",
       data: updated,
     });
   } catch (error) {
     console.error(error);
-    res.status(ERR_INTERNAL_SERVER).json({ success: false, error });
+    res.status(500).json({ success: false, error });
+  }
+};
+
+export const changePasswordController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    // Validate request body
+    const validatedData = changePasswordSchema.parse(req.body);
+
+    const result = await changePassword(
+      userId,
+      validatedData.currentPassword,
+      validatedData.newPassword,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: error.issues,
+      });
+    }
+
+    if (error instanceof Error) {
+      // Handle HTTP errors from authService
+      if (error.message.includes("401")) {
+        return res.status(401).json({
+          success: false,
+          message: "Mật khẩu hiện tại không chính xác.",
+        });
+      }
+      if (error.message.includes("400")) {
+        return res.status(400).json({
+          success: false,
+          message: error.message,
+        });
+      }
+      if (error.message.includes("404")) {
+        return res.status(404).json({
+          success: false,
+          message: error.message,
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while changing password",
+      error,
+    });
   }
 };
 
@@ -119,47 +202,87 @@ export const searchUsers = async (req: Request, res: Response) => {
 
 export const getPublicProfile = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const currentUserId = req.user?.userId;
+    const profileUserId = req.params.id;
 
-    const author = await UserService.getPublicProfile(userId);
+    const author = await UserService.getPublicProfile(currentUserId, profileUserId);
 
     res.status(SUCCESS_OK).json({
       success: true,
       data: author,
     });
-  } catch (error) {
-    res.status(ERR_INTERNAL_SERVER).json({
+  } catch (error: any) {
+    res.status(500).json({
       success: false,
-      error: `Error fetching author profile: ${error}`,
+      message: error.message || "Error fetching author profile",
     });
   }
 };
 
-export const followAuthor = async (req: Request, res: Response) => {
+export const toggleFollowProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.userId; // từ verifyToken
-    const { authorId } = req.body;
+    const currentUserId = req.user?.userId;
+    const targetUserId = req.params.id;
 
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-    if (!authorId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "authorId is required" });
+    if (!currentUserId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
     }
 
-    const result = await UserService.toggleFollow(userId, authorId);
+    const result = await UserService.toggleFollow(currentUserId, targetUserId);
 
-    res.status(SUCCESS_OK).json({
+    return res.status(200).json({
       success: true,
-      message: `Successfully ${result.status === "follow" ? "followed" : "unfollowed"} author`,
+      message: result.status === "follow" ? "Followed successfully" : "Unfollowed successfully",
       data: result,
     });
-  } catch (error) {
-    res
-      .status(ERR_INTERNAL_SERVER)
-      .json({ success: false, error: `Error following author: ${error}` });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Error",
+    });
+  }
+};
+
+export const getFollowers = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const currentUserId = req.user?.userId;
+
+    const data = await UserService.getFollowers(userId, page, currentUserId);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Error",
+    });
+  }
+};
+
+export const getFollowing = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const currentUserId = req.user?.userId;
+
+    const data = await UserService.getFollowing(userId, page, currentUserId);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Error",
+    });
   }
 };
 

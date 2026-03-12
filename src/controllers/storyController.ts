@@ -205,3 +205,10 @@ export const readChapter = async (req: Request, res: Response) => {
 			.json({ message: "Có lỗi xảy ra khi người dùng xem truyện.", error });
 	}
 };
+
+export const getStoryWithAuthor = async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  const story = await StoryService.getStoryWithAuthor(slug);
+  if (!story) return res.status(404).json({ message: "Not found" });
+  return res.json(story);
+};
