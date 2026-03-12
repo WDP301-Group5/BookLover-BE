@@ -5,6 +5,7 @@ import { User } from "../models/User.js";
 import { Story } from "../models/Story.js";
 import { FollowAuthor } from "../models/FollowAuthor.js";
 import { Chapter } from "../models/Chapter.js";
+import notificationService from "./notificationService.js";
 
 const PUBLIC_PROFILE_FIELDS =
   "username fullName nickName penName bio dob role email avatarURL backgroundURL vipLevel followersCount followingCount followingStoriesCount storiesCount totalViews totalVotes spiritStones createdAt updatedAt";
@@ -233,7 +234,15 @@ const UserService = {
       throw new Error("Cannot follow yourself");
     }
 
-    const targetUser = await User.findById(targetUserId).lean();
+    const [currentUser, targetUser] = await Promise.all([
+      User.findById(userId).select("username fullName").lean(),
+      User.findById(targetUserId).lean(),
+    ]);
+
+    if (!currentUser) {
+      throw new Error("Current user not found");
+    }
+
     if (!targetUser) {
       throw new Error("Target user not found");
     }
@@ -257,6 +266,12 @@ const UserService = {
         User.findByIdAndUpdate(userId, { $inc: { followingCount: 1 } }),
         User.findByIdAndUpdate(targetUserId, { $inc: { followersCount: 1 } }),
       ]);
+
+      await notificationService.notifyUserFollowed({
+        followerId: userId,
+        followingId: targetUserId,
+        followerUsername: currentUser.username,
+      });
     } else {
       if (existing.status === "follow") {
         existing.status = "unfollow";
@@ -276,6 +291,12 @@ const UserService = {
           User.findByIdAndUpdate(userId, { $inc: { followingCount: 1 } }),
           User.findByIdAndUpdate(targetUserId, { $inc: { followersCount: 1 } }),
         ]);
+
+        await notificationService.notifyUserFollowed({
+          followerId: userId,
+          followingId: targetUserId,
+          followerUsername: currentUser.username,
+        });
       }
     }
 
