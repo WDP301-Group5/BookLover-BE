@@ -7,11 +7,6 @@ const storyViewSchema = new mongoose.Schema(
 			ref: "Story",
 			required: true,
 		},
-		chapterId: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Chapter",
-			required: true,
-		},
 	},
 	{ timestamps: true },
 );

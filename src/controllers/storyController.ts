@@ -10,6 +10,7 @@ import {
 import { SUCCESS_CREATED, SUCCESS_OK } from "../consts/successCode";
 import StoryService from "../services/storyService";
 import UserService from "../services/userService";
+import StoryViewService from "../services/storyViewService";
 
 export const getRecommendStory = async (req: Request, res: Response) => {
   try {
@@ -32,33 +33,43 @@ export const getRecommendStory = async (req: Request, res: Response) => {
 };
 
 export const getNewChapterStory = async (req: Request, res: Response) => {
-	try {
-		const { page = 1, limit = 24 } = req.query;
-		const offset = Number(limit) * (Number(page) - 1) || 0;
-		const clientKey = `${NEWCHAPTERSTORY}_${page}_${limit}`;
-		const storiesString = await client.get(clientKey);
-		let stories = storiesString ? JSON.parse(storiesString) : null;
-		if (!stories) {
-			stories = await StoryService.getNewChapterStory(
-				Number(offset) || 0,
-				Number(limit) || 24,
-			);
-			await client.set(clientKey, JSON.stringify(stories), {
-				EX: 60 * 5,
-			});
-		}
-		return res.status(SUCCESS_OK).json(stories);
-	} catch (error) {
-		return res.status(ERR_INTERNAL_SERVER).json({
-			message: "Có lỗi xảy ra khi lấy các truyện có chương mới",
-			error: error,
-		});
-	}
+  try {
+    const { page = 1, limit = 24 } = req.query;
+    const offset = Number(limit) * (Number(page) - 1) || 0;
+    const clientKey = `${NEWCHAPTERSTORY}_${page}_${limit}`;
+    const storiesString = await client.get(clientKey);
+    let stories = storiesString ? JSON.parse(storiesString) : null;
+    if (!stories) {
+      stories = await StoryService.getNewChapterStory(
+        Number(offset) || 0,
+        Number(limit) || 24,
+      );
+      await client.set(clientKey, JSON.stringify(stories), {
+        EX: 60 * 5,
+      });
+    }
+    return res.status(SUCCESS_OK).json(stories);
+  } catch (error) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      message: "Có lỗi xảy ra khi lấy các truyện có chương mới",
+      error: error,
+    });
+  }
 };
 
-export const getNewChapterStoryWithFilter = async (req: Request, res: Response) => {
+export const getNewChapterStoryWithFilter = async (
+  req: Request,
+  res: Response,
+) => {
   try {
-    const { page = 1, limit = 24, status, category, search, sortBy } = req.query;
+    const {
+      page = 1,
+      limit = 24,
+      status,
+      category,
+      search,
+      sortBy,
+    } = req.query;
 
     const result = await StoryService.getNewChapterStoryWithFilter({
       offset: (Number(page) - 1) * Number(limit),
@@ -157,7 +168,12 @@ export const getStoryBySlug = async (req: Request, res: Response) => {
 
 export const updateStory = async (req: Request, res: Response) => {
   try {
-    const story = await StoryService.updateStory(req.params.id, req.body);
+    const updateData = { ...req.body };
+    // If an image was uploaded via multer/cloudinary middleware, use its URL
+    if (req.file && (req.file as any).path) {
+      updateData.image = (req.file as any).path;
+    }
+    const story = await StoryService.updateStory(req.params.id, updateData);
     return res.status(SUCCESS_OK).json(story);
   } catch (error) {
     return res.status(ERR_INTERNAL_SERVER).json({
@@ -168,42 +184,43 @@ export const updateStory = async (req: Request, res: Response) => {
 };
 
 export const deleteStory = async (req: Request, res: Response) => {
-	try {
-		await StoryService.deleteStory(req.params.id);
-		return res
-			.status(SUCCESS_OK)
-			.json({ message: "Story deleted successfully" });
-	} catch (error) {
-		return res.status(ERR_INTERNAL_SERVER).json({
-			message: "Có lỗi xảy ra khi xóa truyện",
-			error: error,
-		});
-	}
+  try {
+    await StoryService.deleteStory(req.params.id);
+    return res
+      .status(SUCCESS_OK)
+      .json({ message: "Story deleted successfully" });
+  } catch (error) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      message: "Có lỗi xảy ra khi xóa truyện",
+      error: error,
+    });
+  }
 };
 
 export const readChapter = async (req: Request, res: Response) => {
-	const userId = req.user ? req.user.userId : undefined;
-	const storyId = req.params.storyId;
-	try {
-		if (!storyId) {
-			return res
-				.status(ERR_BAD_REQUEST)
-				.json({ message: "Không có thông tin truyện" });
-		}
-		const chapterNumber = req.body.chapterNumber || 0;
-		if (userId && chapterNumber > 0) {
-			await UserService.saveHistory(userId, storyId, chapterNumber);
-		}
-		const read = await StoryService.viewStory(storyId);
-		return res.status(SUCCESS_CREATED).json({
-			success: !!read,
-			message: "Story viewed successfully",
-		});
-	} catch (error) {
-		return res
-			.status(ERR_INTERNAL_SERVER)
-			.json({ message: "Có lỗi xảy ra khi người dùng xem truyện.", error });
-	}
+  const userId = req.user ? req.user.userId : undefined;
+  const storyId = req.params.storyId;
+  try {
+    if (!storyId) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ message: "Không có thông tin truyện" });
+    }
+    const chapterNumber = req.body.chapterNumber || 0;
+    if (userId && chapterNumber > 0) {
+      await UserService.saveHistory(userId, storyId, chapterNumber);
+    }
+    const read = await StoryService.viewStory(storyId);
+    await StoryViewService.addNewView(storyId);
+    return res.status(SUCCESS_CREATED).json({
+      success: !!read,
+      message: "Story viewed successfully",
+    });
+  } catch (error) {
+    return res
+      .status(ERR_INTERNAL_SERVER)
+      .json({ message: "Có lỗi xảy ra khi người dùng xem truyện.", error });
+  }
 };
 
 export const getStoryWithAuthor = async (req: Request, res: Response) => {
