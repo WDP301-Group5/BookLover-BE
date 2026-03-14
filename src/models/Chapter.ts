@@ -4,7 +4,6 @@ import type { IChapter } from "../interfaces/chapter";
 
 const chapterSchema = new mongoose.Schema(
   {
-    id: String,
     storyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Story",
@@ -48,7 +47,8 @@ const chapterSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+    toJSON: { virtuals: true },
+  },
 );
 
 export const Chapter = mongoose.model<IChapter>("Chapter", chapterSchema);
