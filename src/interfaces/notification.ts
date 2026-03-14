@@ -1,7 +1,7 @@
 import type { Document, Types } from "mongoose";
 
 export type NotificationType =
-  | "follow_user"
+  | "user_followed_you"
   | "story_approved"
   | "new_story_followed_author"
   | "chapter_approved"
