@@ -72,6 +72,7 @@ export const createChapter = async (req: Request, res: Response) => {
     const chapterData = {
       ...req.body,
       chapterNumber,
+      isPremium: validatedData.chapterType === "vip",
       ...(price !== undefined && { price }),
     };
 
