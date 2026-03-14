@@ -177,6 +177,7 @@ export const changePasswordController = async (req: Request, res: Response) => {
 export const searchUsers = async (req: Request, res: Response) => {
   try {
     const { q } = req.query;
+    const currentUserId = req.user?.userId;
 
     if (!q || typeof q !== "string") {
       return res.status(400).json({
@@ -185,15 +186,15 @@ export const searchUsers = async (req: Request, res: Response) => {
       });
     }
 
-    const users = await UserService.searchUsers(q);
+    const users = await UserService.searchUsers(q, currentUserId);
 
-    res.status(SUCCESS_OK).json({
+    return res.status(SUCCESS_OK).json({
       success: true,
       message: "Search users successfully",
       data: users,
     });
   } catch (error) {
-    res.status(ERR_INTERNAL_SERVER).json({
+    return res.status(ERR_INTERNAL_SERVER).json({
       success: false,
       error: `Error searching users: ${error}`,
     });
@@ -327,7 +328,7 @@ export const getCommentHistory = async (req: Request, res: Response) => {
     );
     res.status(SUCCESS_OK).json({ success: true, data: history });
   } catch (error) {
-	console.log("============", error)
+    console.log("============", error)
     res.status(ERR_INTERNAL_SERVER).json({
       success: false,
       error: `Error getting comment history: ${error}`,
