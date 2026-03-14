@@ -50,9 +50,9 @@ export const createChaptersBatch = async (
   }
 };
 
-export const getChaptersByStory = (storyId: string) => {
+export const getChaptersByStory = async (storyId: string) => {
   try {
-    const chapters = Chapter.find({ storyId, status: "active" }).sort({
+    const chapters = await Chapter.find({ storyId, status: "active" }).sort({
       chapterNumber: 1,
     });
     return chapters;
@@ -61,9 +61,10 @@ export const getChaptersByStory = (storyId: string) => {
   }
 };
 
-export const getChaptersByStoryForAuthor = (storyId: string) => {
+export const getChaptersByStoryForAuthor = async (storyId: string) => {
   try {
-    return Chapter.find({ storyId }).sort({ chapterNumber: 1 });
+    const chapters = await Chapter.find({ storyId }).sort({ chapterNumber: 1 });
+    return chapters;
   } catch (error) {
     throw new Error(`Có lỗi xảy ra khi lấy danh sách chương: ${error}`);
   }
