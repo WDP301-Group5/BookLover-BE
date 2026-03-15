@@ -8,6 +8,7 @@ import "./Notification";
 import "./Rate";
 import "./ReadingHistory";
 import "./Report";
+import "./ReportLog";
 import "./Review";
 import "./Story";
 import "./StoryView";
