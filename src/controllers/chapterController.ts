@@ -72,6 +72,7 @@ export const createChapter = async (req: Request, res: Response) => {
     const chapterData = {
       ...req.body,
       chapterNumber,
+      isPremium: validatedData.chapterType === "vip",
       ...(price !== undefined && { price }),
     };
 
@@ -204,18 +205,34 @@ export const getChapterByChapterNumber = async (
 ) => {
   const userId = req.user ? req.user.userId : undefined;
   try {
-    const storyId = await StoryService.getStoryIdBySlug(
+    const storyMeta = await StoryService.getStoryMetaBySlug(
       req.params.storySlug as string,
     );
-    const chapter = await chapterService.getChapterByChapterNumber(
+    const storyId = storyMeta.id;
+    const isAuthor = !!userId && storyMeta.authorId === userId;
+
+    let chapter = await chapterService.getChapterByChapterNumber(
       storyId,
       Number(req.params.chapterNumber),
     );
+
+    // If chapter not found publicly, check if the requester is the story author
     if (!chapter) {
-      return res.status(SUCCESS_OK).json({ message: "Chương không tồn tại" });
+      if (isAuthor) {
+        chapter = await chapterService.getChapterByChapterNumberForAuthor(
+          storyId,
+          Number(req.params.chapterNumber),
+        );
+      }
+      if (!chapter) {
+        return res.status(404).json({ message: "Chương không tồn tại" });
+      }
     }
+
     chapter.id = chapter._id.toString();
-    if (chapter.isPremium && chapter.price > 0) {
+
+    // Skip the premium gate for the story's author
+    if (chapter.isPremium && chapter.price > 0 && !isAuthor) {
       if (!userId) {
         chapter.contentURL = "status-require-login";
         return res.status(SUCCESS_OK).json(chapter);
@@ -230,6 +247,7 @@ export const getChapterByChapterNumber = async (
         }
       }
     }
+
     const text = await axios
       .get(chapter.contentURL, { responseType: "text" })
       .then((res) => res.data)
@@ -245,16 +263,95 @@ export const getChapterByChapterNumber = async (
   }
 };
 
-export const updateChapter = async (req: Request, res: Response) =>
-  res.json(
-    await chapterService.updateChapter(req.params.id as string, req.body),
-  );
+export const updateChapter = async (req: Request, res: Response) => {
+  try {
+    const updateData = { ...req.body };
+    if (req.body.contentURL) {
+      updateData.contentURL = req.body.contentURL;
+    }
+    if (updateData.chapterType) {
+      updateData.isPremium = updateData.chapterType === "vip";
+    }
+    const result = await chapterService.updateChapter(
+      req.params.id as string,
+      updateData,
+    );
+    return res.status(SUCCESS_OK).json(result);
+  } catch (error: unknown) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      error: "Lỗi cập nhật chương",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
 
 export const deleteChapter = async (req: Request, res: Response) =>
   res.json(await chapterService.deleteChapter(req.params.id as string));
 
-export const getChapterById = async (req: Request, res: Response) =>
-  res.json(await chapterService.getChapterById(req.params.id as string));
+export const getChapterById = async (req: Request, res: Response) => {
+  try {
+    const chapter = await chapterService.getChapterById(
+      req.params.id as string,
+    );
+    if (!chapter) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ message: "Chương không tồn tại" });
+    }
+    // Fetch content from Cloudinary URL for author editing
+    if (chapter.contentURL && !chapter.contentURL.startsWith("status-")) {
+      try {
+        const text = await axios
+          .get(chapter.contentURL, { responseType: "text" })
+          .then((r) => r.data);
+        chapter.contentURL = text;
+      } catch (_err) {
+        // Keep the URL as-is if fetch fails
+      }
+    }
+    return res.status(SUCCESS_OK).json(chapter);
+  } catch (error: unknown) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      message: `Có lỗi xảy ra khi lấy thông tin chương: ${(error as Error).message}`,
+    });
+  }
+};
+
+export const getChaptersByStoryForAuthor = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const chapters = await chapterService.getChaptersByStoryForAuthor(
+      req.params.storyId as string,
+    );
+    return res.status(SUCCESS_OK).json(chapters);
+  } catch (error: unknown) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      message: `Có lỗi xảy ra khi lấy danh sách chương: ${(error as Error).message}`,
+    });
+  }
+};
+
+export const publishStoryChapters = async (req: Request, res: Response) => {
+  try {
+    const result = await chapterService.updateChapterStatusByStory(
+      req.params.storyId as string,
+      "draft",
+      "pending",
+    );
+    return res.status(SUCCESS_OK).json({
+      success: true,
+      message: `Đã chuyển ${result.modifiedCount} chương sang trạng thái chờ duyệt`,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error: unknown) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      error: "Lỗi xuất bản chương",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
 
 export const testFileUpload = async (req: Request, res: Response) => {
   try {

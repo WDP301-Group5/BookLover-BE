@@ -8,6 +8,7 @@ import { StoryView } from "../models/StoryView";
 import { slugify } from "../utils/validation";
 import { Comment } from "../models/Comment";
 import mongoose from "mongoose";
+import { size } from "zod";
 
 type FilterOptions = {
   offset: number;
@@ -413,6 +414,7 @@ const StoryService = {
         slug = `${slug}-${slugCount + 1}`;
       }
       const story = await Story.create({ ...data, slug });
+
       return story;
     } catch (error) {
       throw new Error(`Error creating story: ${error}`);
@@ -458,6 +460,21 @@ const StoryService = {
         throw new Error("Story not found");
       }
       return story._id.toString();
+    } catch (error) {
+      throw new Error(`Error fetching story by slug: ${error}`);
+    }
+  },
+
+  async getStoryMetaBySlug(slug: string) {
+    try {
+      const story = await Story.findOne({ slug }).select("_id authorId").lean();
+      if (!story) {
+        throw new Error("Story not found");
+      }
+      return {
+        id: story._id.toString(),
+        authorId: story.authorId.toString(),
+      };
     } catch (error) {
       throw new Error(`Error fetching story by slug: ${error}`);
     }
@@ -661,9 +678,36 @@ const StoryService = {
         {
           $lookup: {
             from: "genres",
+            localField: "genres",
+            foreignField: "_id",
+            as: "genres",
+          },
+        },
+        {
+          $lookup: {
+            from: "topics",
             localField: "topics",
             foreignField: "_id",
             as: "topics",
+          },
+        },
+        {
+          $lookup: {
+            from: "chapters", // collection muốn join
+            let: { storyId: "$_id" }, // biến local để dùng trong pipeline
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$storyId", "$$storyId"] }, // chỉ lấy chapter của story này
+                },
+              },
+            ],
+            as: "chapters", // mảng chapter
+          },
+        },
+        {
+          $addFields: {
+            chapters: { $size: { $ifNull: ["$chapters", []] } },
           },
         },
         {
@@ -680,6 +724,7 @@ const StoryService = {
               penName: "$author.penName",
             },
             topics: "$topics.name",
+            genres: "$genres.name",
             tags: 1,
             status: 1,
             isPremium: 1,
@@ -687,6 +732,7 @@ const StoryService = {
             views: 1,
             stars: 1,
             rates: 1,
+            chapters: "$chapters",
             followers: 1,
             createdAt: 1,
             updatedAt: 1,

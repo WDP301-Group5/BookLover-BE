@@ -1,11 +1,11 @@
 // src/interfaces/story.ts
 const StoryStatus = [
-	"draft", // Tác giả lưu nháp
-	"pending", // Truyện chờ duyệt
-	"active", // Tác giả công khai truyện
-	"rejected", // Truyện bị từ chối
-	"private", // Tác giả xóa khỏi tìm kiếm (cá nhân tác giả mới xem đc)
-	"banned", // Truyện đã bị cấm vì vi phạm
+  "draft", // Tác giả lưu nháp
+  "pending", // Truyện chờ duyệt
+  "active", // Tác giả công khai truyện
+  "rejected", // Truyện bị từ chối
+  "private", // Tác giả xóa khỏi tìm kiếm (cá nhân tác giả mới xem đc)
+  "banned", // Truyện đã bị cấm vì vi phạm
 ];
 
 export interface IStory {
@@ -16,6 +16,7 @@ export interface IStory {
 	description: string;
 	authorId: string;
 	topics: string[];
+	genres: string[];
 	tags: string[];
 	status: (typeof StoryStatus)[number] | "draft";
 	isPremium: boolean;

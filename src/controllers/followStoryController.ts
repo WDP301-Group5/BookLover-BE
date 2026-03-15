@@ -60,3 +60,24 @@ export const changeStatusFollowStory = async (req: Request, res: Response) => {
 			.json({ message: "Error follow story", error });
 	}
 };
+
+export const getMyFollowedStories = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user ? req.user.userId : undefined;
+    console.log("GET my-following userId:", userId);
+
+    if (!userId) {
+      return res.status(400).json({ message: "Không có thông tin người dùng" });
+    }
+
+    const result = await FollowStoryService.getMyFollowedStories(userId);
+    console.log("GET my-following result:", result);
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error getting followed stories",
+      error: (error as Error).message,
+    });
+  }
+};

@@ -50,15 +50,35 @@ export const createChaptersBatch = async (
   }
 };
 
-export const getChaptersByStory = (storyId: string) => {
+export const getChaptersByStory = async (storyId: string) => {
   try {
-    const chapters = Chapter.find({ storyId, status: "active" }).sort({
+    const chapters = await Chapter.find({ storyId, status: "active" }).sort({
       chapterNumber: 1,
     });
     return chapters;
   } catch (error) {
     throw new Error(`Có lỗi xảy ra khi lấy danh sách chương: ${error}`);
   }
+};
+
+export const getChaptersByStoryForAuthor = async (storyId: string) => {
+  try {
+    const chapters = await Chapter.find({ storyId }).sort({ chapterNumber: 1 });
+    return chapters;
+  } catch (error) {
+    throw new Error(`Có lỗi xảy ra khi lấy danh sách chương: ${error}`);
+  }
+};
+
+export const updateChapterStatusByStory = async (
+  storyId: string,
+  fromStatus: string,
+  toStatus: string,
+) => {
+  return Chapter.updateMany(
+    { storyId, status: fromStatus },
+    { $set: { status: toStatus } },
+  );
 };
 export const getChapterByChapterNumber = async (
   storyId: string,
@@ -73,6 +93,24 @@ export const getChapterByChapterNumber = async (
       chapterNumber,
       status: "active",
     });
+    if (chapter) {
+      chapter.id = chapter._id.toString();
+    }
+    return chapter;
+  } catch (error) {
+    throw new Error(`Có lỗi xảy ra khi lấy thông tin chương: ${error}`);
+  }
+};
+
+export const getChapterByChapterNumberForAuthor = async (
+  storyId: string,
+  chapterNumber: number,
+) => {
+  try {
+    if (Number.isNaN(chapterNumber) || chapterNumber < 0) {
+      throw new Error("Số chương không hợp lệ.");
+    }
+    const chapter = await Chapter.findOne({ storyId, chapterNumber });
     if (chapter) {
       chapter.id = chapter._id.toString();
     }

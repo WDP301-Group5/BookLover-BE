@@ -1,5 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
+import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
+import { DOTENV } from "../consts/dotenv.js";
 import { User } from "../models/User.js";
 import { UserAuth } from "../models/UserAuth.js";
 import {
@@ -7,34 +9,33 @@ import {
   generateAccessToken,
   generatePasswordResetToken,
 } from "../utils/hashPassword.js";
-import type {
-  LoginInput,
-  RegisterInput,
-  PasswordResetConfirm,
-} from "../utils/validation.js";
-import { sendVerificationEmail, sendPasswordResetEmail } from "./emailService";
 import {
   checkEmailResendLimit,
-  recordEmailResend,
-  getNextCooldown,
   checkPasswordResetLimit,
+  getNextCooldown,
+  recordEmailResend,
   recordPasswordResetAttempt,
 } from "../utils/rateLimitEmail.js";
-import createHttpError from "http-errors";
+import type {
+  LoginInput,
+  PasswordResetConfirm,
+  RegisterInput,
+} from "../utils/validation.js";
+import { sendPasswordResetEmail, sendVerificationEmail } from "./emailService";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateUniqueUsername = async (base: string) => {
-	let username = base.toLowerCase().replace(/[^a-z0-9_]/g, "");
-	let counter = 1;
+  let username = base.toLowerCase().replace(/[^a-z0-9_]/g, "");
+  let counter = 1;
 
-	while (true) {
-		const exists = await UserAuth.findOne({ username });
-		if (!exists) return username;
+  while (true) {
+    const exists = await UserAuth.findOne({ username });
+    if (!exists) return username;
 
-		username = `${base}${counter}`;
-		counter++;
-	}
+    username = `${base}${counter}`;
+    counter++;
+  }
 };
 
 export interface AuthResponse {
@@ -111,20 +112,23 @@ export const registerUser = async (
 
   // Send verification email — rollback if it fails
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-  try {
-    await sendVerificationEmail(
-      emailLower,
-      name,
-      verificationToken,
-      frontendUrl,
-    );
-  } catch {
-    // Rollback: delete both records so user can try again
-    await UserAuth.deleteOne({ userId: user._id });
-    await User.findByIdAndDelete(user._id);
-    throw new Error(
-      "Không thể gửi email xác thực. Vui lòng kiểm tra lại địa chỉ email và thử đăng ký lại.",
-    );
+
+  if (DOTENV.EMAIL_DISABLED !== "true") {
+    try {
+      await sendVerificationEmail(
+        emailLower,
+        name,
+        verificationToken,
+        frontendUrl,
+      );
+    } catch {
+      // Rollback: delete both records so user can try again
+      await UserAuth.deleteOne({ userId: user._id });
+      await User.findByIdAndDelete(user._id);
+      throw new Error(
+        "Không thể gửi email xác thực. Vui lòng kiểm tra lại địa chỉ email và thử đăng ký lại.",
+      );
+    }
   }
 
   return {
@@ -302,7 +306,7 @@ export const loginUser = async (
   }
 
   // Check if user email is verified
-  if (user.status === "inactive") {
+  if (DOTENV.EMAIL_DISABLED !== "true" && user.status === "inactive") {
     throw new Error(
       "Tài khoản chưa được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.",
     );

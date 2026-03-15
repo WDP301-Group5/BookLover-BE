@@ -5,6 +5,7 @@ import {
   getManagedStories,
   getPendingStories,
   getStoryCensorLog,
+  getStoryChapters,
   rejectStory,
   unbanStory,
 } from "../controllers/adminStoryCensorController.js";
@@ -13,6 +14,7 @@ const adminStoryCensorRouter = express.Router();
 
 adminStoryCensorRouter.get("/pending", getPendingStories);
 adminStoryCensorRouter.get("/managed", getManagedStories);
+adminStoryCensorRouter.get("/:id/chapters", getStoryChapters);
 adminStoryCensorRouter.post("/:id/approve", approveStory);
 adminStoryCensorRouter.post("/:id/reject", rejectStory);
 adminStoryCensorRouter.post("/:id/ban", banStory);
