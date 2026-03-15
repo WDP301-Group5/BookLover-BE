@@ -851,6 +851,14 @@ const UserService = {
       followingCount,
     };
   },
+
+  async updateUserOnline(userId: string) {
+    await User.updateOne({ _id: userId }, { online: "online" });
+  },
+
+  async updateUserOffline(userId: string) {
+    await User.updateOne({ _id: userId }, { online: new Date().getTime().toString() });
+  }
 };
 
 export default UserService;

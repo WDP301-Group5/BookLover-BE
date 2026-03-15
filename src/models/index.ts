@@ -17,3 +17,5 @@ import "./Topic";
 import "./Transaction";
 import "./User";
 import "./UserAuth";
+import "./Conversation"
+import "./Message"

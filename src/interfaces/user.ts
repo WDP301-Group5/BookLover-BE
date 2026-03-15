@@ -13,6 +13,7 @@ export interface IUser {
   vipLevel?: number | 0;
   totalSpent?: number | 0;
   spiritStones: number | 0;
+  online: string | "online";
   createdAt?: Date;
   updatedAt?: Date;
   followersCount?: number;
@@ -43,4 +44,13 @@ export interface IUpdateUserData {
   avatarURL: string;
   backgroundURL: string;
   bio: string;
+}
+
+export interface IUserPreview {
+  _id: string;
+  id: string;
+  online: string;
+  username: string;
+  fullName: string;
+  avatarURL: string;
 }

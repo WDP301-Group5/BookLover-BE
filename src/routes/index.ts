@@ -16,6 +16,7 @@ import uploadRouter from "./uploadRoutes.js";
 import notificationRoutes from "./notificationRoutes.js";
 import rankingRoutes from "./rankingRoutes.js";
 import searchRoutes from "./searchRoutes.js";
+import chatingRouter from "./chatingRoutes.js";
 
 const routes = express.Router();
 
@@ -35,5 +36,6 @@ routes.use("/react/comment", reactCommentRouter);
 routes.use("/notifications", notificationRoutes);
 routes.use("/rankings", rankingRoutes);
 routes.use("/search", searchRoutes);
+routes.use("/chating", chatingRouter);
 
 export default routes;
