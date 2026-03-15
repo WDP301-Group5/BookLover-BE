@@ -176,7 +176,7 @@ export const changePasswordController = async (req: Request, res: Response) => {
 
 export const searchUsers = async (req: Request, res: Response) => {
   try {
-    const { q } = req.query;
+    const { query: q } = req.query;
 
     if (!q || typeof q !== "string") {
       return res.status(400).json({

@@ -48,11 +48,10 @@ const userSchema = new mongoose.Schema(
 		// ===== INTERNAL SYSTEM =====
 		totalSpent: { type: Number, default: 0 },
 		spiritStones: { type: Number, default: 0 },
+		online: { type: String, default: new Date().getTime().toString() },
 	},
 	{ timestamps: true },
 );
-
-userSchema.index({ username: 1 }, { unique: true });
 
 userSchema.pre("save", async function () {
 	if (!this.nickName || this.nickName?.trim() === "") {

@@ -13,6 +13,7 @@ import storyRouter from "./storyRoutes.js";
 import topicRouter from "./topicRoutes.js";
 import userRouter from "./userRoutes.js";
 import uploadRouter from "./uploadRoutes.js";
+import chatingRouter from "./chatingRoutes.js";
 
 const routes = express.Router();
 
@@ -29,5 +30,6 @@ routes.use("/topics", topicRouter);
 routes.use("/comment", commentRouter);
 routes.use("/follow/story", followStoryRouter);
 routes.use("/react/comment", reactCommentRouter);
+routes.use("/chating", chatingRouter);
 
 export default routes;
