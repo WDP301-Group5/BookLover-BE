@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import type { IUpdateUserData, IUser } from "../interfaces/user.js";
 import { ReadingHistory } from "../models/ReadingHistory.js";
 import { User } from "../models/User.js";
@@ -29,7 +29,7 @@ const ALLOWED_UPDATE_FIELDS = [
   "bio",
 ];
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 20;
 
 const UserService = {
   async getAllUsers() {
@@ -129,22 +129,82 @@ const UserService = {
     return user.spiritStones;
   },
 
-  async searchUsers(query: string) {
+  async searchUsers(query: string, currentUserId?: string) {
     if (!query || query.trim() === "") {
       return [];
     }
 
-    // Tìm user dựa trên username hoặc penName, không phân biệt hoa/thường
     const users = await User.find({
       $or: [
         { username: { $regex: query, $options: "i" } },
         { penName: { $regex: query, $options: "i" } },
       ],
     })
-      .select("id username penName fullName role avatarURL")
-      .lean<IUser[]>();
+      .select("_id username penName fullName role avatarURL")
+      .lean();
 
-    return users;
+    if (!currentUserId || !Types.ObjectId.isValid(currentUserId) || users.length === 0) {
+      return users.map((user: any) => ({
+        ...user,
+        relationship: {
+          isSelf: false,
+          amIFollowing: false,
+          followsMe: false,
+          isMutual: false,
+          notificationEnabled: false,
+        },
+      }));
+    }
+
+    const targetUserIds = users.map((u: any) => u._id.toString());
+
+    const [myFollowDocs, reverseFollowDocs] = await Promise.all([
+      FollowAuthor.find({
+        userId: currentUserId,
+        authorId: { $in: targetUserIds },
+        status: { $in: ["follow", "unsend"] },
+      }).lean(),
+      FollowAuthor.find({
+        userId: { $in: targetUserIds },
+        authorId: currentUserId,
+        status: { $in: ["follow", "unsend"] },
+      }).lean(),
+    ]);
+
+    const myFollowMap = Object.fromEntries(
+      myFollowDocs.map((doc) => [
+        doc.authorId.toString(),
+        {
+          isFollowing: true,
+          notificationEnabled: doc.status === "follow",
+        },
+      ])
+    );
+
+    const reverseFollowMap = Object.fromEntries(
+      reverseFollowDocs.map((doc) => [doc.userId.toString(), true])
+    );
+
+    return users.map((user: any) => {
+      const userId = user._id.toString();
+      const isSelf = userId === currentUserId;
+      const myFollowInfo = myFollowMap[userId];
+
+      const amIFollowing = isSelf ? false : !!myFollowInfo?.isFollowing;
+      const followsMe = isSelf ? false : !!reverseFollowMap[userId];
+      const notificationEnabled = isSelf ? false : !!myFollowInfo?.notificationEnabled;
+
+      return {
+        ...user,
+        relationship: {
+          isSelf,
+          amIFollowing,
+          followsMe,
+          isMutual: amIFollowing && followsMe,
+          notificationEnabled,
+        },
+      };
+    });
   },
 
   async getPublicProfile(currentUserId: string | undefined, profileUserId: string) {
@@ -234,86 +294,132 @@ const UserService = {
       throw new Error("Cannot follow yourself");
     }
 
-    const [currentUser, targetUser] = await Promise.all([
-      User.findById(userId).select("username fullName").lean(),
-      User.findById(targetUserId).lean(),
-    ]);
+    const session = await mongoose.startSession();
 
-    if (!currentUser) {
-      throw new Error("Current user not found");
-    }
+    try {
+      let result: {
+        status: "follow" | "unfollow";
+        relationship: {
+          amIFollowing: boolean;
+          followsMe: boolean;
+          isMutual: boolean;
+        };
+        shouldNotify: boolean;
+        followerUsername: string;
+      } | null = null;
 
-    if (!targetUser) {
-      throw new Error("Target user not found");
-    }
-
-    let existing = await FollowAuthor.findOne({
-      userId,
-      authorId: targetUserId,
-    });
-
-    let newStatus: "follow" | "unfollow";
-
-    if (!existing) {
-      existing = await FollowAuthor.create({
-        userId,
-        authorId: targetUserId,
-        status: "follow",
-      });
-      newStatus = "follow";
-
-      await Promise.all([
-        User.findByIdAndUpdate(userId, { $inc: { followingCount: 1 } }),
-        User.findByIdAndUpdate(targetUserId, { $inc: { followersCount: 1 } }),
-      ]);
-
-      await notificationService.notifyUserFollowed({
-        followerId: userId,
-        followingId: targetUserId,
-        followerUsername: currentUser.username,
-      });
-    } else {
-      if (existing.status === "follow") {
-        existing.status = "unfollow";
-        newStatus = "unfollow";
-
-        await Promise.all([
-          existing.save(),
-          User.findByIdAndUpdate(userId, { $inc: { followingCount: -1 } }),
-          User.findByIdAndUpdate(targetUserId, { $inc: { followersCount: -1 } }),
-        ]);
-      } else {
-        existing.status = "follow";
-        newStatus = "follow";
-
-        await Promise.all([
-          existing.save(),
-          User.findByIdAndUpdate(userId, { $inc: { followingCount: 1 } }),
-          User.findByIdAndUpdate(targetUserId, { $inc: { followersCount: 1 } }),
+      await session.withTransaction(async () => {
+        const [currentUser, targetUser] = await Promise.all([
+          User.findById(userId).select("username fullName").session(session).lean(),
+          User.findById(targetUserId).select("_id").session(session).lean(),
         ]);
 
+        if (!currentUser) {
+          throw new Error("Current user not found");
+        }
+
+        if (!targetUser) {
+          throw new Error("Target user not found");
+        }
+
+        let followDoc = await FollowAuthor.findOne({
+          userId,
+          authorId: targetUserId,
+        }).session(session);
+
+        let newStatus: "follow" | "unfollow";
+        let countDelta = 0;
+        let shouldNotify = false;
+
+        if (!followDoc) {
+          followDoc = await FollowAuthor.create(
+            [
+              {
+                userId,
+                authorId: targetUserId,
+                status: "follow",
+              },
+            ],
+            { session },
+          ).then((docs) => docs[0]);
+
+          newStatus = "follow";
+          countDelta = 1;
+          shouldNotify = true;
+        } else if (followDoc.status === "follow") {
+          followDoc.status = "unfollow";
+          await followDoc.save({ session });
+
+          newStatus = "unfollow";
+          countDelta = -1;
+        } else {
+          followDoc.status = "follow";
+          await followDoc.save({ session });
+
+          newStatus = "follow";
+          countDelta = 1;
+          shouldNotify = true;
+        }
+
+        if (countDelta !== 0) {
+          await Promise.all([
+            User.findByIdAndUpdate(
+              userId,
+              { $inc: { followingCount: countDelta } },
+              { session },
+            ),
+            User.findByIdAndUpdate(
+              targetUserId,
+              { $inc: { followersCount: countDelta } },
+              { session },
+            ),
+          ]);
+        }
+
+        const reverseFollow = await FollowAuthor.findOne({
+          userId: targetUserId,
+          authorId: userId,
+          status: "follow",
+        })
+          .session(session)
+          .lean();
+
+        result = {
+          status: newStatus,
+          relationship: {
+            amIFollowing: newStatus === "follow",
+            followsMe: !!reverseFollow,
+            isMutual: newStatus === "follow" && !!reverseFollow,
+          },
+          shouldNotify,
+          followerUsername: currentUser.username,
+        };
+      });
+
+      if (!result) {
+        throw new Error("Toggle follow failed");
+      }
+
+      if (result.shouldNotify && result.status === "follow") {
         await notificationService.notifyUserFollowed({
           followerId: userId,
           followingId: targetUserId,
-          followerUsername: currentUser.username,
+          followerUsername: result.followerUsername,
         });
       }
+
+      return {
+        status: result.status,
+        relationship: result.relationship,
+      };
+    } catch (error: any) {
+      if (error?.code === 11000) {
+        throw new Error("Quan hệ follow đã tồn tại, vui lòng thử lại");
+      }
+      throw new Error(error?.message || "Toggle follow failed");
+    } finally {
+      await session.endSession();
     }
-
-    const reverseFollow = await FollowAuthor.findOne({
-      userId: targetUserId,
-      authorId: userId,
-      status: "follow",
-    }).lean();
-
-    return {
-      status: newStatus,
-      relationship: {
-        amIFollowing: newStatus === "follow",
-        followsMe: !!reverseFollow,
-        isMutual: newStatus === "follow" && !!reverseFollow,
-      },
-    };
   },
 
   async getFollowers(userId: string, page = 1, currentUserId?: string) {
@@ -393,27 +499,37 @@ const UserService = {
       .map((id) => followersMap[id])
       .filter(Boolean);
 
-    // currentUserId là người đang xem
     if (currentUserId && Types.ObjectId.isValid(currentUserId)) {
-      const viewerFollowDocs = await FollowAuthor.find({
-        userId: currentUserId,
-        authorId: { $in: followerIds },
-        status: "follow",
-      }).lean();
+      const [viewerFollowDocs, reverseFollowDocs] = await Promise.all([
+        FollowAuthor.find({
+          userId: currentUserId,
+          authorId: { $in: followerIds },
+          status: "follow",
+        }).lean(),
+        FollowAuthor.find({
+          userId: { $in: followerIds },
+          authorId: currentUserId,
+          status: "follow",
+        }).lean(),
+      ]);
 
       const viewerFollowMap = Object.fromEntries(
         viewerFollowDocs.map((f) => [f.authorId.toString(), true])
       );
 
-      orderedFollowers.forEach((follower: any) => {
-        const followsMe =
-          currentUserId === userId
-            ? true
-            : false; // nếu currentUser đang xem chính list followers của mình thì item này chắc chắn follow mình
+      const reverseFollowMap = Object.fromEntries(
+        reverseFollowDocs.map((f) => [f.userId.toString(), true])
+      );
 
-        const amIFollowing = !!viewerFollowMap[follower._id.toString()];
+      orderedFollowers.forEach((follower: any) => {
+        const followerId = follower._id.toString();
+        const isSelf = followerId === currentUserId;
+
+        const amIFollowing = isSelf ? false : !!viewerFollowMap[followerId];
+        const followsMe = isSelf ? false : !!reverseFollowMap[followerId];
 
         follower.relationship = {
+          isSelf,
           amIFollowing,
           followsMe,
           isMutual: amIFollowing && followsMe,
@@ -422,6 +538,7 @@ const UserService = {
     } else {
       orderedFollowers.forEach((follower: any) => {
         follower.relationship = {
+          isSelf: false,
           amIFollowing: false,
           followsMe: false,
           isMutual: false,
@@ -520,33 +637,45 @@ const UserService = {
       .filter(Boolean);
 
     if (currentUserId && Types.ObjectId.isValid(currentUserId)) {
-      const reverseFollowDocs = await FollowAuthor.find({
-        userId: { $in: followingIds },
-        authorId: currentUserId,
-        status: "follow",
-      }).lean();
+      const [viewerFollowDocs, reverseFollowDocs] = await Promise.all([
+        FollowAuthor.find({
+          userId: currentUserId,
+          authorId: { $in: followingIds },
+          status: "follow",
+        }).lean(),
+        FollowAuthor.find({
+          userId: { $in: followingIds },
+          authorId: currentUserId,
+          status: "follow",
+        }).lean(),
+      ]);
+
+      const viewerFollowMap = Object.fromEntries(
+        viewerFollowDocs.map((f) => [f.authorId.toString(), true])
+      );
 
       const reverseFollowMap = Object.fromEntries(
         reverseFollowDocs.map((f) => [f.userId.toString(), true])
       );
 
-      orderedFollowing.forEach((user: any) => {
-        const amIFollowing =
-          currentUserId === userId
-            ? true
-            : false; // nếu currentUser đang xem chính following của mình thì item này chắc chắn là mình đang follow
+      orderedFollowing.forEach((targetUser: any) => {
+        const targetId = targetUser._id.toString();
+        const isSelf = targetId === currentUserId;
 
-        const followsMe = !!reverseFollowMap[user._id.toString()];
+        const amIFollowing = isSelf ? false : !!viewerFollowMap[targetId];
+        const followsMe = isSelf ? false : !!reverseFollowMap[targetId];
 
-        user.relationship = {
+        targetUser.relationship = {
+          isSelf,
           amIFollowing,
           followsMe,
           isMutual: amIFollowing && followsMe,
         };
       });
     } else {
-      orderedFollowing.forEach((user: any) => {
-        user.relationship = {
+      orderedFollowing.forEach((targetUser: any) => {
+        targetUser.relationship = {
+          isSelf: false,
           amIFollowing: false,
           followsMe: false,
           isMutual: false,
@@ -564,6 +693,35 @@ const UserService = {
       total,
       page,
       pageSize: PAGE_SIZE,
+    };
+  },
+
+  async syncFollowCounts(userId: string) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const [followersCount, followingCount] = await Promise.all([
+      FollowAuthor.countDocuments({
+        authorId: userId,
+        status: "follow",
+      }),
+      FollowAuthor.countDocuments({
+        userId,
+        status: "follow",
+      }),
+    ]);
+
+    await User.findByIdAndUpdate(userId, {
+      $set: {
+        followersCount,
+        followingCount,
+      },
+    });
+
+    return {
+      followersCount,
+      followingCount,
     };
   },
 };

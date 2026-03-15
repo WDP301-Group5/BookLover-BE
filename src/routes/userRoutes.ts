@@ -38,7 +38,7 @@ userRouter.put(
   uploadAvatarAndBackground,
   updateProfile,
 );
-userRouter.get("/search", searchUsers);
+userRouter.get("/search", checkToken, searchUsers);
 userRouter.post("/change-password", verifyToken, changePasswordController);
 userRouter.get("/:id/profile", checkToken, getPublicProfile);
 

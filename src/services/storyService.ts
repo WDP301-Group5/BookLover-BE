@@ -414,6 +414,7 @@ const StoryService = {
         slug = `${slug}-${slugCount + 1}`;
       }
       const story = await Story.create({ ...data, slug });
+
       return story;
     } catch (error) {
       throw new Error(`Error creating story: ${error}`);
@@ -667,14 +668,14 @@ const StoryService = {
             as: "genres",
           },
         },
-		{
-			$lookup: {
-				from: "topics",
-				localField: "topics",
-				foreignField: "_id",
-				as: "topics",
-			},
-		},
+        {
+          $lookup: {
+            from: "topics",
+            localField: "topics",
+            foreignField: "_id",
+            as: "topics",
+          },
+        },
         {
           $lookup: {
             from: "chapters", // collection muốn join
@@ -708,7 +709,7 @@ const StoryService = {
               penName: "$author.penName",
             },
             topics: "$topics.name",
-			genres: "$genres.name",
+            genres: "$genres.name",
             tags: 1,
             status: 1,
             isPremium: 1,

@@ -6,7 +6,7 @@ type NotificationPayload = {
   from?: string | null;
   to: string;
   type:
-    | "follow_user"
+    | "user_followed_you"
     | "story_approved"
     | "new_story_from_followed_author"
     | "chapter_approved"
@@ -159,7 +159,7 @@ class NotificationService {
     return await this.createNotification({
       from: followerId,
       to: followingId,
-      type: "follow_user",
+      type: "user_followed_you",
       title: "Bạn có người theo dõi mới",
       content: `${followerUsername} vừa theo dõi bạn.`,
       data: {
