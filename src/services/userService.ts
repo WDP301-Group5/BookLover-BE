@@ -56,7 +56,27 @@ const UserService = {
       throw new Error("User not found");
     }
 
-    return user;
+    const [followersCount, followingCount, storiesCount] = await Promise.all([
+      FollowAuthor.countDocuments({
+        authorId: userId,
+        status: "follow",
+      }),
+      FollowAuthor.countDocuments({
+        userId,
+        status: "follow",
+      }),
+      Story.countDocuments({
+        authorId: userId,
+        status: "active",
+      }),
+    ]);
+
+    return {
+      ...user,
+      followersCount,
+      followingCount,
+      storiesCount,
+    };
   },
 
   async updateProfile(userId: string, profileData: Partial<IUpdateUserData>) {
@@ -243,6 +263,17 @@ const UserService = {
       chapterNumber: chapterMap[story._id.toString()] || 0,
     }));
 
+    const [followersCount, followingCount] = await Promise.all([
+      FollowAuthor.countDocuments({
+        authorId: profileUserId,
+        status: "follow",
+      }),
+      FollowAuthor.countDocuments({
+        userId: profileUserId,
+        status: "follow",
+      }),
+    ]);
+
     const isSelf = currentUserId === profileUserId;
 
     let isFollowing = false;
@@ -272,8 +303,8 @@ const UserService = {
       profile: {
         ...profileUser,
         storiesCount: storiesWithChapters.length,
-        followingCount: profileUser.followingCount ?? 0,
-        followersCount: profileUser.followersCount ?? 0,
+        followingCount,
+        followersCount,
       },
       stories: storiesWithChapters,
       relationship: {
@@ -449,10 +480,12 @@ const UserService = {
       };
     }
 
+    const followerObjectIds = followerIds.map((id) => new Types.ObjectId(id));
+
     const followers = await User.aggregate([
       {
         $match: {
-          _id: { $in: followerIds.map((id) => new Types.ObjectId(id)) },
+          _id: { $in: followerObjectIds },
         },
       },
       {
@@ -498,6 +531,52 @@ const UserService = {
     const orderedFollowers = followerIds
       .map((id) => followersMap[id])
       .filter(Boolean);
+
+    // ===== TÍNH LẠI followersCount / followingCount THẬT =====
+    const [followersAgg, followingAgg] = await Promise.all([
+      FollowAuthor.aggregate([
+        {
+          $match: {
+            authorId: { $in: followerObjectIds },
+            status: "follow",
+          },
+        },
+        {
+          $group: {
+            _id: "$authorId",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      FollowAuthor.aggregate([
+        {
+          $match: {
+            userId: { $in: followerObjectIds },
+            status: "follow",
+          },
+        },
+        {
+          $group: {
+            _id: "$userId",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    const followersCountMap = Object.fromEntries(
+      followersAgg.map((item) => [item._id.toString(), item.count])
+    );
+
+    const followingCountMap = Object.fromEntries(
+      followingAgg.map((item) => [item._id.toString(), item.count])
+    );
+
+    orderedFollowers.forEach((follower: any) => {
+      const id = follower._id.toString();
+      follower.followersCount = followersCountMap[id] ?? 0;
+      follower.followingCount = followingCountMap[id] ?? 0;
+    });
 
     if (currentUserId && Types.ObjectId.isValid(currentUserId)) {
       const [viewerFollowDocs, reverseFollowDocs] = await Promise.all([
@@ -586,10 +665,12 @@ const UserService = {
       };
     }
 
+    const followingObjectIds = followingIds.map((id) => new Types.ObjectId(id));
+
     const following = await User.aggregate([
       {
         $match: {
-          _id: { $in: followingIds.map((id) => new Types.ObjectId(id)) },
+          _id: { $in: followingObjectIds },
         },
       },
       {
@@ -635,6 +716,52 @@ const UserService = {
     const orderedFollowing = followingIds
       .map((id) => followingMap[id])
       .filter(Boolean);
+
+    // ===== TÍNH LẠI followersCount / followingCount THẬT =====
+    const [followersAgg, followingAgg] = await Promise.all([
+      FollowAuthor.aggregate([
+        {
+          $match: {
+            authorId: { $in: followingObjectIds },
+            status: "follow",
+          },
+        },
+        {
+          $group: {
+            _id: "$authorId",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      FollowAuthor.aggregate([
+        {
+          $match: {
+            userId: { $in: followingObjectIds },
+            status: "follow",
+          },
+        },
+        {
+          $group: {
+            _id: "$userId",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    const followersCountMap = Object.fromEntries(
+      followersAgg.map((item) => [item._id.toString(), item.count])
+    );
+
+    const followingCountMap = Object.fromEntries(
+      followingAgg.map((item) => [item._id.toString(), item.count])
+    );
+
+    orderedFollowing.forEach((targetUser: any) => {
+      const id = targetUser._id.toString();
+      targetUser.followersCount = followersCountMap[id] ?? 0;
+      targetUser.followingCount = followingCountMap[id] ?? 0;
+    });
 
     if (currentUserId && Types.ObjectId.isValid(currentUserId)) {
       const [viewerFollowDocs, reverseFollowDocs] = await Promise.all([
