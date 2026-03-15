@@ -205,18 +205,34 @@ export const getChapterByChapterNumber = async (
 ) => {
   const userId = req.user ? req.user.userId : undefined;
   try {
-    const storyId = await StoryService.getStoryIdBySlug(
+    const storyMeta = await StoryService.getStoryMetaBySlug(
       req.params.storySlug as string,
     );
-    const chapter = await chapterService.getChapterByChapterNumber(
+    const storyId = storyMeta.id;
+    const isAuthor = !!userId && storyMeta.authorId === userId;
+
+    let chapter = await chapterService.getChapterByChapterNumber(
       storyId,
       Number(req.params.chapterNumber),
     );
+
+    // If chapter not found publicly, check if the requester is the story author
     if (!chapter) {
-      return res.status(SUCCESS_OK).json({ message: "Chương không tồn tại" });
+      if (isAuthor) {
+        chapter = await chapterService.getChapterByChapterNumberForAuthor(
+          storyId,
+          Number(req.params.chapterNumber),
+        );
+      }
+      if (!chapter) {
+        return res.status(404).json({ message: "Chương không tồn tại" });
+      }
     }
+
     chapter.id = chapter._id.toString();
-    if (chapter.isPremium && chapter.price > 0) {
+
+    // Skip the premium gate for the story's author
+    if (chapter.isPremium && chapter.price > 0 && !isAuthor) {
       if (!userId) {
         chapter.contentURL = "status-require-login";
         return res.status(SUCCESS_OK).json(chapter);
@@ -231,6 +247,7 @@ export const getChapterByChapterNumber = async (
         }
       }
     }
+
     const text = await axios
       .get(chapter.contentURL, { responseType: "text" })
       .then((res) => res.data)

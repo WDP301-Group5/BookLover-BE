@@ -101,6 +101,24 @@ export const getChapterByChapterNumber = async (
     throw new Error(`Có lỗi xảy ra khi lấy thông tin chương: ${error}`);
   }
 };
+
+export const getChapterByChapterNumberForAuthor = async (
+  storyId: string,
+  chapterNumber: number,
+) => {
+  try {
+    if (Number.isNaN(chapterNumber) || chapterNumber < 0) {
+      throw new Error("Số chương không hợp lệ.");
+    }
+    const chapter = await Chapter.findOne({ storyId, chapterNumber });
+    if (chapter) {
+      chapter.id = chapter._id.toString();
+    }
+    return chapter;
+  } catch (error) {
+    throw new Error(`Có lỗi xảy ra khi lấy thông tin chương: ${error}`);
+  }
+};
 export const updateChapter = (id: string, data: Partial<IChapter>) =>
   Chapter.findByIdAndUpdate(id, data, { new: true });
 export const deleteChapter = (id: string) => Chapter.findByIdAndDelete(id);

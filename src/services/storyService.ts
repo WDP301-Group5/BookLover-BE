@@ -465,6 +465,21 @@ const StoryService = {
     }
   },
 
+  async getStoryMetaBySlug(slug: string) {
+    try {
+      const story = await Story.findOne({ slug }).select("_id authorId").lean();
+      if (!story) {
+        throw new Error("Story not found");
+      }
+      return {
+        id: story._id.toString(),
+        authorId: story.authorId.toString(),
+      };
+    } catch (error) {
+      throw new Error(`Error fetching story by slug: ${error}`);
+    }
+  },
+
   async getStories() {
     try {
       const stories = await Story.find({ status: "active" });
