@@ -4,10 +4,7 @@ import notificationService from "../services/notificationService";
 
 export const getMyNotifications = async (req: Request, res: Response) => {
     try {
-        console.log("req.user =", (req as any).user);
-
-    const userId = (req as any).user?.userId;
-    console.log("userId =", userId);
+        const userId = (req as any).user?.userId;
 
         const result = await notificationService.getMyNotifications({
             userId,
