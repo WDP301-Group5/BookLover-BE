@@ -11,6 +11,7 @@ import {
 import { requireAdmin } from "../middleware/rbac.js";
 
 import adminChapterCensorRouter from "./adminChapterCensorRoutes.js";
+import adminReportRouter from "./adminReportRoutes.js";
 import adminStoryCensorRouter from "./adminStoryCensorRoutes.js";
 
 const adminRouter = express.Router();
@@ -21,6 +22,7 @@ adminRouter.use(requireAdmin);
 // Routes
 adminRouter.use("/stories", adminStoryCensorRouter);
 adminRouter.use("/chapters", adminChapterCensorRouter);
+adminRouter.use("/reports", adminReportRouter);
 adminRouter.get("/", getAllAdmins);
 adminRouter.get("/:id", getAdminById);
 adminRouter.post("/", createAdmin);
