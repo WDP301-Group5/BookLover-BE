@@ -12,6 +12,7 @@ import {
   getTop10Story,
   readChapter,
   updateStory,
+  rateStory,
 } from "../controllers/storyController";
 import { verifyToken } from "../middleware/auth";
 import { checkToken } from "../middleware/auth";
@@ -30,6 +31,7 @@ storyRouter.post("/read/:storyId", checkToken, readChapter);
 storyRouter.post("/", verifyToken, uploadStoryImage, createStory);
 storyRouter.get("/", getStories);
 storyRouter.get("/topics", getGenres);
+storyRouter.post("/:storyId/rate", verifyToken, rateStory);
 storyRouter.get("/:slug", getStoryBySlug);
 storyRouter.put("/:id", verifyToken, uploadStoryImage, updateStory);
 storyRouter.delete("/:id", verifyToken, deleteStory);
