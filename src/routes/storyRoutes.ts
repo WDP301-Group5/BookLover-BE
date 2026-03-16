@@ -20,7 +20,7 @@ import { getGenres } from "../controllers/genresController";
 
 const storyRouter = express.Router();
 
-storyRouter.get("/recommend", getRecommendStory);
+storyRouter.get("/recommend", checkToken, getRecommendStory);
 storyRouter.get("/newchapter", getNewChapterStory);
 storyRouter.get("/top10", getTop10Story);
 storyRouter.get("/search", getNewChapterStoryWithFilter);

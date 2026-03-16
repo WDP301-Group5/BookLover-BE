@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { DOTENV } from "../consts/dotenv";
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
-mongoose.set("bufferCommands", false);
+// mongoose.set("bufferCommands", false);
 
 const MONGO_URI = DOTENV.MONGO_URI;
 
