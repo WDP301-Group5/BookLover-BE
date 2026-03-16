@@ -8,7 +8,6 @@ import { StoryView } from "../models/StoryView";
 import { slugify } from "../utils/validation";
 import { Comment } from "../models/Comment";
 import mongoose from "mongoose";
-import { size } from "zod";
 
 type FilterOptions = {
   offset: number;
@@ -23,7 +22,8 @@ const StoryService = {
   async getRecommendStory(userId?: string | null) {
     try {
       if (userId === null) {
-        return this.getTop10Story("m");
+        console.log("====================null");
+        return await this.getTop10Story("m");
       }
       const userHistory = await ReadingHistory.find({ userId: userId })
         .sort({ createdAt: -1 })
@@ -54,7 +54,7 @@ const StoryService = {
           },
         },
         {
-          $match: { commonTopicsCount: { $gt: 2 } },
+          $match: { commonTopicsCount: { $gte: 2 } },
         },
         { $sort: { commonTopicsCount: -1, views: -1, createdAt: -1 } },
         { $limit: 12 },
@@ -77,11 +77,11 @@ const StoryService = {
         },
         {
           $project: {
-            id: "$story._id",
-            title: "$story.title",
-            slug: "$story.slug",
-            image: "$story.image",
-            description: "$story.description",
+            id: "$_id",
+            title: "$title",
+            slug: "$slug",
+            image: "$image",
+            description: "$description",
             author: {
               id: "$author._id",
               fullName: "$author.fullName",
@@ -89,19 +89,42 @@ const StoryService = {
               penName: "$author.penName",
             },
             topics: "$topics.name",
-            tags: "$story.tags",
-            status: "$story.status",
-            isPremium: "$story.isPremium",
-            isFinish: "$story.isFinish",
-            views: "$story.views",
-            stars: "$story.stars",
-            rates: "$story.rates",
-            followers: "$story.followers",
-            createdAt: "$story.createdAt",
-            updatedAt: "$story.updatedAt",
+            tags: "$tags",
+            status: "$status",
+            isPremium: "$isPremium",
+            isFinish: "$isFinish",
+            views: "$views",
+            stars: "$stars",
+            rates: "$rates",
+            followers: "$followers",
+            createdAt: "$createdAt",
+            updatedAt: "$updatedAt",
           },
         },
       ]);
+      if (recommendedStories?.length < 10) {
+        const top10Story = await this.getTop10Story("m");
+        const idnotIn = recommendedStories?.map((s) => s.id);
+        const filter = top10Story.filter((s) => !idnotIn.includes(s.id));
+        if (
+          filter.length > 0 &&
+          recommendedStories.length + filter.length >= 10
+        ) {
+          return [...recommendedStories, ...filter];
+        } else {
+          const topViewStory = await this.getTop10ViewedStory();
+          const filterView = topViewStory.filter(
+            (s) => !idnotIn.includes(s.id),
+          );
+          if (
+            filterView.length > 0 &&
+            recommendedStories.length + filterView.length >= 10
+          ) {
+            return [...recommendedStories, ...filterView];
+          }
+          return [...recommendedStories, ...top10Story];
+        }
+      }
       return recommendedStories;
     } catch (error) {
       console.log("Error when get recommend story", error);
@@ -135,7 +158,7 @@ const StoryService = {
           },
         },
         {
-          $unwind: "$story",
+          $unwind: { path: "$story", preserveNullAndEmptyArrays: true },
         },
         {
           $match: { "story.status": "active" },
@@ -186,7 +209,37 @@ const StoryService = {
           },
         },
       ]);
-      const totalStory = await Story.countDocuments({ status: "active" });
+      const totalStoryAgg = await Chapter.aggregate([
+        {
+          $match: { status: "active" },
+        },
+        {
+          $group: {
+            _id: "$storyId",
+          },
+        },
+        {
+          $lookup: {
+            from: "stories",
+            localField: "_id",
+            foreignField: "_id",
+            as: "story",
+          },
+        },
+        {
+          $unwind: "$story",
+        },
+        {
+          $match: {
+            "story.status": "active",
+          },
+        },
+        {
+          $count: "total",
+        },
+      ]);
+
+      const totalStory = totalStoryAgg[0]?.total || 0;
 
       const formatData = stories.map(({ _id, ...rest }) => ({
         id: _id,
@@ -310,7 +363,7 @@ const StoryService = {
 
       // fallback về top 10 lượt xem nếu chưa có data
       if (stories.length === 0) {
-        return this.getTop10ViewedStory();
+        return await this.getTop10ViewedStory();
       }
 
       const formatData = stories.map(({ _id, ...rest }) => ({
