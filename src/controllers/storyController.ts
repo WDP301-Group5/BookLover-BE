@@ -229,3 +229,36 @@ export const getStoryWithAuthor = async (req: Request, res: Response) => {
   if (!story) return res.status(404).json({ message: "Not found" });
   return res.json(story);
 };
+
+export const rateStory = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user ? req.user.userId : undefined;
+    if (!userId) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ message: "Không có thông tin người dùng" });
+    }
+
+    const storyId = req.params.storyId;
+    if (!storyId) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ message: "Không có thông tin truyện" });
+    }
+
+    const rate = Number(req.body.rate);
+    if (!Number.isFinite(rate)) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ message: "Số sao không hợp lệ" });
+    }
+
+    const result = await StoryService.rateStory(userId, storyId, rate);
+    return res.status(SUCCESS_OK).json(result);
+  } catch (error) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      message: "Có lỗi xảy ra khi đánh giá truyện",
+      error: error,
+    });
+  }
+};
