@@ -10,6 +10,7 @@ import {
 
 import { requireAdmin } from "../middleware/rbac.js";
 
+import adminBannedKeywordRouter from "./adminBannedKeywordRoutes.js";
 import adminChapterCensorRouter from "./adminChapterCensorRoutes.js";
 import adminReportRouter from "./adminReportRoutes.js";
 import adminStoryCensorRouter from "./adminStoryCensorRoutes.js";
@@ -25,6 +26,7 @@ adminRouter.use("/users", adminUserRouter);
 adminRouter.use("/stories", adminStoryCensorRouter);
 adminRouter.use("/chapters", adminChapterCensorRouter);
 adminRouter.use("/reports", adminReportRouter);
+adminRouter.use("/banned-keywords", adminBannedKeywordRouter);
 adminRouter.get("/", getAllAdmins);
 adminRouter.get("/:id", getAdminById);
 adminRouter.post("/", createAdmin);

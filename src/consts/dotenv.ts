@@ -46,4 +46,7 @@ export const DOTENV = {
 	PAYMENT_TIMEOUT_MS: process.env.PAYMENT_TIMEOUT_MS,
 	CARRIER_API_KEY: process.env.CARRIER_API_KEY,
 	AUTO_CANCEL_MINUTES: process.env.AUTO_CANCEL_MINUTES,
+	// AI Moderation
+	AI_MODERATION_ENABLED: process.env.AI_MODERATION_ENABLED === "true",
+	GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 } as const;
