@@ -1,3 +1,4 @@
+import type mongoose from "mongoose";
 export interface IUser {
   id: string;
   username: string;
@@ -20,6 +21,9 @@ export interface IUser {
   followingCount?: number;
   followingStoriesCount?: number;
   storiesCount?: number;
+  banReason?: string;
+  bannedAt?: Date | null;
+  bannedBy?: mongoose.Types.ObjectId | null;
 }
 
 export interface UserProfile {

@@ -49,6 +49,14 @@ const userSchema = new mongoose.Schema(
 		totalSpent: { type: Number, default: 0 },
 		spiritStones: { type: Number, default: 0 },
 		online: { type: String, default: new Date().getTime().toString() },
+
+		banReason: { type: String, default: "" },
+		bannedAt: { type: Date, default: null },
+		bannedBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			default: null,
+		},
 	},
 	{ timestamps: true },
 );
