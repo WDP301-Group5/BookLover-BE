@@ -1,5 +1,5 @@
 import express from "express";
-import { addNewReadingHistory, deleteHistory } from "../controllers/readingHistoryController";
+import { addNewReadingHistory, deleteHistory, getReadingHistoryByStory } from "../controllers/readingHistoryController";
 import {
 	getFollowers,
 	getFollowing,
@@ -30,6 +30,7 @@ userRouter.get("/history/comment", checkToken, getCommentHistory);
 userRouter.get("/history/review", checkToken, getReviewHistory);
 userRouter.get("/history/recharge", checkToken, getRechargeHistory);
 userRouter.get("/history/purchase", checkToken, getPurchaseHistory);
+userRouter.get("/history/reading/:storyId", checkToken, getReadingHistoryByStory);
 
 userRouter.get("/profile", verifyToken, getProfile);
 userRouter.put(

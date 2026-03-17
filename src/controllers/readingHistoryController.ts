@@ -46,3 +46,38 @@ export const deleteHistory = async (req: Request, res: Response) => {
       .json({ message: "Có lỗi xảy ra khi xoa lịch sử truyện", error: error });
   }
 };
+
+export const getReadingHistoryByStory = async (req: Request, res: Response) => {
+  try {
+    const userId = req?.user ? req.user.userId : undefined;
+
+    if (!userId) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ message: "Không có thông tin người dùng." });
+    }
+
+    const { storyId } = req.params;
+
+    if (!storyId) {
+      return res
+        .status(ERR_BAD_REQUEST)
+        .json({ message: "Không có thông tin truyện." });
+    }
+
+    const history = await ReadingHistoryService.getReadingHistoryByStory(
+      userId,
+      storyId,
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: history,
+    });
+  } catch (error) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      message: "Có lỗi xảy ra khi lấy lịch sử đọc theo truyện",
+      error,
+    });
+  }
+};
