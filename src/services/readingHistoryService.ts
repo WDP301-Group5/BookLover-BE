@@ -76,6 +76,15 @@ const ReadingHistoryService = {
       throw new Error(`Error fetching reading history: ${error}`);
     }
   },
+
+  async getReadingHistoryByStory(userId: string, storyId: string) {
+  try {
+    const history = await ReadingHistory.findOne({ userId, storyId }).lean();
+    return history;
+  } catch (error) {
+    throw new Error(`Error getting reading history by story: ${error}`);
+  }
+}
 };
 
 export default ReadingHistoryService;
