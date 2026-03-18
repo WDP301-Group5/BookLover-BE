@@ -11,6 +11,7 @@ import { SUCCESS_CREATED, SUCCESS_OK } from "../consts/successCode";
 import StoryService from "../services/storyService";
 import UserService from "../services/userService";
 import StoryViewService from "../services/storyViewService";
+import { User } from "../models/User";
 
 export const getRecommendStory = async (req: Request, res: Response) => {
   try {
@@ -130,9 +131,17 @@ export const createStory = async (req: Request, res: Response) => {
 
 export const getMyStories = async (req: Request, res: Response) => {
   try {
-    const stories = await StoryService.getStoriesByAuthor(
-      req.user?.userId as string,
-    );
+    const userId = req.user?.userId as string;
+    const stories = await StoryService.getStoriesByAuthor(userId);
+
+    // Lazy-migrate: grant "author" role to users who have stories but role is still "user"
+    if (stories.length > 0) {
+      const user = await User.findById(userId).select("role");
+      if (user && user.role === "user") {
+        await User.findByIdAndUpdate(userId, { role: "author" });
+      }
+    }
+
     return res.status(SUCCESS_OK).json(stories);
   } catch (error) {
     return res.status(ERR_INTERNAL_SERVER).json({

@@ -46,6 +46,11 @@ chapterRouter.put(
   verifyToken,
   chapterController.publishStoryChapters,
 );
+chapterRouter.patch(
+  "/:id/review",
+  verifyToken,
+  chapterController.submitChapterForReview,
+);
 chapterRouter.get("/:id", verifyToken, chapterController.getChapterById);
 chapterRouter.put(
   "/:id",

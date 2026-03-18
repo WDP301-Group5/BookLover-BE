@@ -44,11 +44,18 @@ const chapterSchema = new mongoose.Schema(
       ],
       default: "draft",
     },
+    wordCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
   },
 );
+
+// Ensure unique chapter numbers per story
+chapterSchema.index({ storyId: 1, chapterNumber: 1 }, { unique: true });
 
 export const Chapter = mongoose.model<IChapter>("Chapter", chapterSchema);

@@ -217,6 +217,11 @@ export const uploadTextFile = [
 
       console.log("Convert to HTML success");
 
+      // Calculate word count from HTML
+      const plain = html.replace(/<[^>]+>/g, " ").trim();
+      const wordCount = plain.split(/\s+/).filter((w) => w.length > 0).length;
+      console.log(`Word count: ${wordCount}`);
+
       // upload HTML lên Cloudinary
       const result = await uploadHTMLToCloudinary(html, req.file.originalname);
 
@@ -229,6 +234,7 @@ export const uploadTextFile = [
 
       // optional
       req.body.contentURL = result.secure_url;
+      req.body.wordCount = wordCount;
 
       next();
     } catch (error) {
@@ -261,6 +267,7 @@ export const uploadMultipleTextFiles = [
       const uploadedFiles: Array<{
         originalName: string;
         contentURL: string;
+        wordCount: number;
       }> = [];
 
       for (const file of req.files as Express.Multer.File[]) {
@@ -272,12 +279,19 @@ export const uploadMultipleTextFiles = [
           // Convert file to HTML
           const html = await convertFileToHtml(file.buffer, file.originalname);
 
+          // Calculate word count from HTML
+          const plain = html.replace(/<[^>]+>/g, " ").trim();
+          const wordCount = plain
+            .split(/\s+/)
+            .filter((w) => w.length > 0).length;
+
           // Upload HTML to Cloudinary
           const result = await uploadHTMLToCloudinary(html, file.originalname);
 
           uploadedFiles.push({
             originalName: file.originalname,
             contentURL: result.secure_url,
+            wordCount,
           });
 
           console.log(
