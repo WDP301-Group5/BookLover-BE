@@ -2,7 +2,24 @@ import type { IChapter } from "../interfaces/chapter";
 import { Chapter } from "../models/Chapter";
 import { User } from "../models/User";
 
-export const createChapter = (data: IChapter) => Chapter.create(data);
+/**
+ * Extract plain text from HTML and count words
+ */
+export const countWordsFromHtml = (html: string): number => {
+  // Remove HTML tags
+  const plain = html.replace(/<[^>]+>/g, " ").trim();
+  // Split by whitespace and filter empty strings
+  const words = plain.split(/\s+/).filter((w) => w.length > 0);
+  return words.length;
+};
+
+export const createChapter = async (data: IChapter) => {
+  const chapter = await Chapter.create(data);
+  return {
+    ...chapter.toObject(),
+    id: chapter._id.toString(),
+  };
+};
 
 export const createChaptersBatch = async (
   chapters: Partial<IChapter>[],
@@ -38,10 +55,16 @@ export const createChaptersBatch = async (
       ordered: false, // Continue inserting even if one fails
     });
 
+    // Convert _id to id for each chapter
+    const chaptersWithId = createdChapters.map((chapter) => ({
+      ...chapter.toObject(),
+      id: chapter._id.toString(),
+    }));
+
     return {
       success: true,
       message: `Tạo thành công ${createdChapters.length} chương`,
-      data: createdChapters,
+      data: chaptersWithId,
       count: createdChapters.length,
     };
   } catch (error) {
@@ -127,4 +150,12 @@ export const getChapterById = (id: string) => Chapter.findById(id);
 export const getPriceOfChapter = async (chapterId: string) => {
   const chapter = await Chapter.findById(chapterId).select("price").lean();
   return chapter?.price || 0;
+};
+
+export const submitChapterForReview = async (chapterId: string) => {
+  return Chapter.findOneAndUpdate(
+    { _id: chapterId, status: "draft" },
+    { $set: { status: "pending" } },
+    { new: true },
+  );
 };

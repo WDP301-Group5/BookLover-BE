@@ -5,9 +5,55 @@ import { Chapter } from "../models/Chapter";
 import { ReadingHistory } from "../models/ReadingHistory";
 import { Story } from "../models/Story";
 import { StoryView } from "../models/StoryView";
+import { User } from "../models/User";
 import { slugify } from "../utils/validation";
 import { Comment } from "../models/Comment";
 import { Rate } from "../models/Rate";
+
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const buildUniqueStorySlug = async (title: string): Promise<string> => {
+  const baseSlug = slugify(title || "") || `story-${Date.now()}`;
+  const slugPattern = new RegExp(
+    `^${escapeRegExp(baseSlug)}(?:-(\\d+))?$`,
+    "i",
+  );
+
+  const existedSlugs = await Story.find({ slug: slugPattern })
+    .select("slug -_id")
+    .lean();
+
+  if (existedSlugs.length === 0) {
+    return baseSlug;
+  }
+
+  const normalizedSlugs = new Set(
+    existedSlugs
+      .map((item) => item.slug)
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.toLowerCase()),
+  );
+
+  if (!normalizedSlugs.has(baseSlug.toLowerCase())) {
+    return baseSlug;
+  }
+
+  let maxSuffix = 1;
+  for (const existedSlug of normalizedSlugs) {
+    const match = existedSlug.match(
+      new RegExp(`^${escapeRegExp(baseSlug.toLowerCase())}-(\\d+)$`),
+    );
+    if (!match) continue;
+
+    const suffix = Number(match[1]);
+    if (!Number.isNaN(suffix)) {
+      maxSuffix = Math.max(maxSuffix, suffix);
+    }
+  }
+
+  return `${baseSlug}-${maxSuffix + 1}`;
+};
 import mongoose from "mongoose";
 
 type FilterOptions = {
@@ -460,16 +506,21 @@ const StoryService = {
 
   async createStory(data: IStory) {
     try {
-      let slug = slugify(data.title);
-      const slugCount = await Story.countDocuments({
-        slug: new RegExp(`^${slug}(-\\d+)?$`, "i"),
-      });
-      if (slugCount > 0) {
-        slug = `${slug}-${slugCount + 1}`;
-      }
+      const slug = await buildUniqueStorySlug(data.title);
       const story = await Story.create({ ...data, slug });
 
-      return story;
+      // Grant "author" role to user if they don't have it yet (first story)
+      if (data.authorId) {
+        const user = await User.findById(data.authorId).select("role");
+        if (user && user.role === "user") {
+          await User.findByIdAndUpdate(data.authorId, { role: "author" });
+        }
+      }
+
+      return {
+        ...story.toObject(),
+        id: story._id.toString(),
+      };
     } catch (error) {
       throw new Error(`Error creating story: ${error}`);
     }
@@ -477,7 +528,9 @@ const StoryService = {
 
   async getStoryBySlug(slug: string) {
     try {
-      const story = await Story.findOne({ slug })
+      // Use exact slug matching to ensure we get the correct story when there are duplicates
+      // Slugs are generated as "base-slug" or "base-slug-N" for uniqueness
+      const story = await Story.findOne({ slug: { $eq: slug } })
         .populate("topics")
         .populate("authorId", "fullName nickName penName avatarURL username")
         .lean();
@@ -509,7 +562,10 @@ const StoryService = {
 
   async getStoryIdBySlug(slug: string) {
     try {
-      const story = await Story.findOne({ slug }).select("_id").lean();
+      // Use exact slug matching to ensure we get the correct story when there are duplicates
+      const story = await Story.findOne({ slug: { $eq: slug } })
+        .select("_id")
+        .lean();
       if (!story) {
         throw new Error("Story not found");
       }
@@ -521,7 +577,10 @@ const StoryService = {
 
   async getStoryMetaBySlug(slug: string) {
     try {
-      const story = await Story.findOne({ slug }).select("_id authorId").lean();
+      // Use exact slug matching to ensure we get the correct story when there are duplicates
+      const story = await Story.findOne({ slug: { $eq: slug } })
+        .select("_id authorId")
+        .lean();
       if (!story) {
         throw new Error("Story not found");
       }
@@ -554,6 +613,9 @@ const StoryService = {
 
   async deleteStory(id: string) {
     try {
+      // Delete all chapters belong to this story
+      await Chapter.deleteMany({ storyId: id });
+      // Delete the story
       await Story.findByIdAndDelete(id);
       return { message: "Story deleted successfully" };
     } catch (error) {
@@ -831,7 +893,8 @@ const StoryService = {
 
   async getStoryWithAuthor(slug: string): Promise<IStory> {
     try {
-      const story = await Story.findOne({ slug })
+      // Use exact slug matching to ensure we get the correct story when there are duplicates
+      const story = await Story.findOne({ slug: { $eq: slug } })
         .populate({ path: "authorId", select: "penName fullName" })
         .populate("topics")
         .lean<IStory>();
@@ -843,60 +906,58 @@ const StoryService = {
     }
   },
 
-async rateStory(userId: string, storyId: string, rate: number) {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(storyId)) {
-      throw new Error("Invalid storyId");
+  async rateStory(userId: string, storyId: string, rate: number) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(storyId)) {
+        throw new Error("Invalid storyId");
+      }
+
+      if (![1, 2, 3, 4, 5].includes(rate)) {
+        throw new Error("Số sao phải từ 1 đến 5");
+      }
+
+      const normalizedRate = rate as 1 | 2 | 3 | 4 | 5;
+
+      const story = await Story.findById(storyId);
+      if (!story) {
+        throw new Error("Không tìm thấy truyện");
+      }
+
+      const existingRate = await Rate.findOne({ userId, storyId });
+
+      if (!existingRate) {
+        await Rate.create({
+          userId,
+          storyId,
+          rate: normalizedRate,
+        });
+
+        story.stars += normalizedRate;
+        story.rates += 1;
+      } else {
+        const oldRate = existingRate.rate;
+        const diff = normalizedRate - oldRate;
+
+        existingRate.rate = normalizedRate;
+        await existingRate.save();
+
+        story.stars += diff;
+      }
+
+      await story.save();
+
+      return {
+        message: "Đánh giá truyện thành công",
+        storyId: story._id,
+        stars: story.stars,
+        rates: story.rates,
+        averageRating:
+          story.rates > 0 ? Number((story.stars / story.rates).toFixed(1)) : 0,
+      };
+    } catch (error) {
+      throw error;
     }
-
-    if (![1, 2, 3, 4, 5].includes(rate)) {
-      throw new Error("Số sao phải từ 1 đến 5");
-    }
-
-    const normalizedRate = rate as 1 | 2 | 3 | 4 | 5;
-
-    const story = await Story.findById(storyId);
-    if (!story) {
-      throw new Error("Không tìm thấy truyện");
-    }
-
-    const existingRate = await Rate.findOne({ userId, storyId });
-
-    if (!existingRate) {
-      await Rate.create({
-        userId,
-        storyId,
-        rate: normalizedRate,
-      });
-
-      story.stars += normalizedRate;
-      story.rates += 1;
-    } else {
-      const oldRate = existingRate.rate;
-      const diff = normalizedRate - oldRate;
-
-      existingRate.rate = normalizedRate;
-      await existingRate.save();
-
-      story.stars += diff;
-    }
-
-    await story.save();
-
-    return {
-      message: "Đánh giá truyện thành công",
-      storyId: story._id,
-      stars: story.stars,
-      rates: story.rates,
-      averageRating:
-        story.rates > 0
-          ? Number((story.stars / story.rates).toFixed(1))
-          : 0,
-    };
-  } catch (error) {
-    throw error;
-  }
-}
+  },
 };
 
 export default StoryService;

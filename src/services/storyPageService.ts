@@ -2,11 +2,60 @@
 import type { IStory } from "../interfaces/story";
 import { Story } from "../models/Story";
 import { slugify } from "../utils/validation";
+
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const buildUniqueStorySlug = async (title: string): Promise<string> => {
+  const baseSlug = slugify(title || "") || `story-${Date.now()}`;
+  const slugPattern = new RegExp(
+    `^${escapeRegExp(baseSlug)}(?:-(\\d+))?$`,
+    "i",
+  );
+
+  const existedSlugs = await Story.find({ slug: slugPattern })
+    .select("slug -_id")
+    .lean();
+
+  if (existedSlugs.length === 0) {
+    return baseSlug;
+  }
+
+  const normalizedSlugs = new Set(
+    existedSlugs
+      .map((item) => item.slug)
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.toLowerCase()),
+  );
+
+  if (!normalizedSlugs.has(baseSlug.toLowerCase())) {
+    return baseSlug;
+  }
+
+  let maxSuffix = 1;
+  for (const existedSlug of normalizedSlugs) {
+    const match = existedSlug.match(
+      new RegExp(`^${escapeRegExp(baseSlug.toLowerCase())}-(\\d+)$`),
+    );
+    if (!match) continue;
+
+    const suffix = Number(match[1]);
+    if (!Number.isNaN(suffix)) {
+      maxSuffix = Math.max(maxSuffix, suffix);
+    }
+  }
+
+  return `${baseSlug}-${maxSuffix + 1}`;
+};
 export async function createStory(data: Partial<IStory>) {
   try {
-    const story = new Story({ ...data, slug: slugify(data.title || "") });
+    const slug = await buildUniqueStorySlug(data.title || "");
+    const story = new Story({ ...data, slug });
     await story.save();
-    return story;
+    return {
+      ...story.toObject(),
+      id: story._id.toString(),
+    };
   } catch (error) {
     throw error;
   }
