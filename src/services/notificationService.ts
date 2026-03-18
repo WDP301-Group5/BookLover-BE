@@ -10,6 +10,7 @@ type NotificationPayload = {
     | "story_approved"
     | "new_story_from_followed_author"
     | "chapter_approved"
+    | "chapter_rejected"
     | "new_chapter_from_followed_story";
   title: string;
   content: string;

@@ -7,6 +7,7 @@ import { Story } from "../models/Story";
 import { StoryView } from "../models/StoryView";
 import { slugify } from "../utils/validation";
 import { Comment } from "../models/Comment";
+import { Rate } from "../models/Rate";
 import mongoose from "mongoose";
 
 type FilterOptions = {
@@ -841,6 +842,61 @@ const StoryService = {
       throw error;
     }
   },
+
+async rateStory(userId: string, storyId: string, rate: number) {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(storyId)) {
+      throw new Error("Invalid storyId");
+    }
+
+    if (![1, 2, 3, 4, 5].includes(rate)) {
+      throw new Error("Số sao phải từ 1 đến 5");
+    }
+
+    const normalizedRate = rate as 1 | 2 | 3 | 4 | 5;
+
+    const story = await Story.findById(storyId);
+    if (!story) {
+      throw new Error("Không tìm thấy truyện");
+    }
+
+    const existingRate = await Rate.findOne({ userId, storyId });
+
+    if (!existingRate) {
+      await Rate.create({
+        userId,
+        storyId,
+        rate: normalizedRate,
+      });
+
+      story.stars += normalizedRate;
+      story.rates += 1;
+    } else {
+      const oldRate = existingRate.rate;
+      const diff = normalizedRate - oldRate;
+
+      existingRate.rate = normalizedRate;
+      await existingRate.save();
+
+      story.stars += diff;
+    }
+
+    await story.save();
+
+    return {
+      message: "Đánh giá truyện thành công",
+      storyId: story._id,
+      stars: story.stars,
+      rates: story.rates,
+      averageRating:
+        story.rates > 0
+          ? Number((story.stars / story.rates).toFixed(1))
+          : 0,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
 };
 
 export default StoryService;

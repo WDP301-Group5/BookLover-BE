@@ -1,86 +1,86 @@
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 import { FollowStory } from "../models/FollowStory";
 import { Story } from "../models/Story";
 
 const FollowStoryService = {
-	async checkUserFollowStory(userId: string, storyId: string) {
-		try {
-			const followStories = await FollowStory.findOne({ userId, storyId });
-			return followStories;
-		} catch (error) {
-			throw new Error(`Error fetching follow stories: ${error}`);
-		}
-	},
+  async checkUserFollowStory(userId: string, storyId: string) {
+    try {
+      const followStory = await FollowStory.findOne({ userId, storyId });
+      return followStory;
+    } catch (error) {
+      throw new Error(`Error fetching follow story: ${error}`);
+    }
+  },
 
-	async changeStatusFollowStory(
-		userId: string,
-		storyId: string,
-		status: string,
-	) {
-		try {
-			if (!Types.ObjectId.isValid(storyId)) {
-				throw new Error("Invalid storyId");
-			}
+  async changeStatusFollowStory(
+    userId: string,
+    storyId: string,
+    status: "follow" | "unfollow" | "unsend",
+  ) {
+    try {
+      if (!Types.ObjectId.isValid(storyId)) {
+        throw new Error("Invalid storyId");
+      }
 
-			const story = await Story.findById(storyId);
-			if (!story) {
-				throw new Error("Story not found");
-			}
+      if (!["follow", "unfollow", "unsend"].includes(status)) {
+        throw new Error("Invalid follow status");
+      }
 
-			const isExist = await FollowStory.exists({ userId, storyId });
+      const story = await Story.findById(storyId);
+      if (!story) {
+        throw new Error("Story not found");
+      }
 
-			if (!isExist) {
-				const newFollowStory = new FollowStory({
-					userId,
-					storyId,
-					status: "follow",
-				});
-				await newFollowStory.save();
-				return newFollowStory;
-			}
+      const existing = await FollowStory.findOne({ userId, storyId });
 
-			const followStory = await FollowStory.findOneAndUpdate(
-				{ userId, storyId },
-				{ status },
-				{ new: true },
-			);
+      if (!existing) {
+        const newFollowStory = new FollowStory({
+          userId,
+          storyId,
+          status,
+        });
+        await newFollowStory.save();
+        return newFollowStory;
+      }
 
-			return followStory;
-		} catch (error) {
-			throw new Error(`Error fetching follow stories: ${error}`);
-		}
-	},
+      existing.status = status;
+      await existing.save();
+      return existing;
+    } catch (error) {
+      throw new Error(`Error changing follow story status: ${error}`);
+    }
+  },
 
-	async getMyFollowedStories(userId: string) {
-		try {
-			const followStories = await FollowStory.find({
-				userId,
-				status: "follow",
-			}).populate({
-				path: "storyId",
-				populate: [
-					{
-						path: "authorId",
-						select: "fullName nickName penName avatarURL",
-					},
-					{
-						path: "topics",
-						select: "name description status",
-					},
-					{
-						path: "genres",
-						select: "name description status",
-					},
-				],
-			});
+  async getMyFollowedStories(userId: string) {
+    try {
+      const followStories = await FollowStory.find({
+        userId,
+        status: { $in: ["follow", "unsend"] },
+      }).populate({
+        path: "storyId",
+        populate: [
+          {
+            path: "authorId",
+            select: "fullName nickName penName avatarURL",
+          },
+          {
+            path: "topics",
+            select: "name description status",
+          },
+          {
+            path: "genres",
+            select: "name description status",
+          },
+        ],
+      });
 
-			return followStories
-				.map((item: any) => item.storyId)
-				.filter(Boolean);
-		} catch (error) {
-			throw new Error(`Error fetching my followed stories: ${error}`);
-		}
-	},
+      return followStories
+        .map((item: any) => item.storyId)
+        .filter(Boolean);
+    } catch (error) {
+      throw new Error(`Error fetching my followed stories: ${error}`);
+    }
+  },
 };
 
 export default FollowStoryService;
