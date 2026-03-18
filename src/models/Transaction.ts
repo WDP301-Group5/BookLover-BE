@@ -3,7 +3,7 @@ import type { ITransaction } from "../interfaces/transaction";
 
 const transactionSchema = new mongoose.Schema(
 	{
-		id: { type: mongoose.Schema.Types.ObjectId, required: true, auto: true },
+		id: String,
 		userId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",

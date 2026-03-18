@@ -17,5 +17,9 @@ import "./Topic";
 import "./Transaction";
 import "./User";
 import "./UserAuth";
-import "./Conversation"
-import "./Message"
+import "./Conversation";
+import "./Message";
+import "./Forum";
+import "./ForumCategory";
+import "./ForumPost";
+import "./ForumPostReact";

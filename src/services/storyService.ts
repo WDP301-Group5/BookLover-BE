@@ -36,7 +36,7 @@ const StoryService = {
         { $unwind: "$topics" },
         { $group: { _id: "$topics", count: { $sum: 1 } } },
         { $sort: { count: -1 } },
-        { $limit: 5 },
+        { $limit: 10 },
       ]);
       const topicIds = top5Topics.map((topic) => topic._id);
       const recommendedStories = await Story.aggregate([
@@ -55,7 +55,7 @@ const StoryService = {
           },
         },
         {
-          $match: { commonTopicsCount: { $gte: 2 } },
+          $match: { commonTopicsCount: { $gte: 1 } },
         },
         { $sort: { commonTopicsCount: -1, views: -1, createdAt: -1 } },
         { $limit: 12 },
