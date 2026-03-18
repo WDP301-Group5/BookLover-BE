@@ -18,6 +18,7 @@ import rankingRoutes from "./rankingRoutes.js";
 import searchRoutes from "./searchRoutes.js";
 import chatingRouter from "./chatingRoutes.js";
 import forumRouter from "./forumRoutes.js";
+import reviewRoutes from "./reviewRoutes.js";
 
 const routes = express.Router();
 
@@ -39,5 +40,7 @@ routes.use("/rankings", rankingRoutes);
 routes.use("/search", searchRoutes);
 routes.use("/chating", chatingRouter);
 routes.use("/forum", forumRouter);
+routes.use("/review", reviewRoutes);
+
 
 export default routes;

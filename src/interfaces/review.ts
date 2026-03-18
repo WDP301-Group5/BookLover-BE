@@ -4,7 +4,7 @@ export interface IReview {
 	storyId: string;
 	content: string;
 	replyCount: number;
-	replyOf: string;
+	replyOf: string | null;
 	react: {
 		like: number;
 		love: number;
