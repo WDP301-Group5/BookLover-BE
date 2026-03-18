@@ -22,6 +22,17 @@ const transactionSchema = new mongoose.Schema(
 			enum: ["success", "failed", "pending"],
 			default: "success",
 		},
+
+		type: {
+			type: String,
+			enum: ["topup", "chapter_purchase"],
+			required: true,
+		},
+
+		adminShare: { type: Number, default: 0, min: 0 },
+		authorShare: { type: Number, default: 0, min: 0 },
+
+		description: { type: String, default: "" },
 	},
 	{ timestamps: true },
 );

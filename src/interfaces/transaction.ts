@@ -9,6 +9,10 @@ export interface ITransaction {
 	startAt: Date;
 	endAt: Date;
 	status: "success" | "failed" | "pending";
+	type: "topup" | "chapter_purchase";
+	adminShare?: number;
+	authorShare?: number;
+	description?: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 }
