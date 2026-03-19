@@ -2,6 +2,7 @@ import type { IStory } from "../interfaces/story.js";
 import { CensorLog } from "../models/CensorLog.js";
 import { Chapter } from "../models/Chapter.js";
 import { Story } from "../models/Story.js";
+import * as chapterService from "./chapterService.js";
 
 class AdminStoryCensorService {
   public static async getPendingStories(): Promise<IStory[]> {
@@ -20,12 +21,12 @@ class AdminStoryCensorService {
 
   public static async approveStory(
     storyId: string,
-    adminId: string
+    adminId: string,
   ): Promise<IStory | null> {
     const story = await Story.findOneAndUpdate(
       { _id: storyId, status: "pending" },
       { status: "active" },
-      { new: true }
+      { new: true },
     );
 
     if (story) {
@@ -43,15 +44,22 @@ class AdminStoryCensorService {
   public static async rejectStory(
     storyId: string,
     adminId: string,
-    reason: string
+    reason: string,
   ): Promise<IStory | null> {
     const story = await Story.findOneAndUpdate(
       { _id: storyId, status: "pending" },
       { status: "rejected" },
-      { new: true }
+      { new: true },
     );
 
     if (story) {
+      // Cascade: set all chapters to "rejected" status
+      await chapterService.updateChapterStatusByStory(
+        storyId,
+        ["draft", "pending", "active"],
+        "rejected",
+      );
+
       await CensorLog.create({
         targetType: "Story",
         storyId,
@@ -67,15 +75,22 @@ class AdminStoryCensorService {
   public static async banStory(
     storyId: string,
     adminId: string,
-    reason: string
+    reason: string,
   ): Promise<IStory | null> {
     const story = await Story.findOneAndUpdate(
       { _id: storyId, status: "active" },
       { status: "banned" },
-      { new: true }
+      { new: true },
     );
 
     if (story) {
+      // Cascade: set all chapters to "banned" status
+      await chapterService.updateChapterStatusByStory(
+        storyId,
+        ["draft", "pending", "active"],
+        "banned",
+      );
+
       await CensorLog.create({
         targetType: "Story",
         storyId,
@@ -90,15 +105,22 @@ class AdminStoryCensorService {
 
   public static async unbanStory(
     storyId: string,
-    adminId: string
+    adminId: string,
   ): Promise<IStory | null> {
     const story = await Story.findOneAndUpdate(
       { _id: storyId, status: "banned" },
       { status: "active" },
-      { new: true }
+      { new: true },
     );
 
     if (story) {
+      // Cascade: set all chapters from "banned" back to "active"
+      await chapterService.updateChapterStatusByStory(
+        storyId,
+        "banned",
+        "active",
+      );
+
       await CensorLog.create({
         targetType: "Story",
         storyId,

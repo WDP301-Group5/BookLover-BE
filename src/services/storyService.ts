@@ -9,6 +9,7 @@ import { User } from "../models/User";
 import { slugify } from "../utils/validation";
 import { Comment } from "../models/Comment";
 import { Rate } from "../models/Rate";
+import * as chapterService from "./chapterService";
 
 const escapeRegExp = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -526,7 +527,7 @@ const StoryService = {
     }
   },
 
-  async getStoryBySlug(slug: string) {
+  async getStoryBySlug(slug: string, userId?: string) {
     try {
       // Use exact slug matching to ensure we get the correct story when there are duplicates
       // Slugs are generated as "base-slug" or "base-slug-N" for uniqueness
@@ -537,6 +538,14 @@ const StoryService = {
 
       if (!story) {
         throw new Error("Story not found");
+      }
+
+      // Check if story is accessible: must be "active" or user is the author
+      if (story.status !== "active") {
+        const storyAuthorId = (story.authorId as any)?._id?.toString();
+        if (!userId || storyAuthorId !== userId) {
+          throw new Error("Story not found"); // Treat as not found for non-authors
+        }
       }
 
       const author = story.authorId as any;
@@ -579,7 +588,7 @@ const StoryService = {
     try {
       // Use exact slug matching to ensure we get the correct story when there are duplicates
       const story = await Story.findOne({ slug: { $eq: slug } })
-        .select("_id authorId")
+        .select("_id authorId status")
         .lean();
       if (!story) {
         throw new Error("Story not found");
@@ -587,6 +596,7 @@ const StoryService = {
       return {
         id: story._id.toString(),
         authorId: story.authorId.toString(),
+        status: story.status,
       };
     } catch (error) {
       throw new Error(`Error fetching story by slug: ${error}`);
@@ -604,6 +614,15 @@ const StoryService = {
 
   async updateStory(id: string, data: Partial<IStory>) {
     try {
+      // If status is being changed to "private", cascade chapters to "private" as well
+      if (data.status === "private") {
+        await chapterService.updateChapterStatusByStory(
+          id,
+          ["draft", "pending", "active"],
+          "private",
+        );
+      }
+
       const story = await Story.findByIdAndUpdate(id, data, { new: true });
       return story;
     } catch (error) {
@@ -623,12 +642,51 @@ const StoryService = {
     }
   },
 
-  async getStoriesByAuthor(authorId: string) {
+  async unpublishStory(id: string) {
+    try {
+      // Change story status to "private"
+      const story = await Story.findByIdAndUpdate(
+        id,
+        { status: "private" },
+        { new: true },
+      );
+
+      if (story) {
+        // Cascade: set all chapters to "private"
+        await chapterService.updateChapterStatusByStory(
+          id,
+          ["draft", "pending", "active"],
+          "private",
+        );
+      }
+
+      return story;
+    } catch (error) {
+      throw new Error(`Error unpublishing story: ${error}`);
+    }
+  },
+
+  async getStoriesByAuthor(
+    authorId: string,
+    offset: number = 0,
+    limit: number = 10,
+  ) {
     try {
       const stories = await Story.find({ authorId })
         .populate("topics")
-        .sort({ createdAt: -1 });
-      return stories;
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit)
+        .lean();
+
+      const total = await Story.countDocuments({ authorId });
+
+      return {
+        stories,
+        total,
+        offset,
+        limit,
+      };
     } catch (error) {
       throw new Error(`Error fetching stories by author: ${error}`);
     }
@@ -891,7 +949,7 @@ const StoryService = {
     }
   },
 
-  async getStoryWithAuthor(slug: string): Promise<IStory> {
+  async getStoryWithAuthor(slug: string, userId?: string): Promise<IStory> {
     try {
       // Use exact slug matching to ensure we get the correct story when there are duplicates
       const story = await Story.findOne({ slug: { $eq: slug } })
@@ -899,6 +957,15 @@ const StoryService = {
         .populate("topics")
         .lean<IStory>();
       if (!story) throw new Error("Story not found");
+
+      // Check if story is accessible: must be "active" or user is the author
+      if (story.status !== "active") {
+        const storyAuthorId = (story.authorId as any)?._id?.toString();
+        if (!userId || storyAuthorId !== userId) {
+          throw new Error("Story not found"); // Treat as not found for non-authors
+        }
+      }
+
       story.topics = story.topics.map((t: any) => t.name || "");
       return story;
     } catch (error) {

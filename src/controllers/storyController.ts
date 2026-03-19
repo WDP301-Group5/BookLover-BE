@@ -132,7 +132,12 @@ export const createStory = async (req: Request, res: Response) => {
 export const getMyStories = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.userId as string;
-    const stories = await StoryService.getStoriesByAuthor(userId);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const result = await StoryService.getStoriesByAuthor(userId, offset, limit);
+    const { stories } = result;
 
     // Lazy-migrate: grant "author" role to users who have stories but role is still "user"
     if (stories.length > 0) {
@@ -142,7 +147,7 @@ export const getMyStories = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(SUCCESS_OK).json(stories);
+    return res.status(SUCCESS_OK).json(result);
   } catch (error) {
     return res.status(ERR_INTERNAL_SERVER).json({
       message: "Có lỗi xảy ra khi lấy danh sách truyện của bạn",
@@ -165,7 +170,8 @@ export const getStories = async (_: Request, res: Response) => {
 
 export const getStoryBySlug = async (req: Request, res: Response) => {
   try {
-    const story = await StoryService.getStoryBySlug(req.params.slug);
+    const userId = req.user?.userId;
+    const story = await StoryService.getStoryBySlug(req.params.slug, userId);
     return res.status(SUCCESS_OK).json(story);
   } catch (error) {
     return res.status(ERR_INTERNAL_SERVER).json({
@@ -206,6 +212,21 @@ export const deleteStory = async (req: Request, res: Response) => {
   }
 };
 
+export const unpublishStory = async (req: Request, res: Response) => {
+  try {
+    const result = await StoryService.unpublishStory(req.params.id);
+    return res.status(SUCCESS_OK).json({
+      message: "Story unpublished successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(ERR_INTERNAL_SERVER).json({
+      message: "Có lỗi xảy ra khi hủy xuất bản truyện",
+      error: error,
+    });
+  }
+};
+
 export const readChapter = async (req: Request, res: Response) => {
   const userId = req.user ? req.user.userId : undefined;
   const storyId = req.params.storyId;
@@ -234,9 +255,14 @@ export const readChapter = async (req: Request, res: Response) => {
 
 export const getStoryWithAuthor = async (req: Request, res: Response) => {
   const { slug } = req.params;
-  const story = await StoryService.getStoryWithAuthor(slug);
-  if (!story) return res.status(404).json({ message: "Not found" });
-  return res.json(story);
+  const userId = req.user?.userId;
+  try {
+    const story = await StoryService.getStoryWithAuthor(slug, userId);
+    if (!story) return res.status(404).json({ message: "Not found" });
+    return res.json(story);
+  } catch (error) {
+    return res.status(404).json({ message: "Not found" });
+  }
 };
 
 export const rateStory = async (req: Request, res: Response) => {
