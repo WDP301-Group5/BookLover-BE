@@ -41,6 +41,7 @@ const chapterSchema = new mongoose.Schema(
         "pending",
         "rejected",
         "banned",
+        "private",
       ],
       default: "draft",
     },

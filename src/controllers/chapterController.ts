@@ -13,6 +13,7 @@ import {
 } from "../consts/errorCode";
 import { SUCCESS_OK } from "../consts/successCode";
 import { Chapter } from "../models/Chapter.js";
+import { Story } from "../models/Story.js";
 import * as chapterService from "../services/chapterService";
 import StoryService from "../services/storyService";
 import TransactionService from "../services/transactionService";
@@ -205,9 +206,21 @@ export const createChaptersBatch = async (req: Request, res: Response) => {
 
 export const getChaptersByStory = async (req: Request, res: Response) => {
   try {
-    const chapters = await chapterService.getChaptersByStory(
-      req.params.storyId as string,
-    );
+    const userId = req.user ? req.user.userId : undefined;
+    const storyId = req.params.storyId as string;
+
+    // Check if story is accessible
+    const story = await Story.findById(storyId).select("status authorId").lean();
+    if (!story) {
+      return res.status(404).json({ message: "Truyện không tồn tại" });
+    }
+
+    const isAuthor = !!userId && story.authorId.toString() === userId;
+    if (story.status !== "active" && !isAuthor) {
+      return res.status(404).json({ message: "Truyện không tồn tại" });
+    }
+
+    const chapters = await chapterService.getChaptersByStory(storyId);
     return res.status(SUCCESS_OK).json(chapters);
   } catch (error: unknown) {
     return res.status(ERR_INTERNAL_SERVER).json({
@@ -227,6 +240,11 @@ export const getChapterByChapterNumber = async (
     );
     const storyId = storyMeta.id;
     const isAuthor = !!userId && storyMeta.authorId === userId;
+
+    // Check if story status is accessible
+    if (storyMeta.status !== "active" && !isAuthor) {
+      return res.status(404).json({ message: "Truyện không tồn tại" });
+    }
 
     let chapter = await chapterService.getChapterByChapterNumber(
       storyId,
@@ -360,6 +378,15 @@ export const publishStoryChapters = async (req: Request, res: Response) => {
       status: "draft",
     }).select("chapterNumber wordCount");
 
+    // Validate: story must have at least one draft chapter to publish
+    if (draftChapters.length === 0) {
+      return res.status(ERR_BAD_REQUEST).json({
+        error: "Không có chương nào để gửi duyệt",
+        message:
+          "Truyện phải có ít nhất một chương ở trạng thái nháp để gửi duyệt",
+      });
+    }
+
     const chaptersWithLowWordCount = draftChapters.filter(
       (ch) => (ch.wordCount || 0) < 50,
     );
@@ -416,7 +443,8 @@ export const submitChapterForReview = async (req: Request, res: Response) => {
     const chapterId = req.params.id as string;
 
     // Check word count before submitting
-    const chapterToCheck = await Chapter.findById(chapterId).select("wordCount");
+    const chapterToCheck =
+      await Chapter.findById(chapterId).select("wordCount");
     if (!chapterToCheck || (chapterToCheck.wordCount || 0) < 50) {
       return res.status(ERR_BAD_REQUEST).json({
         error: "Nội dung chương không đủ",

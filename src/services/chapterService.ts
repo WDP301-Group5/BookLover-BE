@@ -95,13 +95,13 @@ export const getChaptersByStoryForAuthor = async (storyId: string) => {
 
 export const updateChapterStatusByStory = async (
   storyId: string,
-  fromStatus: string,
+  fromStatus: string | string[],
   toStatus: string,
 ) => {
-  return Chapter.updateMany(
-    { storyId, status: fromStatus },
-    { $set: { status: toStatus } },
-  );
+  const query = Array.isArray(fromStatus)
+    ? { storyId, status: { $in: fromStatus } }
+    : { storyId, status: fromStatus };
+  return Chapter.updateMany(query, { $set: { status: toStatus } });
 };
 export const getChapterByChapterNumber = async (
   storyId: string,
