@@ -19,6 +19,7 @@ import searchRoutes from "./searchRoutes.js";
 import chatingRouter from "./chatingRoutes.js";
 import forumRouter from "./forumRoutes.js";
 import reviewRoutes from "./reviewRoutes.js";
+import readingListRouter from "./readingListRoutes.js";
 
 const routes = express.Router();
 
@@ -41,6 +42,6 @@ routes.use("/search", searchRoutes);
 routes.use("/chating", chatingRouter);
 routes.use("/forum", forumRouter);
 routes.use("/review", reviewRoutes);
-
+routes.use("/reading-list", readingListRouter);
 
 export default routes;
