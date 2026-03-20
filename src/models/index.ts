@@ -7,6 +7,7 @@ import "./Genre";
 import "./Notification";
 import "./Rate";
 import "./ReadingHistory";
+import "./ReadingList";
 import "./Report";
 import "./ReportLog";
 import "./Review";
