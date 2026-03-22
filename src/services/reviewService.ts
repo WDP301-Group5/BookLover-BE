@@ -91,157 +91,163 @@ const reviewService = {
   },
 
   async getReviews({
-    sort = "newest",
-    genre = "",
-    search = "",
-    page = 1,
-    limit = 20,
-  }: {
-    sort?: ReviewSortType;
-    genre?: string;
-    search?: string;
-    page?: number;
-    limit?: number;
-  }) {
-    try {
-      const finalSort: ReviewSortType = sort === "oldest" ? "oldest" : "newest";
-      const finalPage = normalizePage(page);
-      const finalLimit = normalizeLimit(limit, 20);
-      const skip = (finalPage - 1) * finalLimit;
+  sort = "newest",
+  genre = "",
+  search = "",
+  page = 1,
+  limit = 5,
+}: {
+  sort?: ReviewSortType;
+  genre?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}) {
+  try {
+    const finalSort: ReviewSortType = sort === "oldest" ? "oldest" : "newest";
+    const finalPage = normalizePage(page);
+    const finalLimit = normalizeLimit(limit, 5);
+    const skip = (finalPage - 1) * finalLimit;
 
-      const sortOption: Record<string, mongoose.SortOrder> =
-  finalSort === "oldest"
-    ? { createdAt: 1, _id: 1 }
-    : { createdAt: -1, _id: -1 };
+    const sortOption: Record<string, mongoose.SortOrder> =
+      finalSort === "oldest"
+        ? { createdAt: 1, _id: 1 }
+        : { createdAt: -1, _id: -1 };
 
-      const reviews = await Review.find({
-        status: "active",
-        $or: [{ replyOf: null }, { replyOf: "" }],
+    const reviews = await Review.find({
+      status: "active",
+      $or: [{ replyOf: null }, { replyOf: "" }],
+    })
+      .sort(sortOption)
+      .populate("userId", "username fullName nickName penName avatarURL")
+      .populate({
+        path: "storyId",
+        select:
+          "title slug image description views followers isPremium topics genres authorId status",
+        populate: [
+          {
+            path: "authorId",
+            select: "username fullName penName avatarURL",
+          },
+          {
+            path: "topics",
+            select: "name",
+          },
+          {
+            path: "genres",
+            select: "name",
+          },
+        ],
       })
-        .sort(sortOption)
-        .skip(skip)
-        .limit(finalLimit)
-        .populate("userId", "username fullName nickName penName avatarURL")
-        .populate({
-          path: "storyId",
-          select:
-            "title slug image description views followers isPremium topics genres authorId status",
-          populate: [
-            {
-              path: "authorId",
-              select: "username fullName penName avatarURL",
+      .lean();
+
+    let mappedItems = reviews
+      .map((review: any) => {
+        const story = review.storyId;
+        const user = review.userId;
+
+        if (!story || story.status !== "active") return null;
+
+        const genres = Array.isArray(story.genres)
+          ? story.genres.map((item: any) => item?.name).filter(Boolean)
+          : [];
+
+        const topics = Array.isArray(story.topics)
+          ? story.topics.map((item: any) => item?.name).filter(Boolean)
+          : [];
+
+        const genreLabel = genres[0] || topics[0] || "Khác";
+        const userName =
+          user?.penName ||
+          user?.nickName ||
+          user?.fullName ||
+          user?.username ||
+          "Ẩn danh";
+
+        return {
+          id: review._id?.toString(),
+          content: review.content || "",
+          createdAt: review.createdAt,
+          updatedAt: review.updatedAt,
+          replyCount: review.replyCount || 0,
+          react: {
+            like: review.react?.like || 0,
+            love: review.react?.love || 0,
+            haha: review.react?.haha || 0,
+            wow: review.react?.wow || 0,
+            sad: review.react?.sad || 0,
+            angry: review.react?.angry || 0,
+          },
+          user: {
+            id: user?._id?.toString?.() || "",
+            name: userName,
+            username: user?.username || "",
+            avatar: user?.avatarURL || "",
+          },
+          story: {
+            id: story._id?.toString(),
+            title: story.title,
+            slug: story.slug,
+            image: story.image,
+            cover: story.image,
+            link: `/truyen/${story.slug}`,
+            genre: genreLabel,
+            genres,
+            topics,
+            views: story.views || 0,
+            followers: story.followers || 0,
+            isPremium: !!story.isPremium,
+            author: {
+              id: story.authorId?._id?.toString?.() || "",
+              penName:
+                story.authorId?.penName ||
+                story.authorId?.fullName ||
+                story.authorId?.username ||
+                "Đang cập nhật",
+              avatarURL: story.authorId?.avatarURL || "",
             },
-            {
-              path: "topics",
-              select: "name",
-            },
-            {
-              path: "genres",
-              select: "name",
-            },
-          ],
-        })
-        .lean();
+          },
+        };
+      })
+      .filter(Boolean) as any[];
 
-      const mappedItems = reviews
-        .map((review: any) => {
-          const story = review.storyId;
-          const user = review.userId;
-
-          if (!story || story.status !== "active") return null;
-
-          const genres = Array.isArray(story.genres)
-            ? story.genres.map((item: any) => item?.name).filter(Boolean)
-            : [];
-
-          const topics = Array.isArray(story.topics)
-            ? story.topics.map((item: any) => item?.name).filter(Boolean)
-            : [];
-
-          const genreLabel = genres[0] || topics[0] || "Khác";
-          const userName =
-            user?.penName ||
-            user?.nickName ||
-            user?.fullName ||
-            user?.username ||
-            "Ẩn danh";
-
-          return {
-            id: review._id?.toString(),
-            content: review.content || "",
-            createdAt: review.createdAt,
-            updatedAt: review.updatedAt,
-            replyCount: review.replyCount || 0,
-            react: {
-              like: review.react?.like || 0,
-              love: review.react?.love || 0,
-              haha: review.react?.haha || 0,
-              wow: review.react?.wow || 0,
-              sad: review.react?.sad || 0,
-              angry: review.react?.angry || 0,
-            },
-            user: {
-              id: user?._id?.toString?.() || "",
-              name: userName,
-              username: user?.username || "",
-              avatar: user?.avatarURL || "",
-            },
-            story: {
-              id: story._id?.toString(),
-              title: story.title,
-              slug: story.slug,
-              image: story.image,
-              cover: story.image,
-              link: `/truyen/${story.slug}`,
-              genre: genreLabel,
-              genres,
-              topics,
-              views: story.views || 0,
-              followers: story.followers || 0,
-              isPremium: !!story.isPremium,
-              author: {
-                id: story.authorId?._id?.toString?.() || "",
-                penName:
-                  story.authorId?.penName ||
-                  story.authorId?.fullName ||
-                  story.authorId?.username ||
-                  "Đang cập nhật",
-                avatarURL: story.authorId?.avatarURL || "",
-              },
-            },
-          };
-        })
-        .filter(Boolean) as any[];
-
-      let filteredItems = mappedItems;
-
-      if (genre.trim() && genre !== "Tất cả") {
-        filteredItems = filteredItems.filter(
-          (item) => item.story.genre.toLowerCase() === genre.trim().toLowerCase(),
-        );
-      }
-
-      if (search.trim()) {
-        const searchLower = search.trim().toLowerCase();
-        filteredItems = filteredItems.filter((item) => {
-          return (
-            item.story.title.toLowerCase().includes(searchLower) ||
-            item.content.toLowerCase().includes(searchLower) ||
-            item.user.name.toLowerCase().includes(searchLower) ||
-            item.user.username.toLowerCase().includes(searchLower)
-          );
-        });
-      }
-
-      return {
-        sort: finalSort,
-        total: filteredItems.length,
-        items: filteredItems,
-      };
-    } catch (error) {
-      throw new Error(`Có lỗi xảy ra khi lấy danh sách review: ${error}`);
+    if (genre.trim() && genre !== "Tất cả") {
+      mappedItems = mappedItems.filter(
+        (item) => item.story.genre.toLowerCase() === genre.trim().toLowerCase()
+      );
     }
-  },
+
+    if (search.trim()) {
+      const searchLower = search.trim().toLowerCase();
+
+      mappedItems = mappedItems.filter((item) => {
+        const plainContent = String(item.content || "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .toLowerCase();
+
+        return (
+          item.story.title.toLowerCase().includes(searchLower) ||
+          plainContent.includes(searchLower) ||
+          item.user.name.toLowerCase().includes(searchLower) ||
+          item.user.username.toLowerCase().includes(searchLower)
+        );
+      });
+    }
+
+    const total = mappedItems.length;
+    const items = mappedItems.slice(skip, skip + finalLimit);
+
+    return {
+      sort: finalSort,
+      total,
+      items,
+    };
+  } catch (error) {
+    throw new Error(`Có lỗi xảy ra khi lấy danh sách review: ${error}`);
+  }
+},
 
   async createReview({
     userId,

@@ -1,3 +1,4 @@
+// src/interfaces/review.ts
 export interface IReview {
 	id: string;
 	userId: string;
