@@ -20,6 +20,8 @@ const notificationSchema = new mongoose.Schema(
         "new_story_from_followed_author",
         "new_chapter_from_followed_story",
         "user_followed_you",
+        "forum_post_commented",
+        "forum_post_reacted",
         "system",
         "warning",
       ],
