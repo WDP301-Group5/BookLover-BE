@@ -27,6 +27,7 @@ const ForumPostReactService = {
     try {
       const isExist = await ForumPostReact.findOne({ userId, forumPostId });
       if (isExist) {
+        if (isExist.react === react) return isExist;
         const forumPostReact = await ForumPostReact.findOneAndUpdate(
           { userId, forumPostId },
           { react },
