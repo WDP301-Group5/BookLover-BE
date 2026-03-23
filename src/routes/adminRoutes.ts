@@ -16,6 +16,7 @@ import adminReportRouter from "./adminReportRoutes.js";
 import adminStoryCensorRouter from "./adminStoryCensorRoutes.js";
 import adminUserRouter from "./adminUserRoutes.js";
 import adminTransactionRouter from "./adminTransactionRouter.js";
+import adminDashboardRoutes from "./adminDashboardRoutes.js";
 
 const adminRouter = express.Router();
 
@@ -29,6 +30,7 @@ adminRouter.use("/chapters", adminChapterCensorRouter);
 adminRouter.use("/reports", adminReportRouter);
 adminRouter.use("/banned-keywords", adminBannedKeywordRouter);
 adminRouter.use("/transactions", adminTransactionRouter);
+adminRouter.use("/dashboard", adminDashboardRoutes);
 adminRouter.get("/", getAllAdmins);
 adminRouter.get("/:id", getAdminById);
 adminRouter.post("/", createAdmin);
