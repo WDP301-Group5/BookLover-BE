@@ -392,6 +392,34 @@ const reviewService = {
       throw new Error(`Có lỗi xảy ra khi tạo review: ${error}`);
     }
   },
+
+  async updateIncreaseReactReviewCount(reviewId: string, react: string) {
+  if (!reviewId || !react || react === "unlike") return null;
+
+  return await Review.findByIdAndUpdate(
+    reviewId,
+    {
+      $inc: {
+        [`react.${react}`]: 1,
+      },
+    },
+    { new: true }
+  );
+},
+
+async updateDecreaseReactReviewCount(reviewId: string, react: string) {
+  if (!reviewId || !react || react === "unlike") return null;
+
+  return await Review.findByIdAndUpdate(
+    reviewId,
+    {
+      $inc: {
+        [`react.${react}`]: -1,
+      },
+    },
+    { new: true }
+  );
+},
 };
 
 export default reviewService;
