@@ -17,7 +17,14 @@ export const registerSchema = z
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email: z.email("Invalid email format"),
+  account: z
+    .string()
+    .min(1, "Email hoặc username là bắt buộc")
+    .refine((value) => {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      const isUsername = /^[a-z0-9_]{3,20}$/.test(value);
+      return isEmail || isUsername;
+    }, "Vui lòng nhập email hoặc username hợp lệ"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   rememberMe: z.boolean().optional(),
 });

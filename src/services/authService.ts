@@ -278,10 +278,19 @@ export const resendVerificationEmail = async (
 export const loginUser = async (
   credentials: LoginInput,
 ): Promise<AuthResponse> => {
-  const { email, password } = credentials;
+  const { account, password } = credentials;
 
-  // Find user auth by email
-  const userAuth = await UserAuth.findOne({ email: email.toLowerCase() });
+  // Determine if account is email or username
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account);
+
+  // Find user auth by email or username
+  let userAuth;
+  if (isEmail) {
+    userAuth = await UserAuth.findOne({ email: account.toLowerCase() });
+  } else {
+    userAuth = await UserAuth.findOne({ username: account.toLowerCase() });
+  }
+
   if (!userAuth) {
     throw new Error("Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại");
   }
