@@ -1,5 +1,6 @@
 import { ForumPost } from "../models/ForumPost";
 import { ReplyForumPost } from "../models/ReplyForumPost";
+import notificationService from "./notificationService";
 
 const ReplyForumPostService = {
   async createReplyForumPost(
@@ -8,6 +9,12 @@ const ReplyForumPostService = {
     content: string,
   ) {
     try {
+      const parentPost = await ForumPost.findById(forumPostId).lean();
+
+      if (!parentPost) {
+        throw new Error("Forum post not found");
+      }
+
       const replyForumPost = await ReplyForumPost.create({
         userId,
         forumPostId,
@@ -17,6 +24,14 @@ const ReplyForumPostService = {
         { _id: forumPostId },
         { $inc: { replyCount: 1 } },
       );
+
+      await notificationService.notifyForumPostCommented({
+        fromUserId: userId,
+        postOwnerId: parentPost.userId.toString(),
+        forumPostId: parentPost._id.toString(),
+        forumCategoryId: parentPost.forumCategoryId.toString(),
+        content,
+      });
       return replyForumPost;
     } catch (error) {
       throw new Error(`Error creating reply forum post: ${error}`);

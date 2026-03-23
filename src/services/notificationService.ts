@@ -11,7 +11,9 @@ type NotificationPayload = {
     | "new_story_from_followed_author"
     | "chapter_approved"
     | "chapter_rejected"
-    | "new_chapter_from_followed_story";
+    | "new_chapter_from_followed_story"
+    | "forum_post_commented"
+    | "forum_post_reacted";
   title: string;
   content: string;
   data?: Record<string, any>;
@@ -293,6 +295,57 @@ class NotificationService {
     }
 
     return await this.createManyNotifications(notifications);
+  }
+
+  async notifyForumPostCommented(params: {
+    fromUserId: string;
+    postOwnerId: string;
+    forumPostId: string;
+    forumCategoryId: string;
+    content?: string;
+  }) {
+    const { fromUserId, postOwnerId, forumPostId, forumCategoryId, content } = params;
+
+    if (String(fromUserId) === String(postOwnerId)) return null;
+
+    return await this.createNotification({
+      from: fromUserId,
+      to: postOwnerId,
+      type: "forum_post_commented",
+      title: "Bài viết của bạn có bình luận mới",
+      content: content
+        ? `Có người vừa bình luận vào bài viết của bạn: "${content.slice(0, 80)}"`
+        : "Có người vừa bình luận vào bài viết của bạn.",
+      data: {
+        forumPostId,
+        forumCategoryId,
+      },
+    });
+  }
+
+  async notifyForumPostReacted(params: {
+    fromUserId: string;
+    postOwnerId: string;
+    forumPostId: string;
+    forumCategoryId: string;
+    react: string;
+  }) {
+    const { fromUserId, postOwnerId, forumPostId, forumCategoryId, react } = params;
+
+    if (String(fromUserId) === String(postOwnerId)) return null;
+
+    return await this.createNotification({
+      from: fromUserId,
+      to: postOwnerId,
+      type: "forum_post_reacted",
+      title: "Bài viết của bạn có lượt thả cảm xúc mới",
+      content: `Có người vừa thả cảm xúc "${react}" vào bài viết của bạn.`,
+      data: {
+        forumPostId,
+        forumCategoryId,
+        react,
+      },
+    });
   }
 }
 
