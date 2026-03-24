@@ -34,7 +34,11 @@ const TransactionService = {
         spiritStones: price,
         stoneBefore: stone,
         stoneAfter: stone - price,
+        type: "chapter_purchase",
         status: "success",
+        description: `Mua chương ${chapterId}`,
+        adminShare: 0.4 * price,
+        authorShare: 0.6 * price,
       });
       if (!transaction) {
         return { success: false, enough: true };
