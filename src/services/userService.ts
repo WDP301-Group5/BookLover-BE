@@ -66,8 +66,7 @@ const UserService = {
         status: "follow",
       }),
       Story.countDocuments({
-        authorId: userId,
-        status: "active",
+          authorId: userId,
       }),
     ]);
 
@@ -240,7 +239,7 @@ const UserService = {
       throw new Error("User not found");
     }
 
-    const stories = await Story.find({ authorId: profileUserId, status: "active" })
+    const stories = await Story.find({ authorId: profileUserId })
       .select(
         "title slug image description views stars rates followers isPremium isFinish createdAt updatedAt"
       )
