@@ -3,15 +3,21 @@ import { DOTENV } from "../consts/dotenv.js";
 import {
   GEMINI_SYSTEM_PROMPT,
   GEMINI_USER_PROMPT,
+  STORY_CENSOR_SYSTEM_PROMPT,
+  STORY_CENSOR_USER_PROMPT,
 } from "../consts/geminiPrompt.js";
 
 export interface GeminiDecision {
   decision: "APPROVE" | "FLAG" | "REJECT";
   scores: {
-    toxicity: number;
-    sexual: number;
-    violence: number;
-    political: number;
+    toxicity?: number;
+    sexual?: number;
+    violence?: number;
+    political?: number;
+    inappropriateName?: number;
+    inappropriateDescription?: number;
+    inappropriateGenre?: number;
+    overallRisk?: number;
   };
   reasons: string[];
   warnings: string[];
@@ -92,6 +98,75 @@ class GeminiAPIService {
     } catch (error) {
       console.error("Gemini API error:", error);
       throw new Error(`Gemini API analysis failed: ${error}`);
+    }
+  }
+
+  static async analyzeStoryMetadata(
+    title: string,
+    description: string,
+    genres: string,
+  ): Promise<GeminiDecision> {
+    if (!title || title.trim().length === 0) {
+      return {
+        decision: "FLAG",
+        scores: {
+          inappropriateName: 0.5,
+          inappropriateDescription: 0.5,
+          inappropriateGenre: 0.5,
+          overallRisk: 0.5,
+        },
+        reasons: ["Title is empty"],
+        warnings: [],
+      };
+    }
+
+    const client = this.getClient();
+    const model = client.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      systemInstruction: STORY_CENSOR_SYSTEM_PROMPT,
+    });
+
+    const prompt = STORY_CENSOR_USER_PROMPT(title, description, genres);
+
+    try {
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
+
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
+      const jsonString = jsonMatch ? jsonMatch[1] : text;
+
+      try {
+        const parsed = JSON.parse(jsonString);
+        return {
+          decision: parsed.decision || "FLAG",
+          scores: {
+            inappropriateName: parsed.scores?.inappropriateName ?? 0.5,
+            inappropriateDescription:
+              parsed.scores?.inappropriateDescription ?? 0.5,
+            inappropriateGenre: parsed.scores?.inappropriateGenre ?? 0.5,
+            overallRisk: parsed.scores?.overallRisk ?? 0.5,
+          },
+          reasons: parsed.reasons || [],
+          warnings: parsed.warnings || [],
+        };
+      } catch {
+        console.error("Failed to parse Gemini response:", text);
+        return {
+          decision: "FLAG",
+          scores: {
+            inappropriateName: 0.5,
+            inappropriateDescription: 0.5,
+            inappropriateGenre: 0.5,
+            overallRisk: 0.5,
+          },
+          reasons: ["Failed to parse AI response"],
+          warnings: [],
+        };
+      }
+    } catch (error) {
+      console.error("Gemini API error:", error);
+      throw new Error(`Gemini API story analysis failed: ${error}`);
     }
   }
 }
