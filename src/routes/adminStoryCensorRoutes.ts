@@ -1,9 +1,11 @@
 import express from "express";
 import {
+  analyzeStory,
   approveStory,
   banStory,
   getManagedStories,
   getPendingStories,
+  getStoryAIAnalysis,
   getStoryCensorLog,
   getStoryChapters,
   rejectStory,
@@ -20,5 +22,7 @@ adminStoryCensorRouter.post("/:id/reject", rejectStory);
 adminStoryCensorRouter.post("/:id/ban", banStory);
 adminStoryCensorRouter.post("/:id/unban", unbanStory);
 adminStoryCensorRouter.get("/:id/logs", getStoryCensorLog);
+adminStoryCensorRouter.post("/:id/analyze", analyzeStory);
+adminStoryCensorRouter.get("/:id/ai-analysis", getStoryAIAnalysis);
 
 export default adminStoryCensorRouter;

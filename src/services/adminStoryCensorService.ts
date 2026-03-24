@@ -2,14 +2,61 @@ import type { IStory } from "../interfaces/story.js";
 import { CensorLog } from "../models/CensorLog.js";
 import { Chapter } from "../models/Chapter.js";
 import { Story } from "../models/Story.js";
+import AIAnalysisService from "./aiAnalysisService.js";
 import * as chapterService from "./chapterService.js";
 
 class AdminStoryCensorService {
-  public static async getPendingStories(): Promise<IStory[]> {
-    return Story.find({ status: "pending" })
+  public static async getPendingStories(
+    runAIAnalysis: boolean = false,
+  ): Promise<IStory[]> {
+    const stories = await Story.find({ status: "pending" })
       .populate("authorId", "username email avatar fullName")
+      .populate("genres", "name")
       .sort({ createdAt: -1 })
       .lean();
+
+    if (runAIAnalysis && stories.length > 0) {
+      // Run AI analysis for each pending story that doesn't have one yet
+      const storiesWithAI = await Promise.all(
+        stories.map(async (story) => {
+          const existingAnalysis = await AIAnalysisService.getAnalysisByStoryId(
+            story._id.toString(),
+          );
+          if (!existingAnalysis) {
+            try {
+              const genres = story.genres
+                ? (story.genres as unknown as { name: string }[])
+                    .map((g) => g.name)
+                    .join(", ")
+                : "";
+              const analysisResult =
+                await AIAnalysisService.analyzeStoryMetadata(
+                  story._id.toString(),
+                  story.title,
+                  story.description,
+                  genres,
+                );
+              return {
+                ...story,
+                aiAnalysis: analysisResult.aiAnalysis,
+                aiDecision: analysisResult.decision,
+              };
+            } catch (error) {
+              console.error(`Failed to analyze story ${story._id}:`, error);
+              return story;
+            }
+          }
+          return {
+            ...story,
+            aiAnalysis: existingAnalysis,
+            aiDecision: existingAnalysis.finalDecision,
+          };
+        }),
+      );
+      return storiesWithAI as unknown as IStory[];
+    }
+
+    return stories;
   }
 
   public static async getManagedStories(): Promise<IStory[]> {
@@ -141,6 +188,47 @@ class AdminStoryCensorService {
 
   public static async getStoryChapters(storyId: string) {
     return Chapter.find({ storyId }).sort({ chapterNumber: 1 }).lean();
+  }
+
+  /**
+   * Run AI analysis on a specific story
+   */
+  public static async analyzeStory(storyId: string): Promise<{
+    story: IStory | null;
+    analysis: Awaited<
+      ReturnType<typeof AIAnalysisService.analyzeStoryMetadata>
+    >;
+  } | null> {
+    const story = await Story.findById(storyId)
+      .populate("authorId", "username email avatar fullName")
+      .populate("genres", "name")
+      .lean();
+
+    if (!story) {
+      return null;
+    }
+
+    const genres = story.genres
+      ? (story.genres as unknown as { name: string }[])
+          .map((g) => g.name)
+          .join(", ")
+      : "";
+
+    const analysis = await AIAnalysisService.analyzeStoryMetadata(
+      storyId,
+      story.title,
+      story.description,
+      genres,
+    );
+
+    return { story: story as unknown as IStory, analysis };
+  }
+
+  /**
+   * Get AI analysis result for a specific story
+   */
+  public static async getStoryAIAnalysis(storyId: string) {
+    return AIAnalysisService.getAnalysisByStoryId(storyId);
   }
 }
 

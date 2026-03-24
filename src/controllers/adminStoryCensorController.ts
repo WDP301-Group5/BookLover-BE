@@ -9,10 +9,12 @@ import AdminStoryCensorService from "../services/adminStoryCensorService.js";
 
 export const getPendingStories = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    const stories = await AdminStoryCensorService.getPendingStories();
+    const runAIAnalysis = req.query.ai === "true";
+    const stories =
+      await AdminStoryCensorService.getPendingStories(runAIAnalysis);
     res.status(SUCCESS_OK).json({ success: true, data: stories });
   } catch (error) {
     console.error("Error in getPendingStories:", error);
@@ -25,7 +27,7 @@ export const getPendingStories = async (
 
 export const getManagedStories = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const stories = await AdminStoryCensorService.getManagedStories();
@@ -41,7 +43,7 @@ export const getManagedStories = async (
 
 export const approveStory = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -78,7 +80,7 @@ export const approveStory = async (
 
 export const rejectStory = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -103,7 +105,7 @@ export const rejectStory = async (
     const story = await AdminStoryCensorService.rejectStory(
       id,
       adminId,
-      reason
+      reason,
     );
     if (!story) {
       res
@@ -170,7 +172,7 @@ export const banStory = async (req: Request, res: Response): Promise<void> => {
 
 export const unbanStory = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -207,7 +209,7 @@ export const unbanStory = async (
 
 export const getStoryCensorLog = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -223,7 +225,7 @@ export const getStoryCensorLog = async (
 };
 export const getStoryChapters = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -234,6 +236,48 @@ export const getStoryChapters = async (
     res.status(ERR_INTERNAL_SERVER).json({
       success: false,
       message: `An error occurred while fetching story chapters! ${error}`,
+    });
+  }
+};
+
+// ── AI Analysis Controllers ─────────────────────────────────────────────────────
+
+export const analyzeStory = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const result = await AdminStoryCensorService.analyzeStory(id);
+    if (!result) {
+      res
+        .status(ERR_NOT_FOUND)
+        .json({ success: false, message: "Story not found" });
+      return;
+    }
+    res.status(SUCCESS_OK).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error in analyzeStory:", error);
+    res.status(ERR_INTERNAL_SERVER).json({
+      success: false,
+      message: `An error occurred while analyzing story! ${error}`,
+    });
+  }
+};
+
+export const getStoryAIAnalysis = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const analysis = await AdminStoryCensorService.getStoryAIAnalysis(id);
+    res.status(SUCCESS_OK).json({ success: true, data: analysis });
+  } catch (error) {
+    console.error("Error in getStoryAIAnalysis:", error);
+    res.status(ERR_INTERNAL_SERVER).json({
+      success: false,
+      message: `An error occurred while fetching story AI analysis! ${error}`,
     });
   }
 };
