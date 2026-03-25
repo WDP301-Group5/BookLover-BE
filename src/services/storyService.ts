@@ -67,119 +67,117 @@ type FilterOptions = {
 	sortBy?: string;
 };
 const StoryService = {
-	// gợi ý truyện dựa vào lịch sử đọc
-	async getRecommendStory(userId?: string | null) {
-		try {
-			if (userId === null) {
-				console.log("====================null");
-				return await this.getTop10Story("m");
-			}
-			const userHistory = await ReadingHistory.find({ userId: userId })
-				.sort({ createdAt: -1 })
-				.limit(10)
-				.lean<IReadingHistory[]>();
-			const readStoryIds = userHistory.map((history) => history.storyId);
-			const top5Topics = await Story.aggregate([
-				{ $match: { _id: { $in: readStoryIds }, status: "active" } },
-				{ $unwind: "$topics" },
-				{ $group: { _id: "$topics", count: { $sum: 1 } } },
-				{ $sort: { count: -1 } },
-				{ $limit: 10 },
-			]);
-			const topicIds = top5Topics.map((topic) => topic._id);
-			const recommendedStories = await Story.aggregate([
-				{
-					$match: {
-						status: "active",
-						_id: { $nin: readStoryIds },
-						topics: { $in: topicIds },
-					},
-				},
-				{
-					$addFields: {
-						commonTopicsCount: {
-							$size: { $setIntersection: ["$topics", topicIds] },
-						},
-					},
-				},
-				{
-					$match: { commonTopicsCount: { $gte: 1 } },
-				},
-				{ $sort: { commonTopicsCount: -1, views: -1, createdAt: -1 } },
-				{ $limit: 12 },
-				{
-					$lookup: {
-						from: "users",
-						localField: "authorId",
-						foreignField: "_id",
-						as: "author",
-					},
-				},
-				{ $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
-				{
-					$lookup: {
-						from: "topics",
-						localField: "topics",
-						foreignField: "_id",
-						as: "topics",
-					},
-				},
-				{
-					$project: {
-						id: "$_id",
-						title: "$title",
-						slug: "$slug",
-						image: "$image",
-						description: "$description",
-						author: {
-							id: "$author._id",
-							fullName: "$author.fullName",
-							nickName: "$author.nickName",
-							penName: "$author.penName",
-						},
-						topics: "$topics.name",
-						tags: "$tags",
-						status: "$status",
-						isPremium: "$isPremium",
-						isFinish: "$isFinish",
-						views: "$views",
-						stars: "$stars",
-						rates: "$rates",
-						followers: "$followers",
-						createdAt: "$createdAt",
-						updatedAt: "$updatedAt",
-					},
-				},
-			]);
-			if (recommendedStories?.length < 10) {
-				const top10Story = await this.getTop10Story("m");
-				const idnotIn = recommendedStories?.map((s) => s.id);
-				const filter = top10Story.filter((s) => !idnotIn.includes(s.id));
-				if (
-					filter.length > 0 &&
-					recommendedStories.length + filter.length >= 10
-				) {
-					return [...recommendedStories, ...filter];
-				} else {
-					const topViewStory = await this.getTop10ViewedStory();
-					const filterView = topViewStory.filter(
-						(s) => !idnotIn.includes(s.id),
-					);
-					if (
-						filterView.length > 0 &&
-						recommendedStories.length + filterView.length >= 10
-					) {
-						return [...recommendedStories, ...filterView];
-					}
-					return [...recommendedStories, ...top10Story];
-				}
-			}
-			return recommendedStories;
-		} catch (error) {
-			console.log("Error when get recommend story", error);
-			throw new Error(`Error fetching recommended stories: ${error}`);
-		}
-	},
+  // gợi ý truyện dựa vào lịch sử đọc
+  async getRecommendStory(userId?: string | null) {
+    try {
+      if (userId === null) {
+        return await this.getTop10Story("m");
+      }
+      const userHistory = await ReadingHistory.find({ userId: userId })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .lean<IReadingHistory[]>();
+      const readStoryIds = userHistory.map((history) => history.storyId);
+      const topTopics = await Story.aggregate([
+        { $match: { _id: { $in: readStoryIds }, status: "active" } },
+        { $unwind: "$topics" },
+        { $group: { _id: "$topics", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 20 },
+      ]);
+      const topicIds = topTopics.map((topic) => topic._id);
+      const recommendedStories = await Story.aggregate([
+        {
+          $match: {
+            status: "active",
+            topics: { $in: topicIds },
+          },
+        },
+        {
+          $addFields: {
+            commonTopicsCount: {
+              $size: { $setIntersection: ["$topics", topicIds] },
+            },
+          },
+        },
+        {
+          $match: { commonTopicsCount: { $gte: 1 } },
+        },
+        { $sort: { commonTopicsCount: -1, views: -1, createdAt: -1 } },
+        { $limit: 12 },
+        {
+          $lookup: {
+            from: "users",
+            localField: "authorId",
+            foreignField: "_id",
+            as: "author",
+          },
+        },
+        { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+        {
+          $lookup: {
+            from: "topics",
+            localField: "topics",
+            foreignField: "_id",
+            as: "topics",
+          },
+        },
+        {
+          $project: {
+            id: "$_id",
+            title: "$title",
+            slug: "$slug",
+            image: "$image",
+            description: "$description",
+            author: {
+              id: "$author._id",
+              fullName: "$author.fullName",
+              nickName: "$author.nickName",
+              penName: "$author.penName",
+            },
+            topics: "$topics.name",
+            tags: "$tags",
+            status: "$status",
+            isPremium: "$isPremium",
+            isFinish: "$isFinish",
+            views: "$views",
+            stars: "$stars",
+            rates: "$rates",
+            followers: "$followers",
+            createdAt: "$createdAt",
+            updatedAt: "$updatedAt",
+          },
+        },
+      ]);
+      if (recommendedStories?.length < 10) {
+        const top10Story = await this.getTop10Story("m");
+        const idnotIn = recommendedStories?.map((s) => s.id);
+        const filter = top10Story.filter((s) => !idnotIn.includes(s.id));
+        if (
+          filter.length > 0 &&
+          recommendedStories.length + filter.length >= 10
+        ) {
+          return [...recommendedStories, ...filter];
+        } else {
+          const topViewStory = await this.getTop10ViewedStory();
+          const filterView = topViewStory.filter(
+            (s) => !idnotIn.includes(s.id),
+          );
+          if (
+            filterView.length > 0 &&
+            recommendedStories.length + filterView.length >= 10
+          ) {
+            return [...recommendedStories, ...filterView];
+          }
+          return [...recommendedStories, ...top10Story];
+        }
+      }
+      return recommendedStories;
+    } catch (error) {
+      console.log("Error when get recommend story", error);
+      throw new Error(`Error fetching recommended stories: ${error}`);
+    }
+  },
 
 	async getNewChapterStory(offset: number = 0, limit: number = 24) {
 		try {
