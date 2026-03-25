@@ -248,7 +248,10 @@ const UserService = {
       throw new Error("User not found");
     }
 
-    const stories = await Story.find({ authorId: profileUserId })
+    const stories = await Story.find({
+      authorId: profileUserId,
+      status: "active",
+    })
       .select(
         "title slug image description views stars rates followers isPremium isFinish createdAt updatedAt",
       )
