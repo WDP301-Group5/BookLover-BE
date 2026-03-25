@@ -60,11 +60,9 @@ const ReadingListService = {
 		userId?: string,
 	): Promise<IReadingListWithStories | null> {
 		try {
-			let query: any = { _id: listId };
-			if (userId) {
-				query.userId = userId;
-			}
-			const list = await ReadingList.findOne(query)
+			// For public viewing: just get the list by ID (no owner check)
+			// Edit/delete operations check ownership separately
+			const list = await ReadingList.findOne({ _id: listId })
 				.populate({
 					path: "stories",
 					populate: {
