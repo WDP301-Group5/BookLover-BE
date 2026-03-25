@@ -22,6 +22,7 @@ const notificationSchema = new mongoose.Schema(
 				"user_followed_you",
 				"forum_post_commented",
 				"forum_post_reacted",
+				"comment_replied",
 				"system",
 				"warning",
 			],
