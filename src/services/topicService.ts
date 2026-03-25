@@ -6,7 +6,7 @@ const TopicService = {
   // Lấy tất cả topics
   async getAllTopics(): Promise<ITopic[]> {
     try {
-      const topics = await Topic.find({ status: "active" }).lean();
+      const topics = await Topic.find().lean();
       return topics;
     } catch (error) {
       console.error("Error fetching topics:", error);
@@ -21,6 +21,16 @@ const TopicService = {
     } catch (error) {
       console.error("Error fetching topics:", error);
       throw new Error("Error fetching topics");
+    }
+  },
+
+  async getOneTopic(id: string): Promise<ITopic | null> {
+    try {
+      const topic = await Topic.findById(id).lean();
+      return topic;
+    } catch (error) {
+      console.error("Error fetching topic:", error);
+      throw new Error("Error fetching topic");
     }
   },
 
@@ -46,10 +56,21 @@ const TopicService = {
     }
   },
 
+  async deleteManyTopics(ids: string[]) {
+    try {
+      const topics = await Topic.updateMany({ _id: { $in: ids } }, { status: "inactive" });
+      return topics;
+    } catch (error) {
+      console.error("Error deleting topics:", error);
+      throw new Error("Error deleting topics");
+    }
+  },
+
   // Delete topic
+  // chỉ xóa mềm
   async deleteTopic(id: string) {
     try {
-      await Topic.findByIdAndDelete(id);
+      await Topic.findByIdAndUpdate(id, {status: "inactive"}, { new: true });
       return { message: "Topic deleted successfully" };
     } catch (error) {
       console.error("Error deleting topic:", error);

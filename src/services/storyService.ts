@@ -70,27 +70,25 @@ const StoryService = {
   async getRecommendStory(userId?: string | null) {
     try {
       if (userId === null) {
-        console.log("====================null");
         return await this.getTop10Story("m");
       }
       const userHistory = await ReadingHistory.find({ userId: userId })
         .sort({ createdAt: -1 })
-        .limit(10)
+        .limit(20)
         .lean<IReadingHistory[]>();
       const readStoryIds = userHistory.map((history) => history.storyId);
-      const top5Topics = await Story.aggregate([
+      const topTopics = await Story.aggregate([
         { $match: { _id: { $in: readStoryIds }, status: "active" } },
         { $unwind: "$topics" },
         { $group: { _id: "$topics", count: { $sum: 1 } } },
         { $sort: { count: -1 } },
-        { $limit: 10 },
+        { $limit: 20 },
       ]);
-      const topicIds = top5Topics.map((topic) => topic._id);
+      const topicIds = topTopics.map((topic) => topic._id);
       const recommendedStories = await Story.aggregate([
         {
           $match: {
             status: "active",
-            _id: { $nin: readStoryIds },
             topics: { $in: topicIds },
           },
         },
