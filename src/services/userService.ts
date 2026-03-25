@@ -262,7 +262,7 @@ const UserService = {
     const chapterCounts = await Chapter.aggregate([
       { $match: { storyId: { $in: storyIds }, status: "active" } },
       {
-        $group: { _id: "$storyId", chapterNumber: { $max: "$chapterNumber" } },
+        $group: { _id: "$storyId", chapterNumber: { $sum: 1 } }, // Count active chapters
       },
     ]);
 
