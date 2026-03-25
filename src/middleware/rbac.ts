@@ -9,65 +9,65 @@ export type UserRole = "admin" | "author" | "user";
  * @param allowedRoles - roles that are allowed to access
  */
 export const requireRole = (allowedRoles: UserRole | UserRole[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    verifyToken(req, res, () => {
-      const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+	return (req: Request, res: Response, next: NextFunction): void => {
+		verifyToken(req, res, () => {
+			const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
 
-      if (!req.user?.role || !roles.includes(req.user.role as UserRole)) {
-        res.status(ERR_FORBIDDEN).json({
-          success: false,
-          message: `Access denied. Required role(s): ${roles.join(", ")}`,
-        });
-        return;
-      }
+			if (!req.user?.role || !roles.includes(req.user.role as UserRole)) {
+				res.status(ERR_FORBIDDEN).json({
+					success: false,
+					message: `Access denied. Required role(s): ${roles.join(", ")}`,
+				});
+				return;
+			}
 
-      next();
-    });
-  };
+			next();
+		});
+	};
 };
 
 /**
  * Middleware to require admin role
  */
 export const requireAdmin = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): void => {
-  requireRole("admin")(req, res, next);
+	requireRole("admin")(req, res, next);
 };
 
 /**
  * Middleware to require author role
  */
 export const requireAuthor = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): void => {
-  requireRole("author")(req, res, next);
+	requireRole("author")(req, res, next);
 };
 
 /**
  * Middleware to require authenticated user (any logged-in user)
  */
 export const requireAuth = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): void => {
-  verifyToken(req, res, next);
+	verifyToken(req, res, next);
 };
 
 /**
  * Middleware to require admin or author role
  */
 export const requireAdminOrAuthor = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): void => {
-  requireRole(["admin", "author"])(req, res, next);
+	requireRole(["admin", "author"])(req, res, next);
 };
 
 /**
@@ -75,31 +75,31 @@ export const requireAdminOrAuthor = (
  * @param resourceOwnerId - the ID of resource owner (extract from request)
  */
 export const requireOwnerOrAdmin = (
-  getOwnerId: (req: Request) => string | undefined,
+	getOwnerId: (req: Request) => string | undefined,
 ) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    verifyToken(req, res, () => {
-      const ownerId = getOwnerId(req);
-      const userId = req.user?.userId;
-      const isAdmin = req.user?.role === "admin";
+	return (req: Request, res: Response, next: NextFunction): void => {
+		verifyToken(req, res, () => {
+			const ownerId = getOwnerId(req);
+			const userId = req.user?.userId;
+			const isAdmin = req.user?.role === "admin";
 
-      if (!ownerId) {
-        res.status(ERR_FORBIDDEN).json({
-          success: false,
-          message: "Resource owner not found",
-        });
-        return;
-      }
+			if (!ownerId) {
+				res.status(ERR_FORBIDDEN).json({
+					success: false,
+					message: "Resource owner not found",
+				});
+				return;
+			}
 
-      if (userId === ownerId || isAdmin) {
-        next();
-        return;
-      }
+			if (userId === ownerId || isAdmin) {
+				next();
+				return;
+			}
 
-      res.status(ERR_FORBIDDEN).json({
-        success: false,
-        message: "You don't have permission to access this resource",
-      });
-    });
-  };
+			res.status(ERR_FORBIDDEN).json({
+				success: false,
+				message: "You don't have permission to access this resource",
+			});
+		});
+	};
 };

@@ -1,15 +1,15 @@
 import express from "express";
 import {
-    acknowledgeReport,
-    banStory,
-    banUser,
-    deleteChapter,
-    deleteComment,
-    dismissReport,
-    getReportDetail,
-    getReportLogs,
-    getReports,
-    warnUser,
+	acknowledgeReport,
+	banStory,
+	banUser,
+	deleteChapter,
+	deleteComment,
+	dismissReport,
+	getReportDetail,
+	getReportLogs,
+	getReports,
+	warnUser,
 } from "../controllers/adminReportController.js";
 
 const adminReportRouter = express.Router();

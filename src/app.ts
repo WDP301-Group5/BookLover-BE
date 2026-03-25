@@ -3,9 +3,9 @@ import { createServer } from "node:http";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, {
-  json as bodyParser,
-  type Request,
-  type Response,
+	json as bodyParser,
+	type Request,
+	type Response,
 } from "express";
 import morgan from "morgan";
 import { Server } from "socket.io";
@@ -16,8 +16,8 @@ import routes from "./routes/index.js";
 import socketHandler from "./services/socketService.js";
 import "./models/index.js";
 import { checkConnectCloudinary } from "./config/cloudinary.js";
-import UserService from "./services/userService.js";
 import { USER_ROOM_KEY } from "./consts/socket.js";
+import UserService from "./services/userService.js";
 
 // Load biến môi trường
 dotenv.config();
@@ -30,7 +30,7 @@ const app = express();
 app.use(bodyParser());
 
 const corsOptions = {
-  origin: "*",
+	origin: "*",
 };
 app.use(cors(corsOptions));
 
@@ -65,29 +65,29 @@ export const io = new Server(httpServer, {
 
 // Socket.IO connection handler
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+	console.log("A user connected:", socket.id);
 
-  const userId = socket.handshake.auth.userId as string;
+	const userId = socket.handshake.auth.userId as string;
 
-  if (userId) socketHandler(io, socket, userId);
+	if (userId) socketHandler(io, socket, userId);
 
-  // Handle disconnection
-  socket.on("disconnect", async () => {
-    const userId = socket.handshake.auth.userId as string;
+	// Handle disconnection
+	socket.on("disconnect", async () => {
+		const userId = socket.handshake.auth.userId as string;
 
-    if (!userId) return;
+		if (!userId) return;
 
-    const room = `${USER_ROOM_KEY}_${userId}`;
+		const room = `${USER_ROOM_KEY}_${userId}`;
 
-    setTimeout(async () => {
-      const sockets = await io.in(room).fetchSockets();
+		setTimeout(async () => {
+			const sockets = await io.in(room).fetchSockets();
 
-      if (sockets.length === 0) {
-        await UserService.updateUserOffline(userId);
-      }
-    }, 5000);
-    console.log("A user disconnected:", socket.id);
-  });
+			if (sockets.length === 0) {
+				await UserService.updateUserOffline(userId);
+			}
+		}, 5000);
+		console.log("A user disconnected:", socket.id);
+	});
 });
 
 export default httpServer;

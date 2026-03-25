@@ -1,24 +1,23 @@
 import express from "express";
-import {
-  createStory,
-  deleteStory,
-  getMyStories,
-  getNewChapterStory,
-  getNewChapterStoryWithFilter,
-  getRecommendStory,
-  getStories,
-  getStoryBySlug,
-  getStoryWithAuthor,
-  getTop10Story,
-  readChapter,
-  updateStory,
-  rateStory,
-  unpublishStory,
-} from "../controllers/storyController";
-import { verifyToken } from "../middleware/auth";
-import { checkToken } from "../middleware/auth";
-import { uploadStoryImage } from "../middleware/upload";
 import { getGenres } from "../controllers/genresController";
+import {
+	createStory,
+	deleteStory,
+	getMyStories,
+	getNewChapterStory,
+	getNewChapterStoryWithFilter,
+	getRecommendStory,
+	getStories,
+	getStoryBySlug,
+	getStoryWithAuthor,
+	getTop10Story,
+	rateStory,
+	readChapter,
+	unpublishStory,
+	updateStory,
+} from "../controllers/storyController";
+import { checkToken, verifyToken } from "../middleware/auth";
+import { uploadStoryImage } from "../middleware/upload";
 
 const storyRouter = express.Router();
 

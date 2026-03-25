@@ -11,10 +11,7 @@ const userSchema = new mongoose.Schema(
 			lowercase: true,
 			minlength: 3,
 			maxlength: 20,
-			match: [
-				/^[a-z0-9_]+$/,
-				"Username chỉ được chứa chữ thường, số và dấu _",
-			],
+			match: [/^[a-z0-9_]+$/, "Username chỉ được chứa chữ thường, số và dấu _"],
 		},
 		fullName: { type: String, required: true },
 		nickName: { type: String },
@@ -37,10 +34,22 @@ const userSchema = new mongoose.Schema(
 		vipLevel: { type: Number, default: 0 },
 
 		// ===== STATS (PROFILE PUBLIC) =====
-		followersCount: { type: Number, default: 0, min: [0, "followersCount không được âm"] },
-		followingCount: { type: Number, default: 0, min: [0, "followingCount không được âm"] },
+		followersCount: {
+			type: Number,
+			default: 0,
+			min: [0, "followersCount không được âm"],
+		},
+		followingCount: {
+			type: Number,
+			default: 0,
+			min: [0, "followingCount không được âm"],
+		},
 		followingStoriesCount: { type: Number, default: 0 },
-		storiesCount: { type: Number, default: 0, min: [0, "storiesCount không được âm"] },
+		storiesCount: {
+			type: Number,
+			default: 0,
+			min: [0, "storiesCount không được âm"],
+		},
 
 		totalViews: { type: Number, default: 0 }, // author
 		totalVotes: { type: Number, default: 0 }, // author

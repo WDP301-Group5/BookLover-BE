@@ -1,8 +1,8 @@
 import { Router } from "express";
 import {
-  createReview,
-  getReviews,
-  getReviewStories,
+	createReview,
+	getReviewStories,
+	getReviews,
 } from "../controllers/reviewController";
 import { verifyToken } from "../middleware/auth";
 

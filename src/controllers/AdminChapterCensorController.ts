@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { io } from "../app.js";
 import {
 	ERR_BAD_REQUEST,
 	ERR_INTERNAL_SERVER,
@@ -10,7 +11,6 @@ import { OverrideFeedback } from "../models/OverrideFeedback.js";
 import AdminChapterCensorService from "../services/AdminChapterCensorService.js";
 import AIAnalysisService from "../services/aiAnalysisService.js";
 import notificationService from "../services/notificationService.js";
-import { io } from "../app.js";
 
 export const getPendingChapters = async (
 	req: Request,
@@ -315,9 +315,9 @@ export const overrideChapterDecision = async (
 			finalDecision: decision,
 			adminReason: reason,
 			overrideType:
-				originalDecision === "auto-approved"
+				originalDecision === "safe"
 					? "reject_override"
-					: originalDecision === "auto-rejected"
+					: originalDecision === "risky"
 						? "approve_override"
 						: "approve_override",
 		});
@@ -465,12 +465,11 @@ export const triggerAIAnalysis = async (
 			chapter.contentURL,
 		);
 
-		const AIAnalysisService = (
-			await import("../services/aiAnalysisService.js")
-		).default;
+		const AIAnalysisService = (await import("../services/aiAnalysisService.js"))
+			.default;
 		const result = await AIAnalysisService.analyze(id, content);
 
-		await Chapter.findByIdAndUpdate(id, { status: result.decision === "auto-approved" ? "active" : "pending" });
+		await Chapter.findByIdAndUpdate(id, { status: "pending" });
 
 		io.emit("ai-analysis-complete", {
 			chapterId: id,

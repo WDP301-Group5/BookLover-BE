@@ -1,12 +1,12 @@
 import express from "express";
 import {
-  googleLoginController,
-  login,
-  register,
-  resendVerificationController,
-  verifyEmailController,
-  requestPasswordResetController,
-  confirmPasswordResetController,
+	confirmPasswordResetController,
+	googleLoginController,
+	login,
+	register,
+	requestPasswordResetController,
+	resendVerificationController,
+	verifyEmailController,
 } from "../controllers/authController.js";
 
 const router = express.Router();

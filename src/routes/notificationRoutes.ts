@@ -1,6 +1,12 @@
 import { Router } from "express";
+import {
+	deleteNotification,
+	getMyNotifications,
+	getUnreadCount,
+	markAllAsRead,
+	markAsRead,
+} from "../controllers/notificationController";
 import { verifyToken } from "../middleware/auth";
-import { deleteNotification, getMyNotifications, getUnreadCount, markAllAsRead, markAsRead } from "../controllers/notificationController";
 
 const notificationRoutes = Router();
 

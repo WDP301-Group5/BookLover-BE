@@ -55,7 +55,7 @@ Trả về JSON với format sau:
 - Nếu nội dung là hư cấu (fiction), cân nhắc context đó`;
 
 export const GEMINI_USER_PROMPT = (
-  content: string,
+	content: string,
 ) => `Hãy phân tích nội dung chương truyện sau và đưa ra quyết định:
 
 NỘI DUNG CHƯƠNG TRUYỆN:
@@ -117,9 +117,9 @@ Trả về JSON với format sau:
 - Không từ chối chỉ vì "nhạy cảm" - chỉ từ chối nếu vi phạm quy định`;
 
 export const STORY_CENSOR_USER_PROMPT = (
-  title: string,
-  description: string,
-  genres: string,
+	title: string,
+	description: string,
+	genres: string,
 ) => `Hãy phân tích metadata truyện sau và đưa ra quyết định:
 
 TÊN TRUYỆN:
