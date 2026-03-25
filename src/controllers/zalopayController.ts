@@ -34,35 +34,35 @@ export const createOrder = async (req: Request, res: Response) => {
 };
 
 export const zalopayCallback = async (req: Request, res: Response) => {
-  try {
-    const { data, mac } = req.body;
+	try {
+		const { data, mac } = req.body;
 
-    const returnData = await ZalopayService.zalopayCallback(data, mac);
+		const returnData = await ZalopayService.zalopayCallback(data, mac);
 
-    if (returnData.status === 200) {
-      // đã thanh toán thành công
-      const dataCallback = JSON.parse(data);
-      const app_trans_id = dataCallback.app_trans_id;
-      // lưu data vào db
-      await BuyStoneService.createBuyStoneRecord(app_trans_id);
-      // gửi socket cho client
-      io.to(`purchase_room_${app_trans_id}`).emit(
-        `purchase_status_${app_trans_id}`,
-        {
-          status: "success",
-        },
-      );
-    }
-    // trả data cho zalopay
-    return res.status(returnData.status).json({
-      return_code: returnData.return_code,
-      return_message: returnData.return_message,
-    });
-  } catch (err) {
-    console.log("Server xảy ra lỗi khi xử lý callback từ ZaloPay:", err);
-    return res.status(ERR_INTERNAL_SERVER).json({
-      message: "Server xảy ra lỗi khi xử lý callback từ ZaloPay",
-      error: err,
-    });
-  }
+		if (returnData.status === 200) {
+			// đã thanh toán thành công
+			const dataCallback = JSON.parse(data);
+			const app_trans_id = dataCallback.app_trans_id;
+			// lưu data vào db
+			await BuyStoneService.createBuyStoneRecord(app_trans_id);
+			// gửi socket cho client
+			io.to(`purchase_room_${app_trans_id}`).emit(
+				`purchase_status_${app_trans_id}`,
+				{
+					status: "success",
+				},
+			);
+		}
+		// trả data cho zalopay
+		return res.status(returnData.status).json({
+			return_code: returnData.return_code,
+			return_message: returnData.return_message,
+		});
+	} catch (err) {
+		console.log("Server xảy ra lỗi khi xử lý callback từ ZaloPay:", err);
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Server xảy ra lỗi khi xử lý callback từ ZaloPay",
+			error: err,
+		});
+	}
 };

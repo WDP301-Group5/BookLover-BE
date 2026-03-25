@@ -1,15 +1,15 @@
 import express from "express";
 import {
-  analyzeStory,
-  approveStory,
-  banStory,
-  getManagedStories,
-  getPendingStories,
-  getStoryAIAnalysis,
-  getStoryCensorLog,
-  getStoryChapters,
-  rejectStory,
-  unbanStory,
+	analyzeStory,
+	approveStory,
+	banStory,
+	getManagedStories,
+	getPendingStories,
+	getStoryAIAnalysis,
+	getStoryCensorLog,
+	getStoryChapters,
+	rejectStory,
+	unbanStory,
 } from "../controllers/adminStoryCensorController.js";
 
 const adminStoryCensorRouter = express.Router();

@@ -4,80 +4,82 @@ import { SUCCESS_CREATED } from "./../consts/successCode";
 import ReadingHistoryService from "../services/readingHistoryService";
 
 export const addNewReadingHistory = async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.query as { userId: string };
-    const { storyId, chapterNumber } = req.body;
-    const newHistory = await ReadingHistoryService.addNewReadingHistory(
-      userId,
-      storyId,
-      Number(chapterNumber),
-    );
-    return res.status(SUCCESS_CREATED).json({
-      success: true,
-      message: "Thêm lịch sử truyện thành công",
-      data: newHistory,
-    });
-  } catch (error) {
-    return res
-      .status(ERR_INTERNAL_SERVER)
-      .json({ message: "Có lỗi xảy ra khi thêm lịch sử truyện", error: error });
-  }
+	try {
+		const { userId } = req.query as { userId: string };
+		const { storyId, chapterNumber } = req.body;
+		const newHistory = await ReadingHistoryService.addNewReadingHistory(
+			userId,
+			storyId,
+			Number(chapterNumber),
+		);
+		return res.status(SUCCESS_CREATED).json({
+			success: true,
+			message: "Thêm lịch sử truyện thành công",
+			data: newHistory,
+		});
+	} catch (error) {
+		return res
+			.status(ERR_INTERNAL_SERVER)
+			.json({ message: "Có lỗi xảy ra khi thêm lịch sử truyện", error: error });
+	}
 };
 
 export const deleteHistory = async (req: Request, res: Response) => {
-  try {
-    const userId = req?.user ? req.user.userId : undefined;
-    if (!userId) {
-      return res
-        .status(ERR_BAD_REQUEST)
-        .json({ message: "Không có thông tin người dùng." });
-    }
-	const historyId = req.params.historyId;
-	if (!historyId) {
+	try {
+		const userId = req?.user ? req.user.userId : undefined;
+		if (!userId) {
+			return res
+				.status(ERR_BAD_REQUEST)
+				.json({ message: "Không có thông tin người dùng." });
+		}
+		const historyId = req.params.historyId;
+		if (!historyId) {
+			return res
+				.status(ERR_BAD_REQUEST)
+				.json({ message: "Không có thông tin lịch sử truyện" });
+		}
+		await ReadingHistoryService.deleteHistory(userId, historyId);
 		return res
-			.status(ERR_BAD_REQUEST)
-			.json({ message: "Không có thông tin lịch sử truyện" });
+			.status(SUCCESS_CREATED)
+			.json({ success: true, message: "Xóa lịch sử truyện thành công." });
+	} catch (error) {
+		return res
+			.status(ERR_INTERNAL_SERVER)
+			.json({ message: "Có lỗi xảy ra khi xoa lịch sử truyện", error: error });
 	}
-    await ReadingHistoryService.deleteHistory(userId, historyId);
-    return res.status(SUCCESS_CREATED).json({ success: true, message: "Xóa lịch sử truyện thành công." });
-  } catch (error) {
-    return res
-      .status(ERR_INTERNAL_SERVER)
-      .json({ message: "Có lỗi xảy ra khi xoa lịch sử truyện", error: error });
-  }
 };
 
 export const getReadingHistoryByStory = async (req: Request, res: Response) => {
-  try {
-    const userId = req?.user ? req.user.userId : undefined;
+	try {
+		const userId = req?.user ? req.user.userId : undefined;
 
-    if (!userId) {
-      return res
-        .status(ERR_BAD_REQUEST)
-        .json({ message: "Không có thông tin người dùng." });
-    }
+		if (!userId) {
+			return res
+				.status(ERR_BAD_REQUEST)
+				.json({ message: "Không có thông tin người dùng." });
+		}
 
-    const { storyId } = req.params;
+		const { storyId } = req.params;
 
-    if (!storyId) {
-      return res
-        .status(ERR_BAD_REQUEST)
-        .json({ message: "Không có thông tin truyện." });
-    }
+		if (!storyId) {
+			return res
+				.status(ERR_BAD_REQUEST)
+				.json({ message: "Không có thông tin truyện." });
+		}
 
-    const history = await ReadingHistoryService.getReadingHistoryByStory(
-      userId,
-      storyId,
-    );
+		const history = await ReadingHistoryService.getReadingHistoryByStory(
+			userId,
+			storyId,
+		);
 
-    return res.status(200).json({
-      success: true,
-      data: history,
-    });
-  } catch (error) {
-    return res.status(ERR_INTERNAL_SERVER).json({
-      message: "Có lỗi xảy ra khi lấy lịch sử đọc theo truyện",
-      error,
-    });
-  }
+		return res.status(200).json({
+			success: true,
+			data: history,
+		});
+	} catch (error) {
+		return res.status(ERR_INTERNAL_SERVER).json({
+			message: "Có lỗi xảy ra khi lấy lịch sử đọc theo truyện",
+			error,
+		});
+	}
 };

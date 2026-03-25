@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getRevenueReport, getTransactions, purchaseChapter, topUpStones, updateStatus } from "../controllers/adminTransactionController";
+import {
+	getRevenueReport,
+	getTransactions,
+	purchaseChapter,
+	topUpStones,
+	updateStatus,
+} from "../controllers/adminTransactionController";
 
 const adminTransactionRouter = Router();
 

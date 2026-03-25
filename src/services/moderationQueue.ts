@@ -78,34 +78,22 @@ class ModerationQueueService {
 
 			const { decision } = await AIAnalysisService.analyze(chapterId, content);
 
-			if (decision === "auto-approved") {
-				await Chapter.findByIdAndUpdate(chapterId, { status: "active" });
-				await notificationService.createNotification({
-					to: chapter.storyId.toString(),
-					type: "chapter_approved",
-					title: "Chương được duyệt",
-					content: `Chương "${chapter.title}" đã được duyệt tự động`,
-				});
-				console.log(`Chapter ${chapterId} auto-approved`);
-			} else if (decision === "auto-rejected") {
-				await Chapter.findByIdAndUpdate(chapterId, { status: "rejected" });
-				await notificationService.createNotification({
-					to: chapter.storyId.toString(),
-					type: "chapter_rejected",
-					title: "Chương bị từ chối",
-					content: `Chương "${chapter.title}" đã bị từ chối do vi phạm quy định sàn`,
-				});
-				console.log(`Chapter ${chapterId} auto-rejected`);
-			} else {
-				console.log(`Chapter ${chapterId} flagged for review`);
-			}
+			// AI only provides analysis and recommendation, never auto-approve/reject
+			// All chapters remain "pending" for admin to review
+			await Chapter.findByIdAndUpdate(chapterId, { status: "pending" });
+			console.log(
+				`Chapter ${chapterId} analyzed by AI, status set to pending for admin review`,
+			);
+			console.log(`AI recommendation for chapter ${chapterId}: ${decision}`);
 		} catch (error) {
 			console.error(`Error in processChapter for ${chapterId}:`, error);
 			throw error;
 		}
 	}
 
-	static async fetchChapterContentDirectly(contentURL: string): Promise<string> {
+	static async fetchChapterContentDirectly(
+		contentURL: string,
+	): Promise<string> {
 		try {
 			const axios = (await import("axios")).default;
 			const response = await axios.get(contentURL, { timeout: 30000 });

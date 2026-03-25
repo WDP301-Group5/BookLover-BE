@@ -1,510 +1,510 @@
 {
-  "users": [
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
-      "username": "admin1",
-      "fullName": "Admin Chính",
-      "email": "admin1@booklover.com",
-      "role": "admin",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=1",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d2" },
-      "username": "admin2",
-      "fullName": "Admin Phụ",
-      "email": "admin2@booklover.com",
-      "role": "admin",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=2",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
-      "username": "user1",
-      "fullName": "Nguyễn Văn A",
-      "email": "user1@booklover.com",
-      "role": "user",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=3",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
-      "username": "user2",
-      "fullName": "Trần Thị B",
-      "email": "user2@booklover.com",
-      "role": "user",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=4",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
-      "username": "user3",
-      "fullName": "Lê Văn C",
-      "email": "user3@booklover.com",
-      "role": "user",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=5",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d6" },
-      "username": "baduser1",
-      "fullName": "Phạm Văn D",
-      "email": "baduser1@booklover.com",
-      "role": "user",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=6",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d7" },
-      "username": "baduser2",
-      "fullName": "Đỗ Thị E",
-      "email": "baduser2@booklover.com",
-      "role": "user",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=7",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d8" },
-      "username": "author1",
-      "fullName": "Tác Giả 1",
-      "email": "author1@booklover.com",
-      "role": "author",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=8",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d9" },
-      "username": "author2",
-      "fullName": "Tác Giả 2",
-      "email": "author2@booklover.com",
-      "role": "author",
-      "status": "active",
-      "avatarURL": "https://i.pravatar.cc/150?img=9",
-      "createdAt": { "$date": "2025-01-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-01-01T00:00:00Z" }
-    }
-  ],
-  "stories": [
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
-      "title": "Truyện Vi Phạm Nội Dung",
-      "slug": "truyen-vi-pham-noi-dung",
-      "image": "https://via.placeholder.com/300x450?text=Violated+Story",
-      "description": "Truyện này có nội dung vi phạm chính sách cộng đồng",
-      "authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d6" },
-      "topics": [],
-      "genres": [],
-      "tags": ["ngôn tình", "vi phạm"],
-      "status": "active",
-      "isPremium": false,
-      "isFinish": false,
-      "views": 1000,
-      "stars": 0,
-      "rates": 0,
-      "followers": 0,
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e2" },
-      "title": "Truyện Spam Quảng Cáo",
-      "slug": "truyen-spam-quang-cao",
-      "image": "https://via.placeholder.com/300x450?text=Spam+Story",
-      "description": "Truyện này chứa nội dung spam, quảng cáo",
-      "authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d7" },
-      "topics": [],
-      "genres": [],
-      "tags": ["spam", "quảng cáo"],
-      "status": "active",
-      "isPremium": false,
-      "isFinish": false,
-      "views": 500,
-      "stars": 0,
-      "rates": 0,
-      "followers": 0,
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
-      "title": "Cô Nàng Ngổ Ngáo",
-      "slug": "co-nang-ngo-ngao",
-      "image": "https://via.placeholder.com/300x450?text=Normal+Story+1",
-      "description": "Câu chuyện tình yêu học đường ngọt ngào",
-      "authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d8" },
-      "topics": [],
-      "genres": [],
-      "tags": ["học đường", "ngôn tình", "ngọt ngào"],
-      "status": "active",
-      "isPremium": false,
-      "isFinish": false,
-      "views": 5000,
-      "stars": 0,
-      "rates": 0,
-      "followers": 0,
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e4" },
-      "title": "Tổng Tài Bá Đạo",
-      "slug": "tong-tai-ba-dao",
-      "image": "https://via.placeholder.com/300x450?text=Normal+Story+2",
-      "description": "Câu chuyện về tổng tài và cô thư ký",
-      "authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d9" },
-      "topics": [],
-      "genres": [],
-      "tags": ["tổng tài", "ngôn tình", "drama"],
-      "status": "active",
-      "isPremium": false,
-      "isFinish": false,
-      "views": 8000,
-      "stars": 0,
-      "rates": 0,
-      "followers": 0,
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    }
-  ],
-  "chapters": [
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f1" },
-      "storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
-      "chapterNumber": 1,
-      "title": "Chương 1: Mở đầu vi phạm",
-      "isPremium": false,
-      "price": 0,
-      "contentURL": "/content/violated-story/chapter-1",
-      "status": "active",
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f2" },
-      "storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
-      "chapterNumber": 2,
-      "title": "Chương 2: Nội dung nhạy cảm",
-      "isPremium": false,
-      "price": 0,
-      "contentURL": "/content/violated-story/chapter-2",
-      "status": "active",
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f3" },
-      "storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e2" },
-      "chapterNumber": 1,
-      "title": "Chương 1: Quảng cáo trá hình",
-      "isPremium": false,
-      "price": 0,
-      "contentURL": "/content/spam-story/chapter-1",
-      "status": "active",
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f4" },
-      "storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
-      "chapterNumber": 1,
-      "title": "Chương 1: Gặp gỡ định mệnh",
-      "isPremium": false,
-      "price": 0,
-      "contentURL": "/content/normal-story1/chapter-1",
-      "status": "active",
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f5" },
-      "storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
-      "chapterNumber": 2,
-      "title": "Chương 2: Hiểu lầm tai hại",
-      "isPremium": false,
-      "price": 0,
-      "contentURL": "/content/normal-story1/chapter-2",
-      "status": "active",
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f6" },
-      "storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e4" },
-      "chapterNumber": 1,
-      "title": "Chương 1: Hợp đồng hôn nhân",
-      "isPremium": false,
-      "price": 0,
-      "contentURL": "/content/normal-story2/chapter-1",
-      "status": "active",
-      "createdAt": { "$date": "2025-03-01T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-01T00:00:00Z" }
-    }
-  ],
-  "comments": [
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c901" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d6" },
-      "chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f4" },
-      "content": "🔥🔥🔥 MUA ACC GAME GIÁ RẺ 0988.xxx.xxx 🔥🔥🔥",
-      "replyCount": 0,
-      "replyOf": null,
-      "react": {
-        "like": 0,
-        "love": 0,
-        "haha": 0,
-        "wow": 0,
-        "sad": 0,
-        "angry": 0
-      },
-      "status": "active",
-      "createdAt": { "$date": "2025-03-10T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-10T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c902" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d7" },
-      "chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f5" },
-      "content": "Truyện gì mà dở tệ, tác giả ngu vcl",
-      "replyCount": 0,
-      "replyOf": null,
-      "react": {
-        "like": 0,
-        "love": 0,
-        "haha": 0,
-        "wow": 0,
-        "sad": 0,
-        "angry": 0
-      },
-      "status": "active",
-      "createdAt": { "$date": "2025-03-10T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-10T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c903" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
-      "chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f6" },
-      "content": "Spoiler: Nhân vật chính sẽ chết ở chương 50 nhé mọi người",
-      "replyCount": 0,
-      "replyOf": null,
-      "react": {
-        "like": 0,
-        "love": 0,
-        "haha": 0,
-        "wow": 0,
-        "sad": 0,
-        "angry": 0
-      },
-      "status": "active",
-      "createdAt": { "$date": "2025-03-10T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-10T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c904" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
-      "chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f4" },
-      "content": "Truyện hay quá, mong tác giả ra chương mới sớm!",
-      "replyCount": 0,
-      "replyOf": null,
-      "react": {
-        "like": 5,
-        "love": 2,
-        "haha": 0,
-        "wow": 0,
-        "sad": 0,
-        "angry": 0
-      },
-      "status": "active",
-      "createdAt": { "$date": "2025-03-10T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-10T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c905" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
-      "chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f5" },
-      "content": "Cảm ơn tác giả nhiều, chương này rất cảm động 😭",
-      "replyCount": 0,
-      "replyOf": null,
-      "react": {
-        "like": 10,
-        "love": 8,
-        "haha": 0,
-        "wow": 0,
-        "sad": 0,
-        "angry": 0
-      },
-      "status": "active",
-      "createdAt": { "$date": "2025-03-10T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-10T00:00:00Z" }
-    }
-  ],
-  "reports": [
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c911" },
-      "userId": { "$oid": "696a941f3906927b3fadfd97" },
-      "type": "Story",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
-      "content": "Truyện này có nội dung vi phạm chính sách cộng đồng, mô tả cảnh nhạy cảm quá chi tiết",
-      "status": "pending",
-      "createdAt": { "$date": "2025-03-15T09:00:00Z" },
-      "updatedAt": { "$date": "2025-03-15T09:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c912" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
-      "type": "Story",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e2" },
-      "content": "Truyện này chứa nội dung spam, quảng cáo link cá cược trong từng chương",
-      "status": "pending",
-      "createdAt": { "$date": "2025-03-15T06:00:00Z" },
-      "updatedAt": { "$date": "2025-03-15T06:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c913" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
-      "type": "Chapter",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f2" },
-      "content": "Chương này có nội dung 18+ quá đà, vi phạm tiêu chuẩn cộng đồng",
-      "status": "pending",
-      "createdAt": { "$date": "2025-03-15T10:30:00Z" },
-      "updatedAt": { "$date": "2025-03-15T10:30:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c914" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
-      "type": "Comment",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c901" },
-      "content": "Comment này spam quảng cáo, làm phiền người đọc",
-      "status": "pending",
-      "createdAt": { "$date": "2025-03-15T10:45:00Z" },
-      "updatedAt": { "$date": "2025-03-15T10:45:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c915" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
-      "type": "Comment",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c902" },
-      "content": "Comment này sử dụng ngôn từ thô tục, xúc phạm tác giả",
-      "status": "pending",
-      "createdAt": { "$date": "2025-03-15T10:15:00Z" },
-      "updatedAt": { "$date": "2025-03-15T10:15:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c916" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
-      "type": "Comment",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c903" },
-      "content": "Comment này spoiler nội dung truyện, làm mất trải nghiệm của người đọc",
-      "status": "pending",
-      "createdAt": { "$date": "2025-03-15T10:50:00Z" },
-      "updatedAt": { "$date": "2025-03-15T10:50:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c917" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
-      "type": "Story",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
-      "content": "Truyện này đạo văn, tôi đã đọc ở web khác rồi",
-      "status": "failed",
-      "resolvedAt": { "$date": "2025-03-14T00:00:00Z" },
-      "resolvedBy": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
-      "createdAt": { "$date": "2025-03-13T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-14T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c918" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
-      "type": "Comment",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c904" },
-      "content": "Comment này không phù hợp",
-      "status": "success",
-      "resolvedAt": { "$date": "2025-03-14T12:00:00Z" },
-      "resolvedBy": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d2" },
-      "createdAt": { "$date": "2025-03-13T12:00:00Z" },
-      "updatedAt": { "$date": "2025-03-14T12:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c919" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
-      "type": "Chapter",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f3" },
-      "content": "Chương này chứa link cá cược, cờ bạc",
-      "status": "success",
-      "resolvedAt": { "$date": "2025-03-15T08:00:00Z" },
-      "resolvedBy": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
-      "createdAt": { "$date": "2025-03-15T03:00:00Z" },
-      "updatedAt": { "$date": "2025-03-15T08:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c920" },
-      "userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
-      "type": "Story",
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e4" },
-      "content": "Truyện này trùng lặp với truyện 'Tổng Tài Lạnh Lùng' đã có trên hệ thống",
-      "status": "pending",
-      "createdAt": { "$date": "2025-03-15T10:55:00Z" },
-      "updatedAt": { "$date": "2025-03-15T10:55:00Z" }
-    }
-  ],
-  "reportLogs": [
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c921" },
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c917" },
-      "adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
-      "action": "dismiss",
-      "note": "Không tìm thấy bằng chứng đạo văn, truyện là nguyên gốc",
-      "metadata": {},
-      "createdAt": { "$date": "2025-03-14T00:00:00Z" },
-      "updatedAt": { "$date": "2025-03-14T00:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c922" },
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c918" },
-      "adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d2" },
-      "action": "acknowledge",
-      "note": "Đã xem xét, comment không vi phạm",
-      "metadata": {},
-      "createdAt": { "$date": "2025-03-14T12:00:00Z" },
-      "updatedAt": { "$date": "2025-03-14T12:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c923" },
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c919" },
-      "adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
-      "action": "acknowledge",
-      "note": "Xác nhận chương vi phạm, đã xóa chương và cảnh cáo tác giả",
-      "metadata": {
-        "chapterDeleted": true
-      },
-      "createdAt": { "$date": "2025-03-15T08:00:00Z" },
-      "updatedAt": { "$date": "2025-03-15T08:00:00Z" }
-    },
-    {
-      "_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c924" },
-      "reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c919" },
-      "adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
-      "action": "delete_chapter",
-      "note": "Xóa chương vì chứa link cá cược",
-      "metadata": {
-        "chapterDeleted": true
-      },
-      "createdAt": { "$date": "2025-03-15T08:00:00Z" },
-      "updatedAt": { "$date": "2025-03-15T08:00:00Z" }
-    }
-  ]
+	"users": [
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
+			"username": "admin1",
+			"fullName": "Admin Chính",
+			"email": "admin1@booklover.com",
+			"role": "admin",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=1",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d2" },
+			"username": "admin2",
+			"fullName": "Admin Phụ",
+			"email": "admin2@booklover.com",
+			"role": "admin",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=2",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
+			"username": "user1",
+			"fullName": "Nguyễn Văn A",
+			"email": "user1@booklover.com",
+			"role": "user",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=3",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
+			"username": "user2",
+			"fullName": "Trần Thị B",
+			"email": "user2@booklover.com",
+			"role": "user",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=4",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
+			"username": "user3",
+			"fullName": "Lê Văn C",
+			"email": "user3@booklover.com",
+			"role": "user",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=5",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d6" },
+			"username": "baduser1",
+			"fullName": "Phạm Văn D",
+			"email": "baduser1@booklover.com",
+			"role": "user",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=6",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d7" },
+			"username": "baduser2",
+			"fullName": "Đỗ Thị E",
+			"email": "baduser2@booklover.com",
+			"role": "user",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=7",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d8" },
+			"username": "author1",
+			"fullName": "Tác Giả 1",
+			"email": "author1@booklover.com",
+			"role": "author",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=8",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d9" },
+			"username": "author2",
+			"fullName": "Tác Giả 2",
+			"email": "author2@booklover.com",
+			"role": "author",
+			"status": "active",
+			"avatarURL": "https://i.pravatar.cc/150?img=9",
+			"createdAt": { "$date": "2025-01-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-01-01T00:00:00Z" }
+		}
+	],
+	"stories": [
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
+			"title": "Truyện Vi Phạm Nội Dung",
+			"slug": "truyen-vi-pham-noi-dung",
+			"image": "https://via.placeholder.com/300x450?text=Violated+Story",
+			"description": "Truyện này có nội dung vi phạm chính sách cộng đồng",
+			"authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d6" },
+			"topics": [],
+			"genres": [],
+			"tags": ["ngôn tình", "vi phạm"],
+			"status": "active",
+			"isPremium": false,
+			"isFinish": false,
+			"views": 1000,
+			"stars": 0,
+			"rates": 0,
+			"followers": 0,
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e2" },
+			"title": "Truyện Spam Quảng Cáo",
+			"slug": "truyen-spam-quang-cao",
+			"image": "https://via.placeholder.com/300x450?text=Spam+Story",
+			"description": "Truyện này chứa nội dung spam, quảng cáo",
+			"authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d7" },
+			"topics": [],
+			"genres": [],
+			"tags": ["spam", "quảng cáo"],
+			"status": "active",
+			"isPremium": false,
+			"isFinish": false,
+			"views": 500,
+			"stars": 0,
+			"rates": 0,
+			"followers": 0,
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
+			"title": "Cô Nàng Ngổ Ngáo",
+			"slug": "co-nang-ngo-ngao",
+			"image": "https://via.placeholder.com/300x450?text=Normal+Story+1",
+			"description": "Câu chuyện tình yêu học đường ngọt ngào",
+			"authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d8" },
+			"topics": [],
+			"genres": [],
+			"tags": ["học đường", "ngôn tình", "ngọt ngào"],
+			"status": "active",
+			"isPremium": false,
+			"isFinish": false,
+			"views": 5000,
+			"stars": 0,
+			"rates": 0,
+			"followers": 0,
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e4" },
+			"title": "Tổng Tài Bá Đạo",
+			"slug": "tong-tai-ba-dao",
+			"image": "https://via.placeholder.com/300x450?text=Normal+Story+2",
+			"description": "Câu chuyện về tổng tài và cô thư ký",
+			"authorId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d9" },
+			"topics": [],
+			"genres": [],
+			"tags": ["tổng tài", "ngôn tình", "drama"],
+			"status": "active",
+			"isPremium": false,
+			"isFinish": false,
+			"views": 8000,
+			"stars": 0,
+			"rates": 0,
+			"followers": 0,
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		}
+	],
+	"chapters": [
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f1" },
+			"storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
+			"chapterNumber": 1,
+			"title": "Chương 1: Mở đầu vi phạm",
+			"isPremium": false,
+			"price": 0,
+			"contentURL": "/content/violated-story/chapter-1",
+			"status": "active",
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f2" },
+			"storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
+			"chapterNumber": 2,
+			"title": "Chương 2: Nội dung nhạy cảm",
+			"isPremium": false,
+			"price": 0,
+			"contentURL": "/content/violated-story/chapter-2",
+			"status": "active",
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f3" },
+			"storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e2" },
+			"chapterNumber": 1,
+			"title": "Chương 1: Quảng cáo trá hình",
+			"isPremium": false,
+			"price": 0,
+			"contentURL": "/content/spam-story/chapter-1",
+			"status": "active",
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f4" },
+			"storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
+			"chapterNumber": 1,
+			"title": "Chương 1: Gặp gỡ định mệnh",
+			"isPremium": false,
+			"price": 0,
+			"contentURL": "/content/normal-story1/chapter-1",
+			"status": "active",
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f5" },
+			"storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
+			"chapterNumber": 2,
+			"title": "Chương 2: Hiểu lầm tai hại",
+			"isPremium": false,
+			"price": 0,
+			"contentURL": "/content/normal-story1/chapter-2",
+			"status": "active",
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f6" },
+			"storyId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e4" },
+			"chapterNumber": 1,
+			"title": "Chương 1: Hợp đồng hôn nhân",
+			"isPremium": false,
+			"price": 0,
+			"contentURL": "/content/normal-story2/chapter-1",
+			"status": "active",
+			"createdAt": { "$date": "2025-03-01T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-01T00:00:00Z" }
+		}
+	],
+	"comments": [
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c901" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d6" },
+			"chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f4" },
+			"content": "🔥🔥🔥 MUA ACC GAME GIÁ RẺ 0988.xxx.xxx 🔥🔥🔥",
+			"replyCount": 0,
+			"replyOf": null,
+			"react": {
+				"like": 0,
+				"love": 0,
+				"haha": 0,
+				"wow": 0,
+				"sad": 0,
+				"angry": 0
+			},
+			"status": "active",
+			"createdAt": { "$date": "2025-03-10T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-10T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c902" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d7" },
+			"chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f5" },
+			"content": "Truyện gì mà dở tệ, tác giả ngu vcl",
+			"replyCount": 0,
+			"replyOf": null,
+			"react": {
+				"like": 0,
+				"love": 0,
+				"haha": 0,
+				"wow": 0,
+				"sad": 0,
+				"angry": 0
+			},
+			"status": "active",
+			"createdAt": { "$date": "2025-03-10T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-10T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c903" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
+			"chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f6" },
+			"content": "Spoiler: Nhân vật chính sẽ chết ở chương 50 nhé mọi người",
+			"replyCount": 0,
+			"replyOf": null,
+			"react": {
+				"like": 0,
+				"love": 0,
+				"haha": 0,
+				"wow": 0,
+				"sad": 0,
+				"angry": 0
+			},
+			"status": "active",
+			"createdAt": { "$date": "2025-03-10T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-10T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c904" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
+			"chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f4" },
+			"content": "Truyện hay quá, mong tác giả ra chương mới sớm!",
+			"replyCount": 0,
+			"replyOf": null,
+			"react": {
+				"like": 5,
+				"love": 2,
+				"haha": 0,
+				"wow": 0,
+				"sad": 0,
+				"angry": 0
+			},
+			"status": "active",
+			"createdAt": { "$date": "2025-03-10T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-10T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c905" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
+			"chapterId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f5" },
+			"content": "Cảm ơn tác giả nhiều, chương này rất cảm động 😭",
+			"replyCount": 0,
+			"replyOf": null,
+			"react": {
+				"like": 10,
+				"love": 8,
+				"haha": 0,
+				"wow": 0,
+				"sad": 0,
+				"angry": 0
+			},
+			"status": "active",
+			"createdAt": { "$date": "2025-03-10T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-10T00:00:00Z" }
+		}
+	],
+	"reports": [
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c911" },
+			"userId": { "$oid": "696a941f3906927b3fadfd97" },
+			"type": "Story",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e1" },
+			"content": "Truyện này có nội dung vi phạm chính sách cộng đồng, mô tả cảnh nhạy cảm quá chi tiết",
+			"status": "pending",
+			"createdAt": { "$date": "2025-03-15T09:00:00Z" },
+			"updatedAt": { "$date": "2025-03-15T09:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c912" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
+			"type": "Story",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e2" },
+			"content": "Truyện này chứa nội dung spam, quảng cáo link cá cược trong từng chương",
+			"status": "pending",
+			"createdAt": { "$date": "2025-03-15T06:00:00Z" },
+			"updatedAt": { "$date": "2025-03-15T06:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c913" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
+			"type": "Chapter",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f2" },
+			"content": "Chương này có nội dung 18+ quá đà, vi phạm tiêu chuẩn cộng đồng",
+			"status": "pending",
+			"createdAt": { "$date": "2025-03-15T10:30:00Z" },
+			"updatedAt": { "$date": "2025-03-15T10:30:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c914" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
+			"type": "Comment",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c901" },
+			"content": "Comment này spam quảng cáo, làm phiền người đọc",
+			"status": "pending",
+			"createdAt": { "$date": "2025-03-15T10:45:00Z" },
+			"updatedAt": { "$date": "2025-03-15T10:45:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c915" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
+			"type": "Comment",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c902" },
+			"content": "Comment này sử dụng ngôn từ thô tục, xúc phạm tác giả",
+			"status": "pending",
+			"createdAt": { "$date": "2025-03-15T10:15:00Z" },
+			"updatedAt": { "$date": "2025-03-15T10:15:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c916" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
+			"type": "Comment",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c903" },
+			"content": "Comment này spoiler nội dung truyện, làm mất trải nghiệm của người đọc",
+			"status": "pending",
+			"createdAt": { "$date": "2025-03-15T10:50:00Z" },
+			"updatedAt": { "$date": "2025-03-15T10:50:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c917" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
+			"type": "Story",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e3" },
+			"content": "Truyện này đạo văn, tôi đã đọc ở web khác rồi",
+			"status": "failed",
+			"resolvedAt": { "$date": "2025-03-14T00:00:00Z" },
+			"resolvedBy": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
+			"createdAt": { "$date": "2025-03-13T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-14T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c918" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d4" },
+			"type": "Comment",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c904" },
+			"content": "Comment này không phù hợp",
+			"status": "success",
+			"resolvedAt": { "$date": "2025-03-14T12:00:00Z" },
+			"resolvedBy": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d2" },
+			"createdAt": { "$date": "2025-03-13T12:00:00Z" },
+			"updatedAt": { "$date": "2025-03-14T12:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c919" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d5" },
+			"type": "Chapter",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9f3" },
+			"content": "Chương này chứa link cá cược, cờ bạc",
+			"status": "success",
+			"resolvedAt": { "$date": "2025-03-15T08:00:00Z" },
+			"resolvedBy": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
+			"createdAt": { "$date": "2025-03-15T03:00:00Z" },
+			"updatedAt": { "$date": "2025-03-15T08:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c920" },
+			"userId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d3" },
+			"type": "Story",
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9e4" },
+			"content": "Truyện này trùng lặp với truyện 'Tổng Tài Lạnh Lùng' đã có trên hệ thống",
+			"status": "pending",
+			"createdAt": { "$date": "2025-03-15T10:55:00Z" },
+			"updatedAt": { "$date": "2025-03-15T10:55:00Z" }
+		}
+	],
+	"reportLogs": [
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c921" },
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c917" },
+			"adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
+			"action": "dismiss",
+			"note": "Không tìm thấy bằng chứng đạo văn, truyện là nguyên gốc",
+			"metadata": {},
+			"createdAt": { "$date": "2025-03-14T00:00:00Z" },
+			"updatedAt": { "$date": "2025-03-14T00:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c922" },
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c918" },
+			"adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d2" },
+			"action": "acknowledge",
+			"note": "Đã xem xét, comment không vi phạm",
+			"metadata": {},
+			"createdAt": { "$date": "2025-03-14T12:00:00Z" },
+			"updatedAt": { "$date": "2025-03-14T12:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c923" },
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c919" },
+			"adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
+			"action": "acknowledge",
+			"note": "Xác nhận chương vi phạm, đã xóa chương và cảnh cáo tác giả",
+			"metadata": {
+				"chapterDeleted": true
+			},
+			"createdAt": { "$date": "2025-03-15T08:00:00Z" },
+			"updatedAt": { "$date": "2025-03-15T08:00:00Z" }
+		},
+		{
+			"_id": { "$oid": "67d5a1b2c3d4e5f6a7b8c924" },
+			"reportId": { "$oid": "67d5a1b2c3d4e5f6a7b8c919" },
+			"adminId": { "$oid": "67d5a1b2c3d4e5f6a7b8c9d1" },
+			"action": "delete_chapter",
+			"note": "Xóa chương vì chứa link cá cược",
+			"metadata": {
+				"chapterDeleted": true
+			},
+			"createdAt": { "$date": "2025-03-15T08:00:00Z" },
+			"updatedAt": { "$date": "2025-03-15T08:00:00Z" }
+		}
+	]
 }

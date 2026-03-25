@@ -1,8 +1,8 @@
 import { Router } from "express";
 import {
-  getTopAuthors,
-  getTopStories,
-  getTopUsers,
+	getTopAuthors,
+	getTopStories,
+	getTopUsers,
 } from "../controllers/rankingController";
 
 const rankingRoutes = Router();
