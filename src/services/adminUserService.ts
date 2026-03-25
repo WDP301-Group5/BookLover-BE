@@ -233,14 +233,14 @@ class AdminUserService {
 			...user,
 			auth: auth
 				? {
-					username: auth.username,
-					email: auth.email,
-					provider: auth.provider,
-					providerUserId: auth.providerUserId,
-					lastLoginAt: auth.lastLoginAt,
-					createdAt: auth.createdAt,
-					updatedAt: auth.updatedAt,
-				}
+						username: auth.username,
+						email: auth.email,
+						provider: auth.provider,
+						providerUserId: auth.providerUserId,
+						lastLoginAt: auth.lastLoginAt,
+						createdAt: auth.createdAt,
+						updatedAt: auth.updatedAt,
+					}
 				: null,
 		};
 	}
@@ -275,7 +275,11 @@ class AdminUserService {
 			throw new Error("Không dùng API update chung để ban user");
 		}
 
-		if (String(existingUser._id) === adminId && sanitized.role && sanitized.role !== "admin") {
+		if (
+			String(existingUser._id) === adminId &&
+			sanitized.role &&
+			sanitized.role !== "admin"
+		) {
 			throw new Error("Admin không thể tự đổi role của chính mình");
 		}
 

@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 export interface IAIAnalysis {
 	_id: mongoose.Types.ObjectId;
-	chapterId: mongoose.Types.ObjectId;
+	chapterId?: mongoose.Types.ObjectId;
+	storyId?: mongoose.Types.ObjectId;
 	perspectiveScores?: {
 		toxicity?: number;
 		sexuallyExplicit?: number;
@@ -14,19 +15,19 @@ export interface IAIAnalysis {
 	geminiDecision?: {
 		decision: "APPROVE" | "FLAG" | "REJECT";
 		scores: {
-			toxicity: number;
-			sexual: number;
-			violence: number;
-			political: number;
+			toxicity?: number;
+			sexual?: number;
+			violence?: number;
+			political?: number;
+			inappropriateName?: number;
+			inappropriateDescription?: number;
+			inappropriateGenre?: number;
+			overallRisk?: number;
 		};
 		reasons: string[];
 		warnings?: string[];
 	};
-	finalDecision:
-		| "auto-approved"
-		| "flagged"
-		| "auto-rejected"
-		| "hard-filter-rejected";
+	finalDecision: "safe" | "review" | "risky" | "hard-filter-rejected";
 	reasons: string[];
 	processedAt: Date;
 	createdAt: Date;

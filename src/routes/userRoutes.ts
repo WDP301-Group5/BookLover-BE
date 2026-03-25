@@ -1,9 +1,14 @@
 import express from "express";
-import { addNewReadingHistory, deleteHistory, getReadingHistoryByStory } from "../controllers/readingHistoryController";
 import {
+	addNewReadingHistory,
+	deleteHistory,
+	getReadingHistoryByStory,
+} from "../controllers/readingHistoryController";
+import {
+	changePasswordController,
+	getCommentHistory,
 	getFollowers,
 	getFollowing,
-	getCommentHistory,
 	getLast3History,
 	getProfile,
 	getPublicProfile,
@@ -14,7 +19,6 @@ import {
 	searchUsers,
 	toggleFollowProfile,
 	updateProfile,
-	changePasswordController,
 } from "../controllers/userController";
 import { checkToken, verifyToken } from "../middleware/auth";
 import { uploadAvatarAndBackground } from "../middleware/upload";
@@ -30,14 +34,18 @@ userRouter.get("/history/comment", checkToken, getCommentHistory);
 userRouter.get("/history/review", checkToken, getReviewHistory);
 userRouter.get("/history/recharge", checkToken, getRechargeHistory);
 userRouter.get("/history/purchase", checkToken, getPurchaseHistory);
-userRouter.get("/history/reading/:storyId", checkToken, getReadingHistoryByStory);
+userRouter.get(
+	"/history/reading/:storyId",
+	checkToken,
+	getReadingHistoryByStory,
+);
 
 userRouter.get("/profile", verifyToken, getProfile);
 userRouter.put(
-  "/profile",
-  verifyToken,
-  uploadAvatarAndBackground,
-  updateProfile,
+	"/profile",
+	verifyToken,
+	uploadAvatarAndBackground,
+	updateProfile,
 );
 userRouter.get("/search", checkToken, searchUsers);
 userRouter.post("/change-password", verifyToken, changePasswordController);

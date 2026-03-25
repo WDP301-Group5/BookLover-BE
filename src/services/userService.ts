@@ -1,10 +1,10 @@
 import mongoose, { Types } from "mongoose";
 import type { IUpdateUserData, IUser } from "../interfaces/user.js";
-import { ReadingHistory } from "../models/ReadingHistory.js";
-import { User } from "../models/User.js";
-import { Story } from "../models/Story.js";
-import { FollowAuthor } from "../models/FollowAuthor.js";
 import { Chapter } from "../models/Chapter.js";
+import { FollowAuthor } from "../models/FollowAuthor.js";
+import { ReadingHistory } from "../models/ReadingHistory.js";
+import { Story } from "../models/Story.js";
+import { User } from "../models/User.js";
 import notificationService from "./notificationService.js";
 
 const PUBLIC_PROFILE_FIELDS =
@@ -66,7 +66,7 @@ const UserService = {
         status: "follow",
       }),
       Story.countDocuments({
-          authorId: userId,
+        authorId: userId,
       }),
     ]);
 
@@ -162,7 +162,11 @@ const UserService = {
       .select("_id username penName fullName role avatarURL")
       .lean();
 
-    if (!currentUserId || !Types.ObjectId.isValid(currentUserId) || users.length === 0) {
+    if (
+      !currentUserId ||
+      !Types.ObjectId.isValid(currentUserId) ||
+      users.length === 0
+    ) {
       return users.map((user: any) => ({
         ...user,
         relationship: {
@@ -197,11 +201,11 @@ const UserService = {
           isFollowing: true,
           notificationEnabled: doc.status === "follow",
         },
-      ])
+      ]),
     );
 
     const reverseFollowMap = Object.fromEntries(
-      reverseFollowDocs.map((doc) => [doc.userId.toString(), true])
+      reverseFollowDocs.map((doc) => [doc.userId.toString(), true]),
     );
 
     return users.map((user: any) => {
@@ -211,7 +215,9 @@ const UserService = {
 
       const amIFollowing = isSelf ? false : !!myFollowInfo?.isFollowing;
       const followsMe = isSelf ? false : !!reverseFollowMap[userId];
-      const notificationEnabled = isSelf ? false : !!myFollowInfo?.notificationEnabled;
+      const notificationEnabled = isSelf
+        ? false
+        : !!myFollowInfo?.notificationEnabled;
 
       return {
         ...user,
@@ -226,7 +232,10 @@ const UserService = {
     });
   },
 
-  async getPublicProfile(currentUserId: string | undefined, profileUserId: string) {
+  async getPublicProfile(
+    currentUserId: string | undefined,
+    profileUserId: string,
+  ) {
     if (!Types.ObjectId.isValid(profileUserId)) {
       throw new Error("Invalid user ID");
     }
@@ -241,7 +250,7 @@ const UserService = {
 
     const stories = await Story.find({ authorId: profileUserId })
       .select(
-        "title slug image description views stars rates followers isPremium isFinish createdAt updatedAt"
+        "title slug image description views stars rates followers isPremium isFinish createdAt updatedAt",
       )
       .lean();
 
@@ -249,7 +258,9 @@ const UserService = {
 
     const chapterCounts = await Chapter.aggregate([
       { $match: { storyId: { $in: storyIds }, status: "active" } },
-      { $group: { _id: "$storyId", chapterNumber: { $max: "$chapterNumber" } } },
+      {
+        $group: { _id: "$storyId", chapterNumber: { $max: "$chapterNumber" } },
+      },
     ]);
 
     const chapterMap: Record<string, number> = {};
@@ -316,7 +327,10 @@ const UserService = {
   },
 
   async toggleFollow(userId: string, targetUserId: string) {
-    if (!Types.ObjectId.isValid(userId) || !Types.ObjectId.isValid(targetUserId)) {
+    if (
+      !Types.ObjectId.isValid(userId) ||
+      !Types.ObjectId.isValid(targetUserId)
+    ) {
       throw new Error("Invalid user ID");
     }
 
@@ -340,7 +354,10 @@ const UserService = {
 
       await session.withTransaction(async () => {
         const [currentUser, targetUser] = await Promise.all([
-          User.findById(userId).select("username fullName").session(session).lean(),
+          User.findById(userId)
+            .select("username fullName")
+            .session(session)
+            .lean(),
           User.findById(targetUserId).select("_id").session(session).lean(),
         ]);
 
@@ -524,7 +541,7 @@ const UserService = {
     ]);
 
     const followersMap = Object.fromEntries(
-      followers.map((f) => [f._id.toString(), f])
+      followers.map((f) => [f._id.toString(), f]),
     );
 
     const orderedFollowers = followerIds
@@ -564,11 +581,11 @@ const UserService = {
     ]);
 
     const followersCountMap = Object.fromEntries(
-      followersAgg.map((item) => [item._id.toString(), item.count])
+      followersAgg.map((item) => [item._id.toString(), item.count]),
     );
 
     const followingCountMap = Object.fromEntries(
-      followingAgg.map((item) => [item._id.toString(), item.count])
+      followingAgg.map((item) => [item._id.toString(), item.count]),
     );
 
     orderedFollowers.forEach((follower: any) => {
@@ -592,11 +609,11 @@ const UserService = {
       ]);
 
       const viewerFollowMap = Object.fromEntries(
-        viewerFollowDocs.map((f) => [f.authorId.toString(), true])
+        viewerFollowDocs.map((f) => [f.authorId.toString(), true]),
       );
 
       const reverseFollowMap = Object.fromEntries(
-        reverseFollowDocs.map((f) => [f.userId.toString(), true])
+        reverseFollowDocs.map((f) => [f.userId.toString(), true]),
       );
 
       orderedFollowers.forEach((follower: any) => {
@@ -709,7 +726,7 @@ const UserService = {
     ]);
 
     const followingMap = Object.fromEntries(
-      following.map((f) => [f._id.toString(), f])
+      following.map((f) => [f._id.toString(), f]),
     );
 
     const orderedFollowing = followingIds
@@ -749,11 +766,11 @@ const UserService = {
     ]);
 
     const followersCountMap = Object.fromEntries(
-      followersAgg.map((item) => [item._id.toString(), item.count])
+      followersAgg.map((item) => [item._id.toString(), item.count]),
     );
 
     const followingCountMap = Object.fromEntries(
-      followingAgg.map((item) => [item._id.toString(), item.count])
+      followingAgg.map((item) => [item._id.toString(), item.count]),
     );
 
     orderedFollowing.forEach((targetUser: any) => {
@@ -777,11 +794,11 @@ const UserService = {
       ]);
 
       const viewerFollowMap = Object.fromEntries(
-        viewerFollowDocs.map((f) => [f.authorId.toString(), true])
+        viewerFollowDocs.map((f) => [f.authorId.toString(), true]),
       );
 
       const reverseFollowMap = Object.fromEntries(
-        reverseFollowDocs.map((f) => [f.userId.toString(), true])
+        reverseFollowDocs.map((f) => [f.userId.toString(), true]),
       );
 
       orderedFollowing.forEach((targetUser: any) => {
@@ -856,8 +873,11 @@ const UserService = {
   },
 
   async updateUserOffline(userId: string) {
-    await User.updateOne({ _id: userId }, { online: new Date().getTime().toString() });
-  }
+    await User.updateOne(
+      { _id: userId },
+      { online: new Date().getTime().toString() },
+    );
+  },
 };
 
 export default UserService;

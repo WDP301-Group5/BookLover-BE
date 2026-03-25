@@ -2,61 +2,61 @@
 import { Router } from "express";
 import * as chapterController from "../controllers/chapterController";
 import { checkToken, verifyToken } from "../middleware/auth";
-import { uploadTextFile, uploadMultipleTextFiles } from "../middleware/upload";
+import { uploadMultipleTextFiles, uploadTextFile } from "../middleware/upload";
 
 const chapterRouter = Router();
 
 chapterRouter.post(
-  "/testfile",
-  uploadTextFile,
-  chapterController.testFileUpload,
+	"/testfile",
+	uploadTextFile,
+	chapterController.testFileUpload,
 );
 chapterRouter.post("/buy/:chapterId", checkToken, chapterController.buyChapter);
 
 // Single chapter creation
 chapterRouter.post(
-  "/",
-  verifyToken,
-  uploadTextFile,
-  chapterController.createChapter,
+	"/",
+	verifyToken,
+	uploadTextFile,
+	chapterController.createChapter,
 );
 
 // Batch chapters creation - must come BEFORE generic routes
 chapterRouter.post(
-  "/batch",
-  verifyToken,
-  uploadMultipleTextFiles,
-  chapterController.createChaptersBatch,
+	"/batch",
+	verifyToken,
+	uploadMultipleTextFiles,
+	chapterController.createChaptersBatch,
 );
 
 // Route order matters - more specific routes must come BEFORE generic ones
 chapterRouter.get(
-  "/story/:storySlug/chapter/:chapterNumber",
-  checkToken,
-  chapterController.getChapterByChapterNumber,
+	"/story/:storySlug/chapter/:chapterNumber",
+	checkToken,
+	chapterController.getChapterByChapterNumber,
 );
 chapterRouter.get("/story/:storyId", chapterController.getChaptersByStory);
 chapterRouter.get(
-  "/author/story/:storyId",
-  verifyToken,
-  chapterController.getChaptersByStoryForAuthor,
+	"/author/story/:storyId",
+	verifyToken,
+	chapterController.getChaptersByStoryForAuthor,
 );
 chapterRouter.put(
-  "/publish/:storyId",
-  verifyToken,
-  chapterController.publishStoryChapters,
+	"/publish/:storyId",
+	verifyToken,
+	chapterController.publishStoryChapters,
 );
 chapterRouter.patch(
-  "/:id/review",
-  verifyToken,
-  chapterController.submitChapterForReview,
+	"/:id/review",
+	verifyToken,
+	chapterController.submitChapterForReview,
 );
 chapterRouter.get("/:id", verifyToken, chapterController.getChapterById);
 chapterRouter.put(
-  "/:id",
-  verifyToken,
-  uploadTextFile,
-  chapterController.updateChapter,
+	"/:id",
+	verifyToken,
+	uploadTextFile,
+	chapterController.updateChapter,
 );
 chapterRouter.delete("/:id", verifyToken, chapterController.deleteChapter);
 

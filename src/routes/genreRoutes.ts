@@ -1,7 +1,7 @@
 import express from "express";
 import * as genreController from "../controllers/genreController.js";
-import { uploadGenreAvatar } from "../middleware/upload.js";
 import { getGenres } from "../controllers/genresController.js";
+import { uploadGenreAvatar } from "../middleware/upload.js";
 
 const genreRouter = express.Router();
 

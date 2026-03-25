@@ -1,9 +1,9 @@
 import express from "express";
-import { checkToken } from "../middleware/auth";
 import {
-  getUserReactReviews,
-  userReactReview,
+	getUserReactReviews,
+	userReactReview,
 } from "../controllers/reactReviewController";
+import { checkToken } from "../middleware/auth";
 
 const reactReviewRouter = express.Router();
 

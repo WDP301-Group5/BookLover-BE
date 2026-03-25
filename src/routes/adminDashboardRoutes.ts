@@ -3,9 +3,6 @@ import { AdminDashboardController } from "../controllers/adminDashboardControlle
 
 const adminDashboardRoutes = express.Router();
 
-adminDashboardRoutes.get(
-  "/overview",
-  AdminDashboardController.getOverview
-);
+adminDashboardRoutes.get("/overview", AdminDashboardController.getOverview);
 
 export default adminDashboardRoutes;

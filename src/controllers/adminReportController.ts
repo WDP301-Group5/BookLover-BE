@@ -1,14 +1,14 @@
 import type { Request, Response } from "express";
 import AdminReportService from "../services/adminReportService.js";
 import {
-    acknowledgeReportSchema,
-    banStorySchema,
-    banUserSchema,
-    deleteChapterSchema,
-    deleteCommentSchema,
-    dismissReportSchema,
-    getReportsQuerySchema,
-    warnUserSchema,
+	acknowledgeReportSchema,
+	banStorySchema,
+	banUserSchema,
+	deleteChapterSchema,
+	deleteCommentSchema,
+	dismissReportSchema,
+	getReportsQuerySchema,
+	warnUserSchema,
 } from "../utils/adminReportValidation.js";
 
 /**
@@ -268,11 +268,7 @@ export const deleteChapter = async (
 			return;
 		}
 
-		const chapter = await AdminReportService.deleteChapter(
-			id,
-			adminId,
-			reason,
-		);
+		const chapter = await AdminReportService.deleteChapter(id, adminId, reason);
 
 		res.json({
 			success: true,
@@ -333,11 +329,7 @@ export const deleteComment = async (
 			return;
 		}
 
-		const comment = await AdminReportService.deleteComment(
-			id,
-			adminId,
-			reason,
-		);
+		const comment = await AdminReportService.deleteComment(id, adminId, reason);
 
 		res.json({
 			success: true,

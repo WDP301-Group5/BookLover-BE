@@ -1,13 +1,15 @@
 import express from "express";
 import {
-  approveStory,
-  banStory,
-  getManagedStories,
-  getPendingStories,
-  getStoryCensorLog,
-  getStoryChapters,
-  rejectStory,
-  unbanStory,
+	analyzeStory,
+	approveStory,
+	banStory,
+	getManagedStories,
+	getPendingStories,
+	getStoryAIAnalysis,
+	getStoryCensorLog,
+	getStoryChapters,
+	rejectStory,
+	unbanStory,
 } from "../controllers/adminStoryCensorController.js";
 
 const adminStoryCensorRouter = express.Router();
@@ -20,5 +22,7 @@ adminStoryCensorRouter.post("/:id/reject", rejectStory);
 adminStoryCensorRouter.post("/:id/ban", banStory);
 adminStoryCensorRouter.post("/:id/unban", unbanStory);
 adminStoryCensorRouter.get("/:id/logs", getStoryCensorLog);
+adminStoryCensorRouter.post("/:id/analyze", analyzeStory);
+adminStoryCensorRouter.get("/:id/ai-analysis", getStoryAIAnalysis);
 
 export default adminStoryCensorRouter;

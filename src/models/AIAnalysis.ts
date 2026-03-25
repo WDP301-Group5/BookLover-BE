@@ -6,7 +6,10 @@ const aiAnalysisSchema = new mongoose.Schema(
 		chapterId: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Chapter",
-			required: true,
+		},
+		storyId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Story",
 		},
 		perspectiveScores: {
 			toxicity: Number,
@@ -29,12 +32,7 @@ const aiAnalysisSchema = new mongoose.Schema(
 		},
 		finalDecision: {
 			type: String,
-			enum: [
-				"auto-approved",
-				"flagged",
-				"auto-rejected",
-				"hard-filter-rejected",
-			],
+			enum: ["safe", "review", "risky", "hard-filter-rejected"],
 			required: true,
 		},
 		reasons: [String],
@@ -49,6 +47,7 @@ const aiAnalysisSchema = new mongoose.Schema(
 );
 
 aiAnalysisSchema.index({ chapterId: 1 });
+aiAnalysisSchema.index({ storyId: 1 });
 aiAnalysisSchema.index({ processedAt: -1 });
 aiAnalysisSchema.index({ finalDecision: 1 });
 

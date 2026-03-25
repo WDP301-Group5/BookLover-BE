@@ -41,4 +41,7 @@ const reportLogSchema = new mongoose.Schema(
 // Index for efficient querying by reportId
 reportLogSchema.index({ reportId: 1, createdAt: -1 });
 
-export const ReportLog = mongoose.model<IReportLog>("ReportLog", reportLogSchema);
+export const ReportLog = mongoose.model<IReportLog>(
+	"ReportLog",
+	reportLogSchema,
+);

@@ -15,12 +15,7 @@ const overrideFeedbackSchema = new mongoose.Schema(
 		},
 		originalAIDecision: {
 			type: String,
-			enum: [
-				"auto-approved",
-				"flagged",
-				"auto-rejected",
-				"hard-filter-rejected",
-			],
+			enum: ["safe", "review", "risky", "hard-filter-rejected"],
 			required: true,
 		},
 		finalDecision: {

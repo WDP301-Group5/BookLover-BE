@@ -1,22 +1,22 @@
 import express from "express";
 import {
-  createAdmin,
-  deleteAdmin,
-  deleteManyAdmins,
-  getAdminById,
-  getAllAdmins,
-  updateAdmin,
+	createAdmin,
+	deleteAdmin,
+	deleteManyAdmins,
+	getAdminById,
+	getAllAdmins,
+	updateAdmin,
 } from "../controllers/adminController.js";
 
 import { requireAdmin } from "../middleware/rbac.js";
 
 import adminBannedKeywordRouter from "./adminBannedKeywordRoutes.js";
 import adminChapterCensorRouter from "./adminChapterCensorRoutes.js";
+import adminDashboardRoutes from "./adminDashboardRoutes.js";
 import adminReportRouter from "./adminReportRoutes.js";
 import adminStoryCensorRouter from "./adminStoryCensorRoutes.js";
-import adminUserRouter from "./adminUserRoutes.js";
 import adminTransactionRouter from "./adminTransactionRouter.js";
-import adminDashboardRoutes from "./adminDashboardRoutes.js";
+import adminUserRouter from "./adminUserRoutes.js";
 
 const adminRouter = express.Router();
 

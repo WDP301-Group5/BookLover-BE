@@ -50,7 +50,11 @@ class AdminUserController {
 				return;
 			}
 
-			const data = await adminUserService.updateUser(id, req.body, req.user.userId);
+			const data = await adminUserService.updateUser(
+				id,
+				req.body,
+				req.user.userId,
+			);
 
 			res.status(200).json({
 				message: "Cập nhật user thành công",
@@ -73,7 +77,11 @@ class AdminUserController {
 				return;
 			}
 
-			const data = await adminUserService.banUser(id, req.user.userId, banReason);
+			const data = await adminUserService.banUser(
+				id,
+				req.user.userId,
+				banReason,
+			);
 
 			res.status(200).json({
 				message: "Khóa user thành công",
@@ -144,7 +152,11 @@ class AdminUserController {
 				return;
 			}
 
-			const data = await adminUserService.updateUserRole(id, role, req.user.userId);
+			const data = await adminUserService.updateUserRole(
+				id,
+				role,
+				req.user.userId,
+			);
 
 			res.status(200).json({
 				message: "Cập nhật role thành công",
