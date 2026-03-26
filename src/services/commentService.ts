@@ -1,4 +1,5 @@
 import { Comment } from "../models/Comment";
+import notificationService from "./notificationService";
 
 const CommentService = {
 	async getCommentsByChapter(
@@ -93,6 +94,15 @@ const CommentService = {
 			};
 			const comment = await Comment.create(data);
 			await Comment.updateOne({ _id: commentId }, { $inc: { replyCount: 1 } });
+			
+			await notificationService.notifyCommentReplied({
+				fromUserId: userId,
+				toUserId: parentComment.userId.toString(),
+				commentId: parentComment._id.toString(),
+				chapterId: parentComment.chapterId.toString(),
+				content,
+			});
+
 			return comment;
 		} catch (error) {
 			throw new Error(`Có lỗi xảy ra khi trả lời bình luận: ${error}`);

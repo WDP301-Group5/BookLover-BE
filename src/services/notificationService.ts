@@ -13,7 +13,8 @@ type NotificationPayload = {
 		| "chapter_rejected"
 		| "new_chapter_from_followed_story"
 		| "forum_post_commented"
-		| "forum_post_reacted";
+		| "forum_post_reacted"
+		| "comment_replied";
 	title: string;
 	content: string;
 	data?: Record<string, any>;
@@ -346,6 +347,32 @@ class NotificationService {
 				forumPostId,
 				forumCategoryId,
 				react,
+			},
+		});
+	}
+
+	async notifyCommentReplied(params: {
+		fromUserId: string;
+		toUserId: string;
+		commentId: string;
+		chapterId: string;
+		content?: string;
+	}) {
+		const { fromUserId, toUserId, commentId, chapterId, content } = params;
+
+		if (String(fromUserId) === String(toUserId)) return null;
+
+		return await this.createNotification({
+			from: fromUserId,
+			to: toUserId,
+			type: "comment_replied",
+			title: "Bình luận của bạn có trả lời mới",
+			content: content
+				? `Có người vừa trả lời bình luận của bạn: "${content.slice(0, 80)}"`
+				: "Có người vừa trả lời bình luận của bạn.",
+			data: {
+				commentId,
+				chapterId,
 			},
 		});
 	}
