@@ -543,7 +543,9 @@ const StoryService = {
       if (story.status !== "active") {
         const storyAuthorId = (story.authorId as any)?._id?.toString();
         if (!userId || storyAuthorId !== userId) {
-          throw new Error("Story not found"); // Treat as not found for non-authors
+          const error = new Error("STORY_HIDDEN_BY_AUTHOR");
+          (error as any).code = "STORY_HIDDEN_BY_AUTHOR";
+          throw error;
         }
       }
 
@@ -564,7 +566,7 @@ const StoryService = {
           : null,
       };
     } catch (error) {
-      throw new Error(`Error fetching story by slug: ${error}`);
+      throw error;
     }
   },
 
@@ -977,7 +979,9 @@ const StoryService = {
       if (story.status !== "active") {
         const storyAuthorId = (story.authorId as any)?._id?.toString();
         if (!userId || storyAuthorId !== userId) {
-          throw new Error("Story not found"); // Treat as not found for non-authors
+          const error = new Error("STORY_HIDDEN_BY_AUTHOR");
+          (error as any).code = "STORY_HIDDEN_BY_AUTHOR";
+          throw error;
         }
       }
 
