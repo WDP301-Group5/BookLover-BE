@@ -3,7 +3,7 @@ export interface IWithdraw {
     userId: string;
     phoneNumber: string;
     amount: number;
-    status: "pending" | "success" | "failed" | "canceled";
+    status: "pending" | "success" | "failed" | "cancelled";
     createdAt?: Date;
     updatedAt?: Date;
 }

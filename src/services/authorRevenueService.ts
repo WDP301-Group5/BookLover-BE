@@ -88,6 +88,7 @@ const AuthorRevenueService = {
         {
           $match: {
             userId: userObjectId,
+            status: "success",
           },
         },
         {
