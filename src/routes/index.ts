@@ -21,6 +21,7 @@ import storyRouter from "./storyRoutes.js";
 import topicRouter from "./topicRoutes.js";
 import uploadRouter from "./uploadRoutes.js";
 import userRouter from "./userRoutes.js";
+import authorRevenueRouter from "./authorRevenueRoutes.js";
 
 const routes = express.Router();
 
@@ -45,5 +46,6 @@ routes.use("/forum", forumRouter);
 routes.use("/review", reviewRoutes);
 routes.use("/react/review", reactReviewRouter);
 routes.use("/reading-list", readingListRouter);
+routes.use("/author-revenue", authorRevenueRouter);
 
 export default routes;
